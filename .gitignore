@@ -1,0 +1,19 @@
+# Build directories
+build/
+
+# GBA binaries and saves
+*.gba
+*.elf
+*.sav
+
+# Visual Studio files
+.vs/
+*.user
+
+# Python
+__pycache__/
+*.pyc
+
+# Logs and scratch
+build_log*.txt
+update_vcxproj.py

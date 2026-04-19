@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{AABB1234-CCDD-EEFF-0011-223344556677}</ProjectGuid>
+    <Keyword>MakeFileProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <NMakeBuildCommandLine>cmd.exe /c "set PATH=C:\devkitPro\msys2\usr\bin;%PATH% &amp; make -j8 -C C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn 2&gt;&amp;1"</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>cmd.exe /c "set PATH=C:\devkitPro\msys2\usr\bin;%PATH% &amp; make -C C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn clean &amp; make -j8 -C C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn 2&gt;&amp;1"</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>cmd.exe /c "set PATH=C:\devkitPro\msys2\usr\bin;%PATH% &amp; make -C C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn clean 2&gt;&amp;1"</NMakeCleanCommandLine>
+    <NMakeOutput>gba-sokoban-bn.gba</NMakeOutput>
+    <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <NMakeIncludeSearchPath>C:\Users\ryota\.gemini\antigravity\scratch\butano\include;C:\devkitPro\libgba\include;C:\devkitPro\devkitARM\arm-none-eabi\include;include;src;src\state;src\game;src\gfx;src\audio;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+    <LocalDebuggerCommand>C:\Program Files\mGBA\mGBA.exe</LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments>$(ProjectDir)gba-sokoban-bn.gba</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <NMakeBuildCommandLine>cmd.exe /c "set PATH=C:\devkitPro\msys2\usr\bin;%PATH% &amp; make -j8 -C C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn 2&gt;&amp;1"</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>cmd.exe /c "set PATH=C:\devkitPro\msys2\usr\bin;%PATH% &amp; make -C C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn clean &amp; make -j8 -C C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn 2&gt;&amp;1"</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>cmd.exe /c "set PATH=C:\devkitPro\msys2\usr\bin;%PATH% &amp; make -C C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn clean 2&gt;&amp;1"</NMakeCleanCommandLine>
+    <NMakeOutput>gba-sokoban-bn.gba</NMakeOutput>
+    <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <NMakeIncludeSearchPath>C:\Users\ryota\.gemini\antigravity\scratch\butano\include;C:\devkitPro\libgba\include;C:\devkitPro\devkitARM\arm-none-eabi\include;include;src;src\state;src\game;src\gfx;src\audio;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+    <LocalDebuggerCommand>C:\Program Files\mGBA\mGBA.exe</LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments>$(ProjectDir)gba-sokoban-bn.gba</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="Makefile" />
+  </ItemGroup>
+  
+  
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\audio\sound_manager.cpp" />
+    <ClCompile Include="src\game\puzzle_gen.cpp" />
+    <ClCompile Include="src\game\sokoban.cpp" />
+    <ClCompile Include="src\gfx\hud.cpp" />
+    <ClCompile Include="src\gfx\renderer.cpp" />
+    <ClCompile Include="src\save\save_data.cpp" />
+    <ClCompile Include="src\state\debug_state.cpp" />
+    <ClCompile Include="src\state\endless_state.cpp" />
+    <ClCompile Include="src\state\event_state.cpp" />
+    <ClCompile Include="src\state\gallery_state.cpp" />
+    <ClCompile Include="src\state\menu_state.cpp" />
+    <ClCompile Include="src\state\practice_menu_state.cpp" />
+    <ClCompile Include="src\state\puzzle_state.cpp" />
+    <ClCompile Include="src\state\save_select_state.cpp" />
+    <ClCompile Include="src\state\settings_state.cpp" />
+    <ClCompile Include="src\state\state_manager.cpp" />
+    <ClCompile Include="src\state\title_state.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\audio\sound_manager.h" />
+    <ClInclude Include="src\game\event_script.h" />
+    <ClInclude Include="src\game\levels.h" />
+    <ClInclude Include="src\game\puzzle_gen.h" />
+    <ClInclude Include="src\game\sokoban.h" />
+    <ClInclude Include="src\game\story_data.h" />
+    <ClInclude Include="src\gfx\hud.h" />
+    <ClInclude Include="src\gfx\renderer.h" />
+    <ClInclude Include="src\save\save_data.h" />
+    <ClInclude Include="src\state\debug_state.h" />
+    <ClInclude Include="src\state\endless_state.h" />
+    <ClInclude Include="src\state\event_state.h" />
+    <ClInclude Include="src\state\gallery_state.h" />
+    <ClInclude Include="src\state\menu_state.h" />
+    <ClInclude Include="src\state\practice_menu_state.h" />
+    <ClInclude Include="src\state\puzzle_state.h" />
+    <ClInclude Include="src\state\save_select_state.h" />
+    <ClInclude Include="src\state\settings_state.h" />
+    <ClInclude Include="src\state\state.h" />
+    <ClInclude Include="src\state\state_manager.h" />
+    <ClInclude Include="src\state\title_state.h" />
+    <ClInclude Include="include\common_fixed_8x16_sprite_font.h" />
+    <ClInclude Include="include\common_fixed_8x8_sprite_font.h" />
+    <ClInclude Include="include\japanese_sprite_font.h" />
+  </ItemGroup>
+</Project>
