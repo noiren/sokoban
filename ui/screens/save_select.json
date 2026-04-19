@@ -1,0 +1,34 @@
+{
+  "screen": "save_select",
+  "comment": "セーブデータ選択画面レイアウト",
+  "layers": {
+    "bg": {
+      "image_id": "",
+      "scroll_x": 0,
+      "scroll_y": 0
+    }
+  },
+  "sprites": [],
+  "texts": [
+    {
+      "id": "title_label",
+      "text": "セーブデータを選んでください",
+      "x": 0,
+      "y": -56,
+      "h_align": "center",
+      "blink": false,
+      "blink_interval": 0,
+      "visible": true
+    },
+    {
+      "id": "hint_label",
+      "text": "A: 選択  B: タイトルへ",
+      "x": 0,
+      "y": 60,
+      "h_align": "center",
+      "blink": false,
+      "blink_interval": 0,
+      "visible": true
+    }
+  ]
+}

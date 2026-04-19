@@ -1,0 +1,24 @@
+{
+  "screen": "title",
+  "comment": "タイトル画面レイアウト",
+  "layers": {
+    "bg": {
+      "image_id": "bg_title",
+      "scroll_x": 0,
+      "scroll_y": 0
+    }
+  },
+  "sprites": [],
+  "texts": [
+    {
+      "id": "press_start",
+      "text": "PRESS START",
+      "x": 0,
+      "y": 48,
+      "h_align": "center",
+      "blink": true,
+      "blink_interval": 30,
+      "visible": true
+    }
+  ]
+}

@@ -6,6 +6,7 @@
 #include "bn_sprite_ptr.h"
 #include "bn_vector.h"
 #include "bn_optional.h"
+#include "../gfx/ui_manager.h"
 
 // 起動シーケンス全フェーズ
 // EPID_LOGO     : "produced by EPID GAMES" ロゴ表示
@@ -53,6 +54,7 @@ private:
     int frame_counter_;
     int blink_counter_;
     bn::vector<bn::sprite_ptr, 64> sprites_;
+    UIManager ui_manager_;
 };
 
 #endif // TITLE_STATE_H

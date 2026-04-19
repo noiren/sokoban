@@ -18,7 +18,8 @@ TitleState::TitleState(bn::sprite_text_generator& text_gen)
     : text_gen_(text_gen),
       phase_(TitlePhase::EPID_LOGO_FADEIN),
       frame_counter_(0),
-      blink_counter_(0) {
+      blink_counter_(0),
+      ui_manager_(text_gen) {
 }
 
 void TitleState::init(StateManager& /*manager*/) {
@@ -26,6 +27,7 @@ void TitleState::init(StateManager& /*manager*/) {
     frame_counter_ = 0;
     blink_counter_ = 0;
     clear_sprites();
+    ui_manager_.set_bg(BgImageID::LOGO);
 
     // 黒画面から開始
     bn::bg_palettes::set_fade(bn::color(0, 0, 0), 1);
@@ -67,11 +69,8 @@ bool TitleState::fade_out(int duration) {
 // ==========================================
 
 void TitleState::draw_epid_logo() {
+    // UIManagerが背景を管理するため、ここではテキストのみ（必要なら）
     clear_sprites();
-    text_gen_.set_center_alignment();
-    // TODO: 今後 BMP スプライト / BGに差し替える
-    text_gen_.generate(0, -8, "produced by", sprites_);
-    text_gen_.generate(0,  8, "EPID GAMES",  sprites_);
 }
 
 void TitleState::draw_doujin_notice() {
@@ -93,10 +92,8 @@ void TitleState::draw_autosave_warn() {
 }
 
 void TitleState::draw_title() {
+    // 常に背景(TITLE)が出ているため、テキストが不要ならクリアのみ
     clear_sprites();
-    text_gen_.set_center_alignment();
-    // TODO: 今後タイトル画像（タイトル.png）に差し替える
-    text_gen_.generate(0, -32, "ｽﾋﾟｷとマヨの倉庫番", sprites_);
 }
 
 void TitleState::clear_sprites() {
@@ -131,6 +128,7 @@ void TitleState::update(StateManager& manager) {
         case TitlePhase::EPID_LOGO_FADEOUT:
             if (fade_out(FADE_FRAMES)) {
                 clear_sprites();
+                ui_manager_.clear_bg();
                 phase_ = TitlePhase::DOUJIN_NOTICE_FADEIN;
                 frame_counter_ = 0;
             }
@@ -179,6 +177,7 @@ void TitleState::update(StateManager& manager) {
         case TitlePhase::AUTOSAVE_WARN_FADEOUT:
             if (fade_out(FADE_FRAMES)) {
                 clear_sprites();
+                ui_manager_.load_screen(ui_data_title::SCREEN);
                 phase_ = TitlePhase::TITLE_FADEIN;
                 frame_counter_ = 0;
             }
@@ -195,14 +194,6 @@ void TitleState::update(StateManager& manager) {
             break;
 
         case TitlePhase::TITLE_WAIT: {
-            // "PRESS START" 点滅
-            draw_title();
-            blink_counter_++;
-            if ((blink_counter_ / 30) % 2 == 0) {
-                text_gen_.set_center_alignment();
-                text_gen_.generate(0, 24, "PRESS START", sprites_);
-            }
-
             if (bn::keypad::start_pressed() || bn::keypad::a_pressed()) {
                 phase_ = TitlePhase::TITLE_FADEOUT;
                 frame_counter_ = 0;
@@ -220,10 +211,13 @@ void TitleState::update(StateManager& manager) {
         default:
             break;
     }
+
+    ui_manager_.update();
 }
 
 void TitleState::shutdown() {
     clear_sprites();
+    ui_manager_.clear_bg();
     bn::bg_palettes::set_fade(bn::color(0, 0, 0), 0);
     bn::sprite_palettes::set_fade(bn::color(0, 0, 0), 0);
 }

@@ -17,6 +17,7 @@
     <ClCompile Include="src\game\sokoban.cpp"><Filter>Source Files</Filter></ClCompile>
     <ClCompile Include="src\gfx\hud.cpp"><Filter>Source Files</Filter></ClCompile>
     <ClCompile Include="src\gfx\renderer.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\gfx\ui_manager.cpp"><Filter>Source Files</Filter></ClCompile>
     <ClCompile Include="src\save\save_data.cpp"><Filter>Source Files</Filter></ClCompile>
     <ClCompile Include="src\state\debug_state.cpp"><Filter>Source Files</Filter></ClCompile>
     <ClCompile Include="src\state\endless_state.cpp"><Filter>Source Files</Filter></ClCompile>
@@ -37,6 +38,7 @@
     <ClInclude Include="src\game\story_data.h"><Filter>Header Files</Filter></ClInclude>
     <ClInclude Include="src\gfx\hud.h"><Filter>Header Files</Filter></ClInclude>
     <ClInclude Include="src\gfx\renderer.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="src\gfx\ui_manager.h"><Filter>Header Files</Filter></ClInclude>
     <ClInclude Include="src\save\save_data.h"><Filter>Header Files</Filter></ClInclude>
     <ClInclude Include="src\state\debug_state.h"><Filter>Header Files</Filter></ClInclude>
     <ClInclude Include="src\state\endless_state.h"><Filter>Header Files</Filter></ClInclude>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>GBA Sokoban UI Editor</title>
+    <style>
+        /* PixelMplus font - just using basic sans/serif for placeholder, webfont can be added later */
+        @font-face {
+            font-family: 'PixelMplus12';
+            src: local('PixelMplus12-Regular'), local('PixelMplus12');
+        }
+        
+        body {
+            font-family: sans-serif;
+            margin: 0; padding: 20px;
+            background: #2a2a2a; color: #ddd;
+            display: flex; gap: 20px;
+        }
+        
+        .panel {
+            background: #3a3a3a; padding: 15px;
+            border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            min-width: 250px;
+        }
+        
+        #preview-container {
+            width: 480px; height: 320px; /* 2x scale mapping for 240x160 */
+            background: #000;
+            position: relative;
+            transform-origin: top left;
+            border: 2px solid #555;
+            image-rendering: pixelated;
+            overflow: hidden;
+        }
+        
+        .preview-text {
+            position: absolute;
+            font-family: 'PixelMplus12', 'MS PGothic', sans-serif;
+            font-size: 24px; /* 2x of 12px */
+            color: #fff;
+            transform: translate(-50%, -50%); /* Centered */
+            user-select: none;
+            cursor: move;
+            white-space: nowrap;
+        }
+        
+        .preview-text.blink {
+            animation: blinker 1s linear infinite;
+        }
+        @keyframes blinker {
+            50% { opacity: 0; }
+        }
+        
+        input, select, button {
+            width: 100%; box-sizing: border-box;
+            margin-bottom: 10px; padding: 5px;
+            background: #222; color: #fff; border: 1px solid #555;
+        }
+        
+        button { background: #4caf50; border: none; padding: 8px; cursor: pointer; }
+        button:hover { background: #45a049; }
+        
+        h3 { margin-top: 0; }
+        .row { display: flex; gap: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="panel">
+        <h3>Screen Properties</h3>
+        <label>Screen Name:</label>
+        <input type="text" id="screenName" value="title">
+        
+        <label>Background ID:</label>
+        <input type="text" id="bgImageId" value="bg_title">
+        
+        <label>BG Color (Preview only):</label>
+        <input type="color" id="bgColor" value="#006464">
+        
+        <button id="btnExport">Export JSON</button>
+        <hr>
+        <label>Import JSON:</label>
+        <input type="file" id="fileImport" accept=".json">
+    </div>
+
+    <div class="panel">
+        <h3>Preview (240x160)</h3>
+        <!-- 2x scaled for visibility -->
+        <div id="preview-container">
+            <!-- text elements go here -->
+        </div>
+        <p style="font-size: 12px; color: #aaa;">Drag text to move. Double-click to edit ID/Text. (0,0) is center.</p>
+    </div>
+
+    <div class="panel">
+        <h3>Add Text</h3>
+        <input type="text" id="newTextId" placeholder="id (e.g. title_label)" value="new_text">
+        <input type="text" id="newTextVal" placeholder="Text content" value="HELLO GBA">
+        <label><input type="checkbox" id="newTextBlink"> Blink?</label>
+        <button id="btnAddText">Add Text</button>
+        <hr>
+        <h3>Texts</h3>
+        <div id="textList"></div>
+    </div>
+
+<script>
+    const GBA_W = 240, GBA_H = 160;
+    const SCALE = 2; // Preview scale
+    
+    let screenData = {
+        screen: "title",
+        layers: {
+            bg: { image_id: "bg_title", scroll_x: 0, scroll_y: 0 }
+        },
+        sprites: [],
+        texts: []
+    };
+    
+    const preview = document.getElementById('preview-container');
+    const screenNameIn = document.getElementById('screenName');
+    const bgImageIdIn = document.getElementById('bgImageId');
+    const bgColorIn = document.getElementById('bgColor');
+    const textListDiv = document.getElementById('textList');
+    
+    let draggingText = null;
+    let dragOffX = 0, dragOffY = 0;
+    
+    // Convert logic coords (0,0 at center) to preview DOM coords (top-left)
+    function logicToDom(x, y) {
+        return {
+            x: (x + GBA_W/2) * SCALE,
+            y: (y + GBA_H/2) * SCALE
+        };
+    }
+    
+    function domToLogic(dx, dy) {
+        return {
+            x: Math.round(dx / SCALE) - GBA_W/2,
+            y: Math.round(dy / SCALE) - GBA_H/2
+        };
+    }
+    
+    function renderPreview() {
+        preview.innerHTML = '';
+        preview.style.backgroundColor = bgColorIn.value;
+        textListDiv.innerHTML = '';
+        
+        screenNameIn.value = screenData.screen || "untitled";
+        bgImageIdIn.value = screenData.layers?.bg?.image_id || "";
+        
+        screenData.texts.forEach((t, i) => {
+            const domPos = logicToDom(t.x, t.y);
+            const el = document.createElement('div');
+            el.className = 'preview-text';
+            if (t.blink) el.classList.add('blink');
+            el.innerText = t.text;
+            el.style.left = domPos.x + 'px';
+            el.style.top = domPos.y + 'px';
+            
+            el.onmousedown = (e) => {
+                draggingText = t;
+                const rect = preview.getBoundingClientRect();
+                dragOffX = e.clientX - rect.left - domPos.x;
+                dragOffY = e.clientY - rect.top - domPos.y;
+            };
+            
+            preview.appendChild(el);
+            
+            // List item for deletion/editing
+            const li = document.createElement('div');
+            li.style.marginBottom = "5px";
+            li.innerHTML = `<strong>${t.id}</strong>: "${t.text}" at (${t.x}, ${t.y})`;
+            const btnDel = document.createElement('button');
+            btnDel.innerText = 'X';
+            btnDel.style.width = '30px'; btnDel.style.backgroundColor = '#cc0000';
+            btnDel.style.padding = '2px'; btnDel.style.marginLeft = '10px';
+            btnDel.onclick = () => {
+                screenData.texts.splice(i, 1);
+                renderPreview();
+            };
+            li.appendChild(btnDel);
+            textListDiv.appendChild(li);
+        });
+    }
+    
+    preview.onmousemove = (e) => {
+        if (!draggingText) return;
+        const rect = preview.getBoundingClientRect();
+        const dx = e.clientX - rect.left - dragOffX;
+        const dy = e.clientY - rect.top - dragOffY;
+        const lg = domToLogic(dx, dy);
+        draggingText.x = lg.x;
+        draggingText.y = lg.y;
+        renderPreview();
+    };
+    
+    preview.onmouseup = () => { draggingText = null; };
+    preview.onmouseleave = () => { draggingText = null; };
+    
+    document.getElementById('btnAddText').onclick = () => {
+        screenData.texts.push({
+            id: document.getElementById('newTextId').value,
+            text: document.getElementById('newTextVal').value,
+            x: 0, y: 0,
+            h_align: "center",
+            blink: document.getElementById('newTextBlink').checked,
+            blink_interval: 30,
+            visible: true
+        });
+        renderPreview();
+    };
+    
+    document.getElementById('btnExport').onclick = () => {
+        screenData.screen = screenNameIn.value;
+        if(!screenData.layers) screenData.layers = {};
+        if(!screenData.layers.bg) screenData.layers.bg = {};
+        screenData.layers.bg.image_id = bgImageIdIn.value;
+        
+        const jsonStr = JSON.stringify(screenData, null, 2);
+        const blob = new Blob([jsonStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = screenNameIn.value + '.json';
+        a.click();
+    };
+    
+    document.getElementById('fileImport').onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e2) => {
+            try {
+                screenData = JSON.parse(e2.target.result);
+                if(!screenData.texts) screenData.texts = [];
+                if(!screenData.sprites) screenData.sprites = [];
+                renderPreview();
+            } catch(e) {
+                alert("Invalid JSON");
+            }
+        };
+        reader.readAsText(file);
+    };
+    
+    bgColorIn.onchange = () => renderPreview();
+    
+    // Init
+    fetch('../../ui/screens/title.json')
+        .then(res => res.json())
+        .then(data => { screenData = data; renderPreview(); })
+        .catch(e => { renderPreview(); }); // Render empty if not hosted
+
+</script>
+</body>
+</html>

@@ -55,7 +55,7 @@ USERLIBS    	:=
 DEFAULTLIBS 	:=  true
 STACKTRACE		:=	
 USERBUILD   	:=  
-EXTTOOL     	:=  
+EXTTOOL     	:=  python tools/ui_compiler.py
 
 #---------------------------------------------------------------------------------------------------------------------
 # Export absolute butano path:

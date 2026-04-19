@@ -1,0 +1,24 @@
+{
+  "screen": "menu",
+  "comment": "メインメニュー画面レイアウト",
+  "layers": {
+    "bg": {
+      "image_id": "",
+      "scroll_x": 0,
+      "scroll_y": 0
+    }
+  },
+  "sprites": [],
+  "texts": [
+    {
+      "id": "game_title",
+      "text": "ｽﾋﾟｷとマヨの倉庫番",
+      "x": 0,
+      "y": -56,
+      "h_align": "center",
+      "blink": false,
+      "blink_interval": 0,
+      "visible": true
+    }
+  ]
+}
