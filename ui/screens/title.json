@@ -1,6 +1,6 @@
 {
   "screen": "title",
-  "comment": "タイトル画面レイアウト",
+  "comment": "\u30bf\u30a4\u30c8\u30eb\u753b\u9762\u30ec\u30a4\u30a2\u30a6\u30c8",
   "layers": {
     "bg": {
       "image_id": "bg_title",

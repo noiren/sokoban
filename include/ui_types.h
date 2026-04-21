@@ -4,15 +4,17 @@ namespace ui_types {
 
     struct SpriteEntry {
         const char* id;
-        const char* image_id;
-        int x, y;
+        const char* image_set;
+        int image_no;
+        float x;
+        float y;
         bool visible;
     };
 
     struct TextEntry {
         const char* id;
         const char* text;
-        int x, y;
+        float x, y;
         bool center_align;
         bool blink;
         int  blink_interval;

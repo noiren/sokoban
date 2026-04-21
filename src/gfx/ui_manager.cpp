@@ -3,6 +3,10 @@
 // Butano自動生成ヘッダ
 #include "bn_regular_bg_items_bg_logo.h"
 #include "bn_regular_bg_items_bg_title.h"
+#include "bn_sprite_items_spr_dummy.h"
+#include "bn_sprite_items_spr_menu_paper.h"
+#include "bn_sprite_items_spr_menu_icon_story.h"
+#include "bn_sprite_items_spr_menu_icon_practice.h"
 
 UIManager::UIManager(bn::sprite_text_generator& text_gen) : text_gen_(text_gen) {
 }
@@ -28,6 +32,7 @@ void UIManager::clear_bg() {
 
 void UIManager::clear_all() {
     clear_bg();
+    sprites_.clear();
     texts_.clear();
 }
 
@@ -75,13 +80,39 @@ void UIManager::load_screen(const ui_types::ScreenData& screen_data) {
     // 背景のセット
     _set_bg_from_string(screen_data.bg_image_id);
 
+    // スプライトのセット
+    for(int i = 0; i < screen_data.sprite_count; ++i) {
+        const auto& s = screen_data.sprites[i];
+        RuntimeUISprite rs;
+        rs.id = s.id;
+        rs.x = bn::fixed(s.x);
+        rs.y = bn::fixed(s.y);
+        rs.visible = s.visible;
+        
+        bn::string_view img_set = s.image_set;
+        int img_no = s.image_no;
+        if (rs.visible) {
+            if (img_set == "menu_items") {
+                if (img_no == 0) rs.sprite = bn::sprite_items::spr_menu_paper.create_sprite(rs.x, rs.y);
+                else if (img_no == 1) rs.sprite = bn::sprite_items::spr_menu_icon_story.create_sprite(rs.x, rs.y);
+                else if (img_no == 2) rs.sprite = bn::sprite_items::spr_menu_icon_practice.create_sprite(rs.x, rs.y);
+            } else if (img_set == "dummy") {
+                if (img_no == 0) rs.sprite = bn::sprite_items::spr_dummy.create_sprite(rs.x, rs.y);
+            } else {
+                // Fallback or missing map
+                // rs.sprite = bn::sprite_items::spr_dummy.create_sprite(rs.x, rs.y);
+            }
+        }
+        sprites_.push_back(rs);
+    }
+
     // テキスト要素のセット
     for(int i = 0; i < screen_data.text_count; ++i) {
         const auto& t = screen_data.texts[i];
         RuntimeUIText rt;
         rt.id = t.id;
-        rt.x = t.x;
-        rt.y = t.y;
+        rt.x = bn::fixed(t.x);
+        rt.y = bn::fixed(t.y);
         rt.blink = t.blink;
         rt.blink_interval = t.blink_interval;
         rt.visible = t.visible;

@@ -1,6 +1,6 @@
 {
   "screen": "save_select",
-  "comment": "セーブデータ選択画面レイアウト",
+  "comment": "\u30bb\u30fc\u30d6\u30c7\u30fc\u30bf\u9078\u629e\u753b\u9762\u30ec\u30a4\u30a2\u30a6\u30c8",
   "layers": {
     "bg": {
       "image_id": "",
@@ -12,7 +12,7 @@
   "texts": [
     {
       "id": "title_label",
-      "text": "セーブデータを選んでください",
+      "text": "\u30bb\u30fc\u30d6\u30c7\u30fc\u30bf\u3092\u9078\u3093\u3067\u304f\u3060\u3055\u3044",
       "x": 0,
       "y": -56,
       "h_align": "center",
@@ -22,7 +22,7 @@
     },
     {
       "id": "hint_label",
-      "text": "A: 選択  B: タイトルへ",
+      "text": "A: \u9078\u629e  B: \u30bf\u30a4\u30c8\u30eb\u3078",
       "x": 0,
       "y": 60,
       "h_align": "center",

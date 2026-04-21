@@ -9,7 +9,7 @@
 namespace ui_data_title {
 
     // Background
-    constexpr const char* BG_IMAGE_ID = "bg_title";
+    constexpr const char* BG_IMAGE_ID = "";
     constexpr int BG_SCROLL_X = 0;
     constexpr int BG_SCROLL_Y = 0;
 
@@ -18,10 +18,8 @@ namespace ui_data_title {
     constexpr ui_types::SpriteEntry* SPRITES = nullptr;
 
     // Texts
-    constexpr int TEXT_COUNT = 1;
-    constexpr ui_types::TextEntry TEXTS[TEXT_COUNT] = {
-        { "press_start", "PRESS START", 0, 48, true, true, 30, true },
-    };
+    constexpr int TEXT_COUNT = 0;
+    constexpr ui_types::TextEntry* TEXTS = nullptr;
 
     constexpr ui_types::ScreenData SCREEN = {
         BG_IMAGE_ID, BG_SCROLL_X, BG_SCROLL_Y,

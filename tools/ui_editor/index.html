@@ -2,254 +2,702 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>GBA Sokoban UI Editor</title>
+    <title>GBA Sokoban UI Editor Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* PixelMplus font - just using basic sans/serif for placeholder, webfont can be added later */
-        @font-face {
-            font-family: 'PixelMplus12';
-            src: local('PixelMplus12-Regular'), local('PixelMplus12');
+        :root {
+            --bg-dark: #121212;
+            --bg-panel: #1e1e1e;
+            --bg-input: #2a2a2a;
+            --accent: #6c5ce7;
+            --accent-hover: #a29bfe;
+            --text-main: #dfdfdf;
+            --text-muted: #888;
+            --border: #333;
         }
-        
+
         body {
-            font-family: sans-serif;
-            margin: 0; padding: 20px;
-            background: #2a2a2a; color: #ddd;
-            display: flex; gap: 20px;
-        }
-        
-        .panel {
-            background: #3a3a3a; padding: 15px;
-            border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            min-width: 250px;
-        }
-        
-        #preview-container {
-            width: 480px; height: 320px; /* 2x scale mapping for 240x160 */
-            background: #000;
-            position: relative;
-            transform-origin: top left;
-            border: 2px solid #555;
-            image-rendering: pixelated;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
             overflow: hidden;
         }
+
+        button {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        input, select {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 6px;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        input[type="number"] {
+            width: 100%;
+        }
+
+        .panel {
+            background-color: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ---------------- Left Panel: Hierarchy ---------------- */
+        .hierarchy-panel {
+            width: 250px;
+            min-width: 200px;
+            border-right: 1px solid var(--border);
+            resize: horizontal;
+            overflow-y: auto;
+        }
         
-        .preview-text {
+        .panel-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            background: linear-gradient(180deg, #2a2a2a 0%, #1e1e1e 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tree-container {
+            padding: 10px;
+        }
+
+        .tree-node {
+            margin-left: 15px;
+            margin-top: 4px;
+        }
+
+        .tree-item {
+            padding: 6px;
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            border: 1px solid transparent;
+        }
+
+        .tree-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .tree-item.selected {
+            background-color: rgba(108, 92, 231, 0.2);
+            border: 1px solid var(--accent);
+        }
+
+        .tree-icon {
+            margin-right: 8px;
+            color: var(--accent);
+            font-size: 12px;
+        }
+
+        /* ---------------- Center Panel: Canvas ---------------- */
+        .canvas-panel {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #111;
+            position: relative;
+            overflow: auto;
+            border-right: 1px solid var(--border);
+        }
+
+        /* GBA Canvas (240x160) rescaled */
+        #gba-canvas {
+            width: 480px;  /* 2x scale */
+            height: 320px;
+            background-color: #000;
+            position: relative;
+            transform-origin: center;
+            border: 4px solid #333;
+            border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            image-rendering: auto;
+            overflow: hidden;
+            /* grid */
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 20px 20px; /* 10px on GBA */
+            background-position: center;
+        }
+
+        .canvas-element {
             position: absolute;
-            font-family: 'PixelMplus12', 'MS PGothic', sans-serif;
-            font-size: 24px; /* 2x of 12px */
-            color: #fff;
-            transform: translate(-50%, -50%); /* Centered */
             user-select: none;
-            cursor: move;
-            white-space: nowrap;
+            cursor: grab;
+            transform: translate(-50%, -50%); /* Base is center */
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        
-        .preview-text.blink {
-            animation: blinker 1s linear infinite;
+        .canvas-element:active {
+            cursor: grabbing;
         }
-        @keyframes blinker {
-            50% { opacity: 0; }
+        .canvas-element.selected-el {
+            outline: 2px dashed var(--accent);
+            z-index: 100 !important;
         }
-        
-        input, select, button {
-            width: 100%; box-sizing: border-box;
-            margin-bottom: 10px; padding: 5px;
-            background: #222; color: #fff; border: 1px solid #555;
+
+        .top-toolbar {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            padding: 10px;
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
         }
-        
-        button { background: #4caf50; border: none; padding: 8px; cursor: pointer; }
-        button:hover { background: #45a049; }
-        
-        h3 { margin-top: 0; }
-        .row { display: flex; gap: 10px; }
+
+        /* ---------------- Right Panel: Inspector ---------------- */
+        .inspector-panel {
+            width: 300px;
+            min-width: 250px;
+            overflow-y: auto;
+            background-color: var(--bg-panel);
+        }
+
+        .prop-group {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        .prop-group h4 {
+            margin: 0 0 10px 0;
+            color: var(--accent);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .prop-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            gap: 10px;
+        }
+        .prop-row label {
+            width: 80px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Basic Types */
+        .type-badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            background: #444;
+            color: #fff;
+        }
+        .type-sprite { background: #e17055; }
+        .type-text { background: #00cec9; }
+        .type-group { background: #0984e3; }
+        .type-bg { background: #2d3436; }
     </style>
 </head>
 <body>
 
-    <div class="panel">
-        <h3>Screen Properties</h3>
-        <label>Screen Name:</label>
-        <input type="text" id="screenName" value="title">
-        
-        <label>Background ID:</label>
-        <input type="text" id="bgImageId" value="bg_title">
-        
-        <label>BG Color (Preview only):</label>
-        <input type="color" id="bgColor" value="#006464">
-        
-        <button id="btnExport">Export JSON</button>
-        <hr>
-        <label>Import JSON:</label>
-        <input type="file" id="fileImport" accept=".json">
-    </div>
-
-    <div class="panel">
-        <h3>Preview (240x160)</h3>
-        <!-- 2x scaled for visibility -->
-        <div id="preview-container">
-            <!-- text elements go here -->
+    <!-- Left: Hierarchy -->
+    <div class="panel hierarchy-panel">
+        <div class="panel-header">
+            Hierarchy
+            <div>
+                <button onclick="addNode('group')" title="Add Group" style="padding:4px 8px;">+</button>
+            </div>
         </div>
-        <p style="font-size: 12px; color: #aaa;">Drag text to move. Double-click to edit ID/Text. (0,0) is center.</p>
+        <div class="tree-container" id="tree-root">
+            <!-- Rendered via JS -->
+        </div>
     </div>
 
-    <div class="panel">
-        <h3>Add Text</h3>
-        <input type="text" id="newTextId" placeholder="id (e.g. title_label)" value="new_text">
-        <input type="text" id="newTextVal" placeholder="Text content" value="HELLO GBA">
-        <label><input type="checkbox" id="newTextBlink"> Blink?</label>
-        <button id="btnAddText">Add Text</button>
-        <hr>
-        <h3>Texts</h3>
-        <div id="textList"></div>
+    <!-- Center: Canvas -->
+    <div class="canvas-panel">
+        <div class="top-toolbar">
+            <button onclick="exportJSON()">Export JSON</button>
+            <input type="file" id="importFile" accept=".json" style="width: auto;" onchange="importJSON(event)">
+        </div>
+        
+        <div id="gba-canvas">
+            <!-- Elements -->
+        </div>
+        <div style="margin-top: 20px; color: var(--text-muted); font-size: 12px;">
+            GBA Resolution (240x160) - Displayed at 2x Scale<br>
+            Center is (0,0). X: -120 to 120, Y: -80 to 80
+        </div>
+    </div>
+
+    <!-- Right: Inspector -->
+    <div class="panel inspector-panel">
+        <div class="panel-header">Inspector</div>
+        
+        <div id="inspector-content">
+            <div style="padding: 20px; color: var(--text-muted); text-align: center;">
+                Select an element to inspect.
+            </div>
+        </div>
     </div>
 
 <script>
+    // System Constants
     const GBA_W = 240, GBA_H = 160;
-    const SCALE = 2; // Preview scale
-    
-    let screenData = {
-        screen: "title",
-        layers: {
-            bg: { image_id: "bg_title", scroll_x: 0, scroll_y: 0 }
+    const SCALE = 2; // Preview Scale
+
+    // Manifest Fallback (if fetch fails on file:///)
+    let imageManifest = {
+        "menu_items": {
+            "0": "spr_menu_paper",
+            "1": "spr_menu_icon_story",
+            "2": "spr_menu_icon_practice"
         },
-        sprites: [],
-        texts: []
+        "dummy": {
+            "0": "spr_dummy"
+        }
     };
-    
-    const preview = document.getElementById('preview-container');
-    const screenNameIn = document.getElementById('screenName');
-    const bgImageIdIn = document.getElementById('bgImageId');
-    const bgColorIn = document.getElementById('bgColor');
-    const textListDiv = document.getElementById('textList');
-    
-    let draggingText = null;
-    let dragOffX = 0, dragOffY = 0;
-    
-    // Convert logic coords (0,0 at center) to preview DOM coords (top-left)
-    function logicToDom(x, y) {
+
+    // Data Model
+    let scene = {
+        screen: "menu",
+        root: {
+            type: "group",
+            id: "root",
+            x: 0, y: 0,
+            children: [
+                { type: "bg", id: "background", image_id: "bg_menu" }
+            ]
+        }
+    };
+
+    let selectedNode = null;
+    let dragInfo = null; // { node, startX, startY, mouseStartX, mouseStartY }
+
+    // Init
+    fetch('../image_manifest.json')
+        .then(res => res.json())
+        .then(data => {
+            imageManifest = data;
+            selectNode(scene.root);
+        })
+        .catch(e => {
+            console.warn("Could not fetch manifest, using fallback:", e);
+            selectNode(scene.root);
+        });
+
+    // UUID generator for IDs
+    function generateId(prefix) {
+        return prefix + "_" + Math.random().toString(36).substr(2, 5);
+    }
+
+    // Helper: Resolve image path from manifest
+    function resolveImagePath(set, no) {
+        if (!imageManifest[set]) return null;
+        return imageManifest[set][String(no)];
+    }
+
+    // ----- Render Hierarchy -----
+    function renderTree() {
+        const container = document.getElementById('tree-root');
+        container.innerHTML = '';
+        container.appendChild(createTreeNodeElement(scene.root, scene));
+    }
+
+    function createTreeNodeElement(node, parentObj) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'tree-node';
+
+        const item = document.createElement('div');
+        item.className = 'tree-item' + (selectedNode === node ? ' selected' : '');
+        item.onclick = (e) => {
+            e.stopPropagation();
+            selectNode(node);
+        };
+
+        const icon = document.createElement('span');
+        icon.className = 'tree-icon type-badge type-' + node.type;
+        icon.innerText = node.type.substring(0, 3).toUpperCase();
+        item.appendChild(icon);
+
+        const text = document.createElement('span');
+        text.innerText = node.id || node.type;
+        item.appendChild(text);
+
+        wrapper.appendChild(item);
+
+        if (node.children) {
+            node.children.forEach(child => {
+                wrapper.appendChild(createTreeNodeElement(child, node));
+            });
+        }
+        return wrapper;
+    }
+
+    // ----- Select Node -----
+    function selectNode(node) {
+        selectedNode = node;
+        renderTree();
+        renderInspector();
+        renderCanvas();
+    }
+
+    // ----- Inspector Logic -----
+    function renderInspector() {
+        const container = document.getElementById('inspector-content');
+        if (!selectedNode) {
+            container.innerHTML = `<div style="padding: 20px; color: var(--text-muted); text-align: center;">Select an element to inspect.</div>`;
+            return;
+        }
+
+        const node = selectedNode;
+        let html = '';
+
+        // Basic Info
+        html += `
+        <div class="prop-group">
+            <h4>General</h4>
+            <div class="prop-row">
+                <label>Type</label>
+                <span class="type-badge type-${node.type}">${node.type.toUpperCase()}</span>
+            </div>
+            <div class="prop-row">
+                <label>ID</label>
+                <input type="text" value="${node.id || ''}" onchange="updateProp('id', this.value)">
+            </div>
+        </div>`;
+
+        // Transform (Not for BG)
+        if (node.type !== 'bg' && node.id !== 'root') {
+            html += `
+            <div class="prop-group">
+                <h4>Transform</h4>
+                <div class="prop-row">
+                    <label>X (0.1px)</label>
+                    <input type="number" step="0.1" value="${node.x || 0}" oninput="updateProp('x', parseFloat(this.value))">
+                </div>
+                <div class="prop-row">
+                    <label>Y (0.1px)</label>
+                    <input type="number" step="0.1" value="${node.y || 0}" oninput="updateProp('y', parseFloat(this.value))">
+                </div>
+            </div>`;
+        }
+
+        // Specific Props
+        if (node.type === 'bg') {
+            html += `
+            <div class="prop-group">
+                <h4>Background</h4>
+                <div class="prop-row">
+                    <label>Image ID</label>
+                    <input type="text" value="${node.image_id || ''}" onchange="updateProp('image_id', this.value)">
+                </div>
+            </div>`;
+        } else if (node.type === 'sprite') {
+            // Generate set options
+            let setOptions = Object.keys(imageManifest).map(k => `<option value="${k}" ${node.image_set === k ? 'selected' : ''}>${k}</option>`).join('');
+            
+            // Generate no options based on current set
+            let noOptions = '';
+            if (node.image_set && imageManifest[node.image_set]) {
+                noOptions = Object.keys(imageManifest[node.image_set]).map(k => `<option value="${k}" ${String(node.image_no) === k ? 'selected' : ''}>${k} (${imageManifest[node.image_set][k]})</option>`).join('');
+            }
+
+            html += `
+            <div class="prop-group">
+                <h4>Sprite Info</h4>
+                <div class="prop-row">
+                    <label>Image Set</label>
+                    <select onchange="updateProp('image_set', this.value); updateProp('image_no', '0')">
+                        <option value="">-- Select --</option>
+                        ${setOptions}
+                    </select>
+                </div>
+                <div class="prop-row">
+                    <label>Image No</label>
+                    <select onchange="updateProp('image_no', this.value)">
+                        ${noOptions}
+                    </select>
+                </div>
+            </div>`;
+        }
+
+        if (node.type === 'text') {
+            html += `
+            <div class="prop-group">
+                <h4>Text</h4>
+                <div class="prop-row">
+                    <label>Content</label>
+                    <input type="text" value="${node.text || ''}" onchange="updateProp('text', this.value)">
+                </div>
+                <div class="prop-row">
+                    <label>Blink</label>
+                    <input type="checkbox" ${node.blink ? 'checked' : ''} onchange="updateProp('blink', this.checked)">
+                </div>
+            </div>`;
+        }
+
+        // Add child buttons for groups
+        if (node.type === 'group') {
+            html += `
+            <div class="prop-group">
+                <h4>Add Child</h4>
+                <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                    <button onclick="addChild('sprite')">+ Sprite</button>
+                    <button onclick="addChild('text')">+ Text</button>
+                    <button onclick="addChild('group')">+ Group</button>
+                </div>
+            </div>`;
+        }
+
+        // Delete button
+        if (node.id !== 'root') {
+            html += `
+            <div class="prop-group" style="text-align:right;">
+                <button style="background:#d63031;" onclick="deleteNode()">Delete Node</button>
+            </div>`;
+        }
+
+        container.innerHTML = html;
+    }
+
+    function updateProp(key, value) {
+        if (!selectedNode) return;
+        selectedNode[key] = value;
+        if (key === 'id') renderTree();
+        if (key === 'image_set') renderInspector(); // Refresh 'no' options
+        renderCanvas();
+    }
+
+    function addChild(type) {
+        if (!selectedNode || selectedNode.type !== 'group') return;
+        if (!selectedNode.children) selectedNode.children = [];
+        
+        let child = { type: type, id: generateId(type), x: 0, y: 0 };
+        if (type === 'sprite') {
+            child.image_set = Object.keys(imageManifest)[0] || "dummy";
+            child.image_no = "0";
+        }
+        if (type === 'text') child.text = 'New Text';
+        
+        selectedNode.children.push(child);
+        selectNode(child); // auto select
+    }
+
+    function addNode(type) {
+        // add to root
+        scene.root.children.push({ type: type, id: generateId(type), x: 0, y: 0, children: [] });
+        renderTree();
+    }
+
+    function deleteNode() {
+        if (!selectedNode || selectedNode.id === 'root') return;
+        // recursive search to delete
+        const removeChild = (parent) => {
+            if (!parent.children) return false;
+            const idx = parent.children.indexOf(selectedNode);
+            if (idx > -1) {
+                parent.children.splice(idx, 1);
+                return true;
+            }
+            return parent.children.some(c => removeChild(c));
+        };
+        removeChild(scene.root);
+        selectNode(scene.root);
+    }
+
+
+    // ----- Canvas Rendering & Math -----
+    // Convert global GBA coords to Canvas DOM coords
+    function globalToDom(gx, gy) {
         return {
-            x: (x + GBA_W/2) * SCALE,
-            y: (y + GBA_H/2) * SCALE
+            x: (gx + GBA_W/2) * SCALE,
+            y: (gy + GBA_H/2) * SCALE
         };
     }
-    
-    function domToLogic(dx, dy) {
-        return {
-            x: Math.round(dx / SCALE) - GBA_W/2,
-            y: Math.round(dy / SCALE) - GBA_H/2
-        };
-    }
-    
-    function renderPreview() {
-        preview.innerHTML = '';
-        preview.style.backgroundColor = bgColorIn.value;
-        textListDiv.innerHTML = '';
+
+    function renderNodeCanvas(node, parentGlobalX, parentGlobalY, container) {
+        if (node.type === 'bg') {
+            if (node.image_id) {
+                container.style.backgroundImage = `url('../../graphics/${node.image_id}.bmp')`;
+                container.style.backgroundSize = '100% 100%';
+                container.style.backgroundRepeat = 'no-repeat';
+                container.style.backgroundPosition = 'center';
+            }
+            return;
+        }
         
-        screenNameIn.value = screenData.screen || "untitled";
-        bgImageIdIn.value = screenData.layers?.bg?.image_id || "";
-        
-        screenData.texts.forEach((t, i) => {
-            const domPos = logicToDom(t.x, t.y);
+        let globalX = parentGlobalX + (node.x || 0);
+        let globalY = parentGlobalY + (node.y || 0);
+
+        if (node.id !== 'root') {
             const el = document.createElement('div');
-            el.className = 'preview-text';
-            if (t.blink) el.classList.add('blink');
-            el.innerText = t.text;
+            el.className = 'canvas-element' + (selectedNode === node ? ' selected-el' : '');
+            
+            const domPos = globalToDom(globalX, globalY);
             el.style.left = domPos.x + 'px';
             el.style.top = domPos.y + 'px';
-            
+
+            // Visuals based on type
+            if (node.type === 'sprite') {
+                const path = resolveImagePath(node.image_set, node.image_no);
+                if (path) {
+                    const img = document.createElement('img');
+                    img.src = `../../graphics/${path}.bmp`;
+                    img.style.imageRendering = 'pixelated';
+                    img.style.pointerEvents = 'none'; // Don't block dragging
+                    img.onload = () => {
+                        img.width = img.naturalWidth * SCALE;
+                        img.height = img.naturalHeight * SCALE;
+                    };
+                    img.onerror = () => { // fallback
+                        el.style.width = '64px';
+                        el.style.height = '64px';
+                        el.style.backgroundColor = 'rgba(225, 112, 85, 0.4)';
+                        el.style.border = '2px solid rgba(225, 112, 85, 0.8)';
+                        el.innerHTML = `<span style="font-size:10px; color:#fff;">Err:${node.image_set}[${node.image_no}]</span>`;
+                    };
+                    el.appendChild(img);
+                } else {
+                    el.style.width = '64px';
+                    el.style.height = '64px';
+                    el.style.backgroundColor = 'rgba(225, 112, 85, 0.4)';
+                    el.style.border = '2px solid rgba(225, 112, 85, 0.8)';
+                    el.innerHTML = `<span style="font-size:10px; color:#fff;">?</span>`;
+                }
+            } else if (node.type === 'text') {
+                el.style.color = '#fff';
+                el.style.fontSize = '24px'; // 2x GBA
+                el.style.fontFamily = 'monospace';
+                el.style.whiteSpace = 'nowrap';
+                el.innerText = node.text || '';
+                if(node.blink) el.style.animation = 'blinker 1s linear infinite';
+            } else if (node.type === 'group') {
+                // Group anchor visualization
+                el.style.width = '10px';
+                el.style.height = '10px';
+                el.style.backgroundColor = 'var(--accent)';
+                el.style.borderRadius = '5px';
+            }
+
+            // Mouse Events for dragging
             el.onmousedown = (e) => {
-                draggingText = t;
-                const rect = preview.getBoundingClientRect();
-                dragOffX = e.clientX - rect.left - domPos.x;
-                dragOffY = e.clientY - rect.top - domPos.y;
+                e.stopPropagation();
+                selectNode(node);
+                dragInfo = {
+                    node: node,
+                    startX: node.x || 0,
+                    startY: node.y || 0,
+                    mouseX: e.clientX,
+                    mouseY: e.clientY
+                };
             };
-            
-            preview.appendChild(el);
-            
-            // List item for deletion/editing
-            const li = document.createElement('div');
-            li.style.marginBottom = "5px";
-            li.innerHTML = `<strong>${t.id}</strong>: "${t.text}" at (${t.x}, ${t.y})`;
-            const btnDel = document.createElement('button');
-            btnDel.innerText = 'X';
-            btnDel.style.width = '30px'; btnDel.style.backgroundColor = '#cc0000';
-            btnDel.style.padding = '2px'; btnDel.style.marginLeft = '10px';
-            btnDel.onclick = () => {
-                screenData.texts.splice(i, 1);
-                renderPreview();
-            };
-            li.appendChild(btnDel);
-            textListDiv.appendChild(li);
-        });
+
+            container.appendChild(el);
+        }
+
+        if (node.children) {
+            // Draw children in reverse order or just normal order (z-index implicit)
+            node.children.forEach(c => renderNodeCanvas(c, globalX, globalY, container));
+        }
     }
-    
-    preview.onmousemove = (e) => {
-        if (!draggingText) return;
-        const rect = preview.getBoundingClientRect();
-        const dx = e.clientX - rect.left - dragOffX;
-        const dy = e.clientY - rect.top - dragOffY;
-        const lg = domToLogic(dx, dy);
-        draggingText.x = lg.x;
-        draggingText.y = lg.y;
-        renderPreview();
-    };
-    
-    preview.onmouseup = () => { draggingText = null; };
-    preview.onmouseleave = () => { draggingText = null; };
-    
-    document.getElementById('btnAddText').onclick = () => {
-        screenData.texts.push({
-            id: document.getElementById('newTextId').value,
-            text: document.getElementById('newTextVal').value,
-            x: 0, y: 0,
-            h_align: "center",
-            blink: document.getElementById('newTextBlink').checked,
-            blink_interval: 30,
-            visible: true
-        });
-        renderPreview();
-    };
-    
-    document.getElementById('btnExport').onclick = () => {
-        screenData.screen = screenNameIn.value;
-        if(!screenData.layers) screenData.layers = {};
-        if(!screenData.layers.bg) screenData.layers.bg = {};
-        screenData.layers.bg.image_id = bgImageIdIn.value;
+
+    function renderCanvas() {
+        const canvas = document.getElementById('gba-canvas');
+        canvas.innerHTML = '';
         
-        const jsonStr = JSON.stringify(screenData, null, 2);
+        // Render element tree
+        renderNodeCanvas(scene.root, 0, 0, canvas);
+    }
+
+    // Document-level mouse move for dragging logic
+    document.addEventListener('mousemove', (e) => {
+        if (!dragInfo) return;
+        const dx = e.clientX - dragInfo.mouseX;
+        const dy = e.clientY - dragInfo.mouseY;
+        
+        // 1 DOM pixel = 0.5 GBA pixel (since SCALE=2)
+        // Allow 0.1 precision? Let's just round to 0.1
+        let nx = dragInfo.startX + (dx / SCALE);
+        let ny = dragInfo.startY + (dy / SCALE);
+        
+        // Snap to 0.1
+        nx = Math.round(nx * 10) / 10;
+        ny = Math.round(ny * 10) / 10;
+
+        dragInfo.node.x = nx;
+        dragInfo.node.y = ny;
+        
+        renderCanvas();
+        // Live update inspector without rebuilding it entirely
+        const xInput = document.querySelector('input[oninput*="\'x\'"]');
+        const yInput = document.querySelector('input[oninput*="\'y\'"]');
+        if (xInput && selectedNode === dragInfo.node) xInput.value = nx;
+        if (yInput && selectedNode === dragInfo.node) yInput.value = ny;
+    });
+
+    document.addEventListener('mouseup', () => {
+        if(dragInfo) dragInfo = null;
+    });
+
+    // ----- Import / Export -----
+    function exportJSON() {
+        // Auto-assign screen based on file or just use 'scene'
+        const jsonStr = JSON.stringify(scene, null, 2);
         const blob = new Blob([jsonStr], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = screenNameIn.value + '.json';
+        a.download = scene.screen + '.json';
         a.click();
-    };
-    
-    document.getElementById('fileImport').onchange = (e) => {
+    }
+
+    function importJSON(e) {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
         reader.onload = (e2) => {
             try {
-                screenData = JSON.parse(e2.target.result);
-                if(!screenData.texts) screenData.texts = [];
-                if(!screenData.sprites) screenData.sprites = [];
-                renderPreview();
-            } catch(e) {
+                scene = JSON.parse(e2.target.result);
+                if (!scene.root) {
+                    // Migration from old format?
+                    alert("This JSON does not have a root tree structure.");
+                    return;
+                }
+                selectedNode = scene.root;
+                renderTree();
+                renderCanvas();
+                renderInspector();
+            } catch(ex) {
                 alert("Invalid JSON");
             }
         };
         reader.readAsText(file);
-    };
-    
-    bgColorIn.onchange = () => renderPreview();
-    
-    // Init
-    fetch('../../ui/screens/title.json')
-        .then(res => res.json())
-        .then(data => { screenData = data; renderPreview(); })
-        .catch(e => { renderPreview(); }); // Render empty if not hosted
-
+    }
 </script>
 </body>
 </html>

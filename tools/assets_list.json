@@ -1,0 +1,28 @@
+{
+  "menu_items": {
+    "path": "graphics/ui/menu",
+    "size": [64, 64],
+    "items": [
+      "spr_menu_paper",
+      "spr_menu_icon_story",
+      "spr_menu_icon_practice",
+      "spr_menu_icon_endless"
+    ]
+  },
+  "chara_stills": {
+    "path": "graphics/stills/chara",
+    "size": [64, 64],
+    "items": [
+      "spr_chara_default",
+      "spr_chara_smile",
+      "spr_chara_sad"
+    ]
+  },
+  "dummy": {
+    "path": "graphics",
+    "size": [32, 32],
+    "items": [
+      "spr_dummy"
+    ]
+  }
+}

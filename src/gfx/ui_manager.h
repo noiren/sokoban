@@ -9,6 +9,7 @@
 #include "bn_sprite_text_generator.h"
 
 // 共通インクルード
+#include "ui_types.h"
 #include "ui_data_title.h"
 #include "ui_data_save_select.h"
 #include "ui_data_menu.h"
@@ -20,6 +21,8 @@ enum class BgImageID {
     TITLE,
 };
 
+#include "bn_fixed.h"
+
 // スプライト列挙
 enum class SpriteImageID {
     NONE,
@@ -27,10 +30,18 @@ enum class SpriteImageID {
     MAYO_STAND,
 };
 
+// UIスプライトの実行時状態
+struct RuntimeUISprite {
+    bn::string_view id;
+    bn::fixed x, y;
+    bool visible;
+    bn::optional<bn::sprite_ptr> sprite;
+};
+
 // UIテキストの状態を保持する構造体
 struct RuntimeUIText {
     bn::string_view id;
-    int x, y;
+    bn::fixed x, y;
     bool blink;
     int blink_interval;
     bool visible;
@@ -59,6 +70,7 @@ private:
     bn::optional<bn::regular_bg_ptr> bg_;
     int tick_counter_ = 0;
 
+    bn::vector<RuntimeUISprite, 16> sprites_;
     bn::vector<RuntimeUIText, 16> texts_;
 };
 

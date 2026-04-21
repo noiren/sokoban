@@ -18,10 +18,8 @@ namespace ui_data_menu {
     constexpr ui_types::SpriteEntry* SPRITES = nullptr;
 
     // Texts
-    constexpr int TEXT_COUNT = 1;
-    constexpr ui_types::TextEntry TEXTS[TEXT_COUNT] = {
-        { "game_title", "ｽﾋﾟｷとマヨの倉庫番", 0, -56, true, false, 0, true },
-    };
+    constexpr int TEXT_COUNT = 0;
+    constexpr ui_types::TextEntry* TEXTS = nullptr;
 
     constexpr ui_types::ScreenData SCREEN = {
         BG_IMAGE_ID, BG_SCROLL_X, BG_SCROLL_Y,

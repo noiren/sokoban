@@ -1,6 +1,6 @@
 {
   "screen": "menu",
-  "comment": "メインメニュー画面レイアウト",
+  "comment": "\u30e1\u30a4\u30f3\u30e1\u30cb\u30e5\u30fc\u753b\u9762\u30ec\u30a4\u30a2\u30a6\u30c8",
   "layers": {
     "bg": {
       "image_id": "",
@@ -12,7 +12,7 @@
   "texts": [
     {
       "id": "game_title",
-      "text": "ｽﾋﾟｷとマヨの倉庫番",
+      "text": "\uff7d\uff8b\uff9f\uff77\u3068\u30de\u30e8\u306e\u5009\u5eab\u756a",
       "x": 0,
       "y": -56,
       "h_align": "center",

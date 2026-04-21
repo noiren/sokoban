@@ -18,11 +18,8 @@ namespace ui_data_save_select {
     constexpr ui_types::SpriteEntry* SPRITES = nullptr;
 
     // Texts
-    constexpr int TEXT_COUNT = 2;
-    constexpr ui_types::TextEntry TEXTS[TEXT_COUNT] = {
-        { "title_label", "セーブデータを選んでください", 0, -56, true, false, 0, true },
-        { "hint_label", "A: 選択  B: タイトルへ", 0, 60, true, false, 0, true },
-    };
+    constexpr int TEXT_COUNT = 0;
+    constexpr ui_types::TextEntry* TEXTS = nullptr;
 
     constexpr ui_types::ScreenData SCREEN = {
         BG_IMAGE_ID, BG_SCROLL_X, BG_SCROLL_Y,

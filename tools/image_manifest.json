@@ -1,0 +1,16 @@
+{
+  "menu_items": {
+    "0": "ui/menu/spr_menu_paper",
+    "1": "ui/menu/spr_menu_icon_story",
+    "2": "ui/menu/spr_menu_icon_practice",
+    "3": "ui/menu/spr_menu_icon_endless"
+  },
+  "chara_stills": {
+    "0": "stills/chara/spr_chara_default",
+    "1": "stills/chara/spr_chara_smile",
+    "2": "stills/chara/spr_chara_sad"
+  },
+  "dummy": {
+    "0": "spr_dummy"
+  }
+}
