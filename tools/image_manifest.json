@@ -1,16 +1,52 @@
 {
-  "menu_items": {
-    "0": "ui/menu/spr_menu_paper",
-    "1": "ui/menu/spr_menu_icon_story",
-    "2": "ui/menu/spr_menu_icon_practice",
-    "3": "ui/menu/spr_menu_icon_endless"
+  "ui_common": {
+    "0": "ui/common/spr_selection_common",
+    "1": "ui/common/spr_selector_gold_tl",
+    "2": "ui/common/spr_selector_gold_tr",
+    "3": "ui/common/spr_selector_gold_bl",
+    "4": "ui/common/spr_selector_gold_br",
+    "5": "ui/common/spr_sparkle",
+    "6": "ui/common/spr_button_ok",
+    "7": "ui/common/spr_nav_arrow",
+    "8": "ui/common/spr_photo_corner"
   },
-  "chara_stills": {
-    "0": "stills/chara/spr_chara_default",
-    "1": "stills/chara/spr_chara_smile",
-    "2": "stills/chara/spr_chara_sad"
+  "ui_icons": {
+    "0": "ui/icons/spr_icon_lock",
+    "1": "ui/icons/spr_icon_pumpkin",
+    "2": "ui/icons/spr_icon_pot",
+    "3": "ui/icons/spr_icon_note",
+    "4": "ui/icons/spr_icon_ticket",
+    "5": "ui/icons/spr_icon_clapper",
+    "6": "ui/icons/spr_btn_l",
+    "7": "ui/icons/spr_btn_r"
   },
-  "dummy": {
-    "0": "spr_dummy"
+  "ui_paper": {
+    "0": "ui/paper/spr_paper_large",
+    "1": "ui/paper/spr_paper_medium",
+    "2": "ui/paper/spr_paper_small",
+    "3": "ui/paper/spr_paper_tail"
+  },
+  "ui_title": {
+    "0": "ui/title/spr_press_start"
+  },
+  "ui_practice": {
+    "0": "ui/practice/spr_stage_icon_base",
+    "1": "ui/practice/spr_stage_icon_cloud"
+  },
+  "chara_portraits": {
+    "0": "stills/chara/spr_ch_mayo_normal",
+    "1": "stills/chara/spr_ch_mayo_smile",
+    "2": "stills/chara/spr_ch_mayo_sad",
+    "3": "stills/chara/spr_ch_riri_normal"
+  },
+  "chara_mini": {
+    "0": "stills/mini/spr_mn_crying",
+    "1": "stills/mini/spr_face_icon_mayo",
+    "2": "stills/mini/spr_face_icon_riri"
+  },
+  "gallery_thum": {
+    "0": "ui/gallery/spr_thum_01",
+    "1": "ui/gallery/spr_thum_02",
+    "2": "ui/gallery/spr_thum_03"
   }
 }

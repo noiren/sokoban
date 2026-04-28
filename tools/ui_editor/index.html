@@ -173,8 +173,18 @@
             backdrop-filter: blur(5px);
             border-bottom: 1px solid var(--border);
             display: flex;
-            gap: 10px;
+            align-items: center;
+            gap: 15px;
             z-index: 10;
+        }
+
+        .screen-name-input {
+            background: var(--bg-input);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 6px 10px;
+            border-radius: 4px;
+            width: 150px;
         }
 
         /* ---------------- Right Panel: Inspector ---------------- */
@@ -241,8 +251,15 @@
     <!-- Center: Canvas -->
     <div class="canvas-panel">
         <div class="top-toolbar">
-            <button onclick="exportJSON()">Export JSON</button>
-            <input type="file" id="importFile" accept=".json" style="width: auto;" onchange="importJSON(event)">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <label style="font-size: 12px; color: var(--text-muted);">Screen/File Name:</label>
+                <input type="text" id="screenNameInput" class="screen-name-input" value="menu" onchange="updateScreenName(this.value)">
+                <span style="font-size: 12px; color: var(--text-muted);">.json</span>
+            </div>
+            <button onclick="exportJSON()" style="background-color: #00b894;">💾 Export JSON</button>
+            <div style="width: 1px; height: 20px; background: var(--border); margin: 0 5px;"></div>
+            <label style="font-size: 12px; color: var(--text-muted);">Import:</label>
+            <input type="file" id="importFile" accept=".json" style="width: auto; padding: 0; border: none; background: transparent;" onchange="importJSON(event)">
         </div>
         
         <div id="gba-canvas">
@@ -665,15 +682,23 @@
     });
 
     // ----- Import / Export -----
+    function updateScreenName(name) {
+        scene.screen = name || "unknown";
+    }
+
     function exportJSON() {
-        // Auto-assign screen based on file or just use 'scene'
+        const name = document.getElementById('screenNameInput').value || 'scene';
+        scene.screen = name; // Ensure it's synced
+        
         const jsonStr = JSON.stringify(scene, null, 2);
         const blob = new Blob([jsonStr], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = scene.screen + '.json';
+        a.download = name + '.json';
         a.click();
+        
+        alert(`Downloaded as ${name}.json\nPlease move it to ui/screens/ folder manually and overwrite!`);
     }
 
     function importJSON(e) {
@@ -684,10 +709,13 @@
             try {
                 scene = JSON.parse(e2.target.result);
                 if (!scene.root) {
-                    // Migration from old format?
                     alert("This JSON does not have a root tree structure.");
                     return;
                 }
+                
+                // Update filename input
+                document.getElementById('screenNameInput').value = scene.screen || 'unknown';
+                
                 selectedNode = scene.root;
                 renderTree();
                 renderCanvas();

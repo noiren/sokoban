@@ -1,24 +1,25 @@
 {
   "screen": "title",
-  "comment": "\u30bf\u30a4\u30c8\u30eb\u753b\u9762\u30ec\u30a4\u30a2\u30a6\u30c8",
-  "layers": {
-    "bg": {
-      "image_id": "bg_title",
-      "scroll_x": 0,
-      "scroll_y": 0
-    }
-  },
-  "sprites": [],
-  "texts": [
-    {
-      "id": "press_start",
-      "text": "PRESS START",
-      "x": 0,
-      "y": 48,
-      "h_align": "center",
-      "blink": true,
-      "blink_interval": 30,
-      "visible": true
-    }
-  ]
+  "root": {
+    "type": "group",
+    "id": "root",
+    "x": 0,
+    "y": 0,
+    "children": [
+      {
+        "type": "bg",
+        "id": "background",
+        "image_id": "bg_title_main"
+      },
+      {
+        "type": "sprite",
+        "id": "new_sprite",
+        "x": 8,
+        "y": -16,
+        "image_set": "ui_common",
+        "image_no": "0",
+        "visible": true
+      }
+    ]
+  }
 }

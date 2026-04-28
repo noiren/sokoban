@@ -1,28 +1,84 @@
 {
-  "menu_items": {
-    "path": "graphics/ui/menu",
-    "size": [64, 64],
+  "ui_common": {
+    "path": "graphics/ui/common",
+    "size": [32, 32],
     "items": [
-      "spr_menu_paper",
-      "spr_menu_icon_story",
-      "spr_menu_icon_practice",
-      "spr_menu_icon_endless"
+      "spr_selection_common",
+      "spr_selector_gold_tl",
+      "spr_selector_gold_tr",
+      "spr_selector_gold_bl",
+      "spr_selector_gold_br",
+      "spr_sparkle",
+      "spr_button_ok",
+      "spr_nav_arrow",
+      "spr_photo_corner"
     ]
   },
-  "chara_stills": {
+  "ui_icons": {
+    "path": "graphics/ui/icons",
+    "size": [16, 16],
+    "items": [
+      "spr_icon_lock",
+      "spr_icon_pumpkin",
+      "spr_icon_pot",
+      "spr_icon_note",
+      "spr_icon_ticket",
+      "spr_icon_clapper",
+      "spr_btn_l",
+      "spr_btn_r"
+    ]
+  },
+  "ui_paper": {
+    "path": "graphics/ui/paper",
+    "size": [64, 64],
+    "items": [
+      "spr_paper_large",
+      "spr_paper_medium",
+      "spr_paper_small",
+      "spr_paper_tail"
+    ]
+  },
+  "ui_title": {
+    "path": "graphics/ui/title",
+    "size": [64, 32],
+    "items": [
+      "spr_press_start"
+    ]
+  },
+  "ui_practice": {
+    "path": "graphics/ui/practice",
+    "size": [32, 32],
+    "items": [
+      "spr_stage_icon_base",
+      "spr_stage_icon_cloud"
+    ]
+  },
+  "chara_portraits": {
     "path": "graphics/stills/chara",
     "size": [64, 64],
     "items": [
-      "spr_chara_default",
-      "spr_chara_smile",
-      "spr_chara_sad"
+      "spr_ch_mayo_normal",
+      "spr_ch_mayo_smile",
+      "spr_ch_mayo_sad",
+      "spr_ch_riri_normal"
     ]
   },
-  "dummy": {
-    "path": "graphics",
+  "chara_mini": {
+    "path": "graphics/stills/mini",
     "size": [32, 32],
     "items": [
-      "spr_dummy"
+      "spr_mn_crying",
+      "spr_face_icon_mayo",
+      "spr_face_icon_riri"
+    ]
+  },
+  "gallery_thum": {
+    "path": "graphics/ui/gallery",
+    "size": [64, 64],
+    "items": [
+      "spr_thum_01",
+      "spr_thum_02",
+      "spr_thum_03"
     ]
   }
 }

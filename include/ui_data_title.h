@@ -9,7 +9,7 @@
 namespace ui_data_title {
 
     // Background
-    constexpr const char* BG_IMAGE_ID = "";
+    constexpr const char* BG_IMAGE_ID = "bg_title_main";
     constexpr int BG_SCROLL_X = 0;
     constexpr int BG_SCROLL_Y = 0;
 

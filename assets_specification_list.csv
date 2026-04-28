@@ -1,0 +1,35 @@
+Group,No,Item Name,Description,Width,Height
+ui_common,0,spr_selection_common,汎用指カーソル・選択ハイライト,32,32
+ui_common,1,spr_selector_gold_tl,金枠パーツ（左上）,32,32
+ui_common,2,spr_selector_gold_tr,金枠パーツ（右上）,32,32
+ui_common,3,spr_selector_gold_bl,金枠パーツ（左下）,32,32
+ui_common,4,spr_selector_gold_br,金枠パーツ（右下）,32,32
+ui_common,5,spr_sparkle,演出用キラキラエフェクト,32,32
+ui_common,6,spr_button_ok,案内画面用OKボタンガイド,32,32
+ui_common,7,spr_nav_arrow,ページめくり・リスト矢印,32,32
+ui_common,8,spr_photo_corner,ギャラリー用写真の角留め,32,32
+ui_icons,0,spr_icon_lock,南京錠アイコン,16,16
+ui_icons,1,spr_icon_pumpkin,カボチャアイコン,16,16
+ui_icons,2,spr_icon_pot,ツボアイコン,16,16
+ui_icons,3,spr_icon_note,音符アイコン,16,16
+ui_icons,4,spr_icon_ticket,チケットアイコン,16,16
+ui_icons,5,spr_icon_clapper,カチンコアイコン,16,16
+ui_icons,6,spr_btn_l,Lボタンガイド,16,16
+ui_icons,7,spr_btn_r,Rボタンガイド,16,16
+ui_paper,0,spr_paper_large,メニュー用紙（大）,64,64
+ui_paper,1,spr_paper_medium,メニュー用紙（中）,64,64
+ui_paper,2,spr_paper_small,メニュー用紙（小）,64,64
+ui_paper,3,spr_paper_tail,吹き出しの尻尾パーツ,64,64
+ui_title,0,spr_press_start,PRESS START（点滅用文字）,64,32
+ui_practice,0,spr_stage_icon_base,ステージアイコン土台,32,32
+ui_practice,1,spr_stage_icon_cloud,ステージアイコン雲,32,32
+chara_portraits,0,spr_ch_mayo_normal,マヨ（通常・立ち絵）,64,64
+chara_portraits,1,spr_ch_mayo_smile,マヨ（笑顔・立ち絵）,64,64
+chara_portraits,2,spr_ch_mayo_sad,マヨ（悲しい・立ち絵）,64,64
+chara_portraits,3,spr_ch_riri_normal,リリ（通常・立ち絵）,64,64
+chara_mini,0,spr_mn_crying,ミニキャラ（泣き）,32,32
+chara_mini,1,spr_face_icon_mayo,顔アイコン（マヨ）,32,32
+chara_mini,2,spr_face_icon_riri,顔アイコン（リリ）,32,32
+gallery_thum,0,spr_thum_01,ギャラリーサムネイル01,64,64
+gallery_thum,1,spr_thum_02,ギャラリーサムネイル02,64,64
+gallery_thum,2,spr_thum_03,ギャラリーサムネイル03,64,64
