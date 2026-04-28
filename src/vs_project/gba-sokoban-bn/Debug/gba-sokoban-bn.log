@@ -1,0 +1,5 @@
+﻿  make: Entering directory '/home/ryota/.gemini/antigravity/scratch/gba-sokoban-bn'
+  [ui_compiler] Up-to-date: C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn\src\game\include\ui_data_title.h
+  [ui_compiler] Done: 1 screen(s) processed.
+  make[2]: '/home/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/gba-sokoban-bn.gba' is up to date.
+  make: Leaving directory '/home/ryota/.gemini/antigravity/scratch/gba-sokoban-bn'

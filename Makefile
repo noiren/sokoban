@@ -35,11 +35,11 @@ TARGET      	:=  gba-sokoban-bn
 BUILD       	:=  build
 LIBBUTANO   	:=  ../butano
 PYTHON      	:=  python
-SOURCES     	:=  src src/state src/game src/gfx src/audio src/save
-INCLUDES    	:=  include src
+SOURCES     	:=  src/game/src src/game/src/audio src/game/src/gfx src/game/src/save src/game/src/state src/game/src/game
+INCLUDES    	:=  src/game/include src/game/src
 DATA        	:=
-GRAPHICS    	:=  graphics graphics/stills/chara graphics/stills/mini graphics/ui/common graphics/ui/gallery graphics/ui/icons graphics/ui/paper graphics/ui/practice graphics/ui/title
-AUDIO       	:=  audio
+GRAPHICS    	:=  Asset/graphics/stills Asset/graphics/stills/chara Asset/graphics/stills/mini Asset/graphics/tiles/ui Asset/graphics/tiles/chara Asset/graphics/csv Asset/graphics/tiles/ui/common Asset/graphics/tiles/ui/gallery Asset/graphics/tiles/ui/icons Asset/graphics/tiles/ui/menu Asset/graphics/tiles/ui/paper Asset/graphics/tiles/ui/practice Asset/graphics/tiles/ui/title
+AUDIO       	:=  Asset/audio
 AUDIOBACKEND	:=  maxmod
 AUDIOTOOL		:=  
 DMGAUDIO    	:=  dmg_audio
@@ -55,7 +55,7 @@ USERLIBS    	:=
 DEFAULTLIBS 	:=  true
 STACKTRACE		:=	
 USERBUILD   	:=  
-EXTTOOL     	:=  python tools/ui_compiler.py
+EXTTOOL     	:=  python src/tools/ui_compiler.py
 
 #---------------------------------------------------------------------------------------------------------------------
 # Export absolute butano path:
