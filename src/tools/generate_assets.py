@@ -38,10 +38,7 @@ def create_dummy_bmp(filename, width, height):
         f.write(header + info + palette_data + pixel_data)
 
 def generate_butano_json(filename):
-    if os.path.exists(filename):
-        return
-    with open(filename, 'w', encoding='utf-8') as f:
-        json.dump({"type": "sprite"}, f, indent=2)
+    pass
 
 def main():
     if not os.path.exists(ASSETS_LIST_PATH):
@@ -85,27 +82,7 @@ def main():
         json.dump(manifest_data, f, indent=2)
     print(f"Generated {MANIFEST_PATH}")
 
-    # 2. Update Makefile
-    if os.path.exists(MAKEFILE_PATH):
-        with open(MAKEFILE_PATH, 'r', encoding='utf-8') as f:
-            makefile_content = f.read()
-
-        # Build new GRAPHICS line
-        # Convert set strings to space-separated, ensure forward slashes
-        dirs_str = " ".join(sorted([d.replace('\\', '/') for d in directories]))
-        new_line = f"GRAPHICS    \t:=  {dirs_str}"
-        
-        # Replace the GRAPHICS := line
-        makefile_content = re.sub(
-            r'^GRAPHICS\s*:=\s*.*$', 
-            new_line, 
-            makefile_content, 
-            flags=re.MULTILINE
-        )
-        
-        with open(MAKEFILE_PATH, 'w', encoding='utf-8') as f:
-            f.write(makefile_content)
-        print(f"Updated Makefile GRAPHICS directories: {dirs_str}")
+    # 2. Update Makefile is now handled by prebuild.py
 
 if __name__ == '__main__':
     main()

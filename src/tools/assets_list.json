@@ -1,6 +1,6 @@
 {
   "ui_common": {
-    "path": "graphics/ui/common",
+    "path": "graphics/sprites/ui/common",
     "size": [32, 32],
     "items": [
       "spr_selection_common",
@@ -15,7 +15,7 @@
     ]
   },
   "ui_icons": {
-    "path": "graphics/ui/icons",
+    "path": "graphics/sprites/ui/icons",
     "size": [16, 16],
     "items": [
       "spr_icon_lock",
@@ -29,7 +29,7 @@
     ]
   },
   "ui_paper": {
-    "path": "graphics/ui/paper",
+    "path": "graphics/sprites/ui/paper",
     "size": [64, 64],
     "items": [
       "spr_paper_large",
@@ -39,14 +39,14 @@
     ]
   },
   "ui_title": {
-    "path": "graphics/ui/title",
+    "path": "graphics/sprites/ui/title",
     "size": [64, 32],
     "items": [
       "spr_press_start"
     ]
   },
   "ui_practice": {
-    "path": "graphics/ui/practice",
+    "path": "graphics/sprites/ui/practice",
     "size": [32, 32],
     "items": [
       "spr_stage_icon_base",
@@ -54,7 +54,7 @@
     ]
   },
   "chara_portraits": {
-    "path": "graphics/stills/chara",
+    "path": "graphics/sprites/chara",
     "size": [64, 64],
     "items": [
       "spr_ch_mayo_normal",
@@ -64,7 +64,7 @@
     ]
   },
   "chara_mini": {
-    "path": "graphics/stills/mini",
+    "path": "graphics/sprites/mini",
     "size": [32, 32],
     "items": [
       "spr_mn_crying",
@@ -73,7 +73,7 @@
     ]
   },
   "gallery_thum": {
-    "path": "graphics/ui/gallery",
+    "path": "graphics/sprites/ui/gallery",
     "size": [64, 64],
     "items": [
       "spr_thum_01",

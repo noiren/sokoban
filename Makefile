@@ -38,7 +38,7 @@ PYTHON      	:=  python
 SOURCES     	:=  src/game/src src/game/src/audio src/game/src/gfx src/game/src/save src/game/src/state src/game/src/game
 INCLUDES    	:=  src/game/include src/game/src
 DATA        	:=
-GRAPHICS    	:=  Asset/graphics/stills Asset/graphics/stills/chara Asset/graphics/stills/mini Asset/graphics/tiles/ui Asset/graphics/tiles/chara Asset/graphics/csv Asset/graphics/tiles/ui/common Asset/graphics/tiles/ui/gallery Asset/graphics/tiles/ui/icons Asset/graphics/tiles/ui/menu Asset/graphics/tiles/ui/paper Asset/graphics/tiles/ui/practice Asset/graphics/tiles/ui/title
+GRAPHICS    	:=  build/asset_tmp/sprites/chara/chara build/asset_tmp/sprites/mini build/asset_tmp/sprites/ui build/asset_tmp/sprites/ui/common build/asset_tmp/sprites/ui/gallery build/asset_tmp/sprites/ui/icons build/asset_tmp/sprites/ui/menu build/asset_tmp/sprites/ui/paper build/asset_tmp/sprites/ui/practice build/asset_tmp/sprites/ui/title build/asset_tmp/stills/event build/asset_tmp/stills/gallery build/asset_tmp/stills/gallery/bgm build/asset_tmp/stills/gallery/event_select build/asset_tmp/stills/gallery/view_bustup build/asset_tmp/stills/gallery/view_still build/asset_tmp/stills/mainmenu build/asset_tmp/stills/practice build/asset_tmp/stills/save_attention build/asset_tmp/stills/soukoban_gamentest build/asset_tmp/stills/title
 AUDIO       	:=  Asset/audio
 AUDIOBACKEND	:=  maxmod
 AUDIOTOOL		:=  
@@ -55,7 +55,7 @@ USERLIBS    	:=
 DEFAULTLIBS 	:=  true
 STACKTRACE		:=	
 USERBUILD   	:=  
-EXTTOOL     	:=  python src/tools/ui_compiler.py
+EXTTOOL     	:=  python src/tools/prebuild.py
 
 #---------------------------------------------------------------------------------------------------------------------
 # Export absolute butano path:

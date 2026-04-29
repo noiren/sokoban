@@ -1,5 +1,5 @@
 {
-  "screen": "title",
+  "screen": "autosave_attension",
   "root": {
     "type": "group",
     "id": "root",
@@ -9,7 +9,7 @@
       {
         "type": "bg",
         "id": "background",
-        "image_id": "stl_title"
+        "image_id": "still_saveattention"
       }
     ]
   }
