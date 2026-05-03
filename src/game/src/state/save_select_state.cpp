@@ -2,8 +2,6 @@
 #include "state_manager.h"
 #include "bn_keypad.h"
 #include "bn_string.h"
-#include "bn_bg_palettes.h"
-#include "bn_sprite_palettes.h"
 #include "ui_data_save_select.h"
 
 SaveSelectState::SaveSelectState(bn::sprite_text_generator& text_gen, SaveData& save)
@@ -19,18 +17,20 @@ void SaveSelectState::init(StateManager& /*manager*/) {
     ui_manager_.load_screen(ui_data_save_select::SCREEN);
     ui_.emplace(ui_manager_);
 
-    bn::bg_palettes::set_fade(bn::color(0, 0, 0), 0);
-    bn::sprite_palettes::set_fade(bn::color(0, 0, 0), 0);
-
     update_slots_ui();
-    step_ = PhaseStep::RUNNING;  // 現時点はフェードなしで即開始
+
+    // フェードインで開始
+    fade_.start_fade_in(FADE_FRAMES);
+    step_ = PhaseStep::OPENING;
 }
 
 void SaveSelectState::update(StateManager& manager) {
     switch (step_) {
         case PhaseStep::OPENING:
-            // TODO: フェードイン処理
-            step_ = PhaseStep::RUNNING;
+            if (!fade_.update()) {
+                // フェード完了
+                step_ = PhaseStep::RUNNING;
+            }
             break;
 
         case PhaseStep::RUNNING:
@@ -38,8 +38,9 @@ void SaveSelectState::update(StateManager& manager) {
             break;
 
         case PhaseStep::CLOSING:
-            // TODO: フェードアウト処理
-            manager.pop();  // → main.cpp がスロットを受け取り MenuState へ
+            if (!fade_.update()) {
+                manager.pop();  // → main.cpp がスロットを受け取り MenuState へ
+            }
             break;
     }
 
@@ -66,6 +67,7 @@ void SaveSelectState::update_select(StateManager& /*manager*/) {
 
     if (bn::keypad::a_pressed()) {
         selected_slot_ = cursor_;
+        fade_.start_fade_out(FADE_FRAMES);
         step_ = PhaseStep::CLOSING;
     }
 }
@@ -104,6 +106,7 @@ void SaveSelectState::update_slots_ui() {
 }
 
 void SaveSelectState::shutdown() {
+    FadeEffect::reset_palette();
     ui_manager_.clear_all();
     ui_.reset();
 }

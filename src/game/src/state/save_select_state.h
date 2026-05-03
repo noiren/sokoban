@@ -6,6 +6,7 @@
 #include "bn_sprite_text_generator.h"
 #include "bn_optional.h"
 #include "../gfx/ui_manager.h"
+#include "../gfx/fade_effect.h"
 
 class SaveSelectUI {
 public:
@@ -42,9 +43,12 @@ private:
     SaveData& save_;
     int cursor_;
     int selected_slot_;
+    FadeEffect fade_;
     UIManager ui_manager_;
     bn::optional<SaveSelectUI> ui_;
     PhaseStep step_;
+
+    static constexpr int FADE_FRAMES = 30;
 };
 
 #endif // SAVE_SELECT_STATE_H
