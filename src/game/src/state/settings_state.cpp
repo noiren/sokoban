@@ -5,19 +5,41 @@
 #include "ui_data_settings.h"
 
 SettingsState::SettingsState(bn::sprite_text_generator& text_gen, SoundManager& sound, SaveSlot& save)
-    : text_gen_(text_gen), sound_(sound), save_(save), cursor_(0), ui_manager_(text_gen) {
+    : text_gen_(text_gen), sound_(sound), save_(save),
+      cursor_(0), ui_manager_(text_gen), step_(PhaseStep::OPENING) {
 }
 
 void SettingsState::init(StateManager& /*manager*/) {
     cursor_ = 0;
-    
+
     ui_manager_.load_screen(ui_data_settings::SCREEN);
     ui_.emplace(ui_manager_);
 
     update_settings_ui();
+    step_ = PhaseStep::RUNNING;  // 現時点はフェードなしで即開始
 }
 
 void SettingsState::update(StateManager& manager) {
+    switch (step_) {
+        case PhaseStep::OPENING:
+            // TODO: フェードイン処理
+            step_ = PhaseStep::RUNNING;
+            break;
+
+        case PhaseStep::RUNNING:
+            update_edit(manager);
+            break;
+
+        case PhaseStep::CLOSING:
+            // TODO: フェードアウト処理（セーブはmain.cpp側で行う）
+            manager.pop();
+            break;
+    }
+
+    ui_manager_.update();
+}
+
+void SettingsState::update_edit(StateManager& /*manager*/) {
     bool changed = false;
 
     if (bn::keypad::up_pressed()) {
@@ -57,11 +79,8 @@ void SettingsState::update(StateManager& manager) {
     }
 
     if (bn::keypad::b_pressed()) {
-        // セーブはmain.cpp側で行う（slot_save）
-        manager.pop();
+        step_ = PhaseStep::CLOSING;
     }
-
-    ui_manager_.update();
 }
 
 void SettingsState::update_settings_ui() {

@@ -30,6 +30,10 @@ public:
     int puzzle_level() const { return puzzle_level_; }
 
 private:
+    void update_menu(StateManager& manager);
+    void draw_menu();
+    static constexpr int MENU_COUNT = static_cast<int>(DebugItem::COUNT);
+
     bn::sprite_text_generator& text_gen_;
     SoundManager& sound_;
     SaveSlot& save_;
@@ -41,13 +45,11 @@ private:
     bool wants_puzzle_;
     int puzzle_level_;
 
-    // Editable values
     int edit_chapter_;
     int edit_event_;
     int edit_puzzle_;
 
-    void draw_menu();
-    static constexpr int MENU_COUNT = static_cast<int>(DebugItem::COUNT);
+    PhaseStep step_;
 };
 
 #endif // DEBUG_STATE_H

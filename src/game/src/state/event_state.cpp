@@ -10,7 +10,8 @@ EventState::EventState(bn::sprite_text_generator& text_gen, SoundManager& sound,
       script_(nullptr), pc_(0), phase_(EventPhase::EXECUTING),
       wants_puzzle_(false), puzzle_level_(0),
       text_char_index_(0), text_timer_(0), current_text_(nullptr),
-      left_char_id_(-1), right_char_id_(-1), ui_manager_(text_gen) {
+      left_char_id_(-1), right_char_id_(-1),
+      ui_manager_(text_gen), step_(PhaseStep::OPENING) {
 }
 
 void EventState::set_script(const EventScript& script) {
@@ -18,34 +19,54 @@ void EventState::set_script(const EventScript& script) {
 }
 
 void EventState::init(StateManager& /*manager*/) {
-    pc_ = 0;
-    phase_ = EventPhase::EXECUTING;
-    wants_puzzle_ = false;
-    puzzle_level_ = 0;
+    pc_              = 0;
+    phase_           = EventPhase::EXECUTING;
+    wants_puzzle_    = false;
+    puzzle_level_    = 0;
     text_char_index_ = 0;
-    text_timer_ = 0;
-    current_text_ = nullptr;
-    left_char_id_ = -1;
-    right_char_id_ = -1;
+    text_timer_      = 0;
+    current_text_    = nullptr;
+    left_char_id_    = -1;
+    right_char_id_   = -1;
 
     ui_manager_.load_screen(ui_data_event::SCREEN);
     ui_.emplace(ui_manager_);
     clear_all();
 
-    // Clear screen fade
     bn::bg_palettes::set_fade(bn::color(0, 0, 0), 0);
+
+    step_ = PhaseStep::RUNNING;  // 現時点はフェードなしで即開始
 }
 
 void EventState::update(StateManager& manager) {
+    switch (step_) {
+        case PhaseStep::OPENING:
+            // TODO: フェードイン処理
+            step_ = PhaseStep::RUNNING;
+            break;
+
+        case PhaseStep::RUNNING:
+            update_event(manager);
+            break;
+
+        case PhaseStep::CLOSING:
+            // TODO: フェードアウト処理
+            manager.pop();
+            break;
+    }
+
+    ui_manager_.update();
+}
+
+void EventState::update_event(StateManager& /*manager*/) {
     switch (phase_) {
         case EventPhase::EXECUTING:
             execute_next();
             break;
 
-        case EventPhase::WAITING_INPUT:
-            // Animate text scrolling
+        case EventPhase::WAITING_INPUT: {
+            // テキストスクロールアニメーション
             if (current_text_ != nullptr) {
-                // Calculate text length
                 int text_len = 0;
                 {
                     const char* tmp = current_text_;
@@ -53,7 +74,6 @@ void EventState::update(StateManager& manager) {
                 }
 
                 if (text_char_index_ < text_len) {
-                    // Text speed based on save settings
                     int speed = 1;
                     switch (save_.text_speed) {
                         case 0: speed = 3; break;  // slow
@@ -66,12 +86,11 @@ void EventState::update(StateManager& manager) {
                     if (text_timer_ >= speed) {
                         text_timer_ = 0;
                         text_char_index_++;
-                        if (speed == 0) text_char_index_ = text_len; // instant
+                        if (speed == 0) text_char_index_ = text_len;
                         update_dialog_text();
                     }
                 }
 
-                // A button: if text still scrolling, show all; if done, advance
                 if (bn::keypad::a_pressed()) {
                     if (text_char_index_ < text_len) {
                         text_char_index_ = text_len;
@@ -81,22 +100,20 @@ void EventState::update(StateManager& manager) {
                     }
                 }
             } else {
-                // No text, just waiting for input
                 if (bn::keypad::a_pressed()) {
                     phase_ = EventPhase::EXECUTING;
                 }
             }
             break;
+        }
 
         case EventPhase::FINISHED:
-            manager.pop();
+            step_ = PhaseStep::CLOSING;
             break;
 
         default:
             break;
     }
-
-    ui_manager_.update();
 }
 
 void EventState::execute_next() {
@@ -110,9 +127,9 @@ void EventState::execute_next() {
 
     switch (cmd.cmd) {
         case EventCmd::TEXT:
-            current_text_ = cmd.text;
+            current_text_    = cmd.text;
             text_char_index_ = 0;
-            text_timer_ = 0;
+            text_timer_      = 0;
             update_dialog_text();
             phase_ = EventPhase::WAITING_INPUT;
             break;
@@ -153,7 +170,7 @@ void EventState::execute_next() {
 
         case EventCmd::CHECK_FLAG:
             if (!save_data_get_flag(save_, cmd.arg1)) {
-                pc_ += cmd.arg2;  // Skip N commands
+                pc_ += cmd.arg2;  // N個のコマンドをスキップ
             }
             break;
 
@@ -172,7 +189,7 @@ void EventState::execute_next() {
             break;
 
         default:
-            // Unknown commands: skip
+            // 未知のコマンドはスキップ
             break;
     }
 }
@@ -184,7 +201,6 @@ void EventState::update_dialog_text() {
         return;
     }
 
-    // Build partial text up to text_char_index_
     bn::string<64> partial;
     int count = 0;
     const char* p = current_text_;

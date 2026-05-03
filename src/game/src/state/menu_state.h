@@ -47,6 +47,7 @@ public:
     MenuItem last_selected() const { return last_selected_; }
 
 private:
+    void update_select(StateManager& manager);
     void update_menu_ui();
 
     bn::sprite_text_generator& text_gen_;
@@ -55,6 +56,7 @@ private:
     MenuItem last_selected_;
     UIManager ui_manager_;
     bn::optional<MenuUI> ui_;
+    PhaseStep step_;
 };
 
 #endif // MENU_STATE_H

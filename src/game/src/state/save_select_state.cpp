@@ -7,7 +7,9 @@
 #include "ui_data_save_select.h"
 
 SaveSelectState::SaveSelectState(bn::sprite_text_generator& text_gen, SaveData& save)
-    : text_gen_(text_gen), save_(save), cursor_(0), selected_slot_(-1), ui_manager_(text_gen) {
+    : text_gen_(text_gen), save_(save),
+      cursor_(0), selected_slot_(-1),
+      ui_manager_(text_gen), step_(PhaseStep::OPENING) {
 }
 
 void SaveSelectState::init(StateManager& /*manager*/) {
@@ -21,9 +23,30 @@ void SaveSelectState::init(StateManager& /*manager*/) {
     bn::sprite_palettes::set_fade(bn::color(0, 0, 0), 0);
 
     update_slots_ui();
+    step_ = PhaseStep::RUNNING;  // 現時点はフェードなしで即開始
 }
 
 void SaveSelectState::update(StateManager& manager) {
+    switch (step_) {
+        case PhaseStep::OPENING:
+            // TODO: フェードイン処理
+            step_ = PhaseStep::RUNNING;
+            break;
+
+        case PhaseStep::RUNNING:
+            update_select(manager);
+            break;
+
+        case PhaseStep::CLOSING:
+            // TODO: フェードアウト処理
+            manager.pop();  // → main.cpp がスロットを受け取り MenuState へ
+            break;
+    }
+
+    ui_manager_.update();
+}
+
+void SaveSelectState::update_select(StateManager& /*manager*/) {
     bool changed = false;
 
     if (bn::keypad::up_pressed()) {
@@ -43,10 +66,8 @@ void SaveSelectState::update(StateManager& manager) {
 
     if (bn::keypad::a_pressed()) {
         selected_slot_ = cursor_;
-        manager.pop();  // → main.cpp がスロットを受け取り MenuState へ
+        step_ = PhaseStep::CLOSING;
     }
-
-    ui_manager_.update();
 }
 
 void SaveSelectState::update_slots_ui() {

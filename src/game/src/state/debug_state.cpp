@@ -9,21 +9,39 @@ DebugState::DebugState(bn::sprite_text_generator& text_gen, SoundManager& sound,
     : text_gen_(text_gen), sound_(sound), save_(save), cursor_(0),
       wants_event_(false), event_index_(0),
       wants_puzzle_(false), puzzle_level_(0),
-      edit_chapter_(0), edit_event_(0), edit_puzzle_(0) {
+      edit_chapter_(0), edit_event_(0), edit_puzzle_(0),
+      step_(PhaseStep::OPENING) {
 }
 
 void DebugState::init(StateManager& /*manager*/) {
-    cursor_ = 0;
-    wants_event_ = false;
+    cursor_       = 0;
+    wants_event_  = false;
     wants_puzzle_ = false;
     edit_chapter_ = save_.story_chapter;
-    edit_event_ = 0;
-    edit_puzzle_ = 0;
+    edit_event_   = 0;
+    edit_puzzle_  = 0;
     sprites_.clear();
     draw_menu();
+    step_ = PhaseStep::RUNNING;
 }
 
 void DebugState::update(StateManager& manager) {
+    switch (step_) {
+        case PhaseStep::OPENING:
+            step_ = PhaseStep::RUNNING;
+            break;
+
+        case PhaseStep::RUNNING:
+            update_menu(manager);
+            break;
+
+        case PhaseStep::CLOSING:
+            manager.pop();
+            break;
+    }
+}
+
+void DebugState::update_menu(StateManager& /*manager*/) {
     bool changed = false;
 
     if (bn::keypad::up_pressed()) {
@@ -39,7 +57,7 @@ void DebugState::update(StateManager& manager) {
         sound_.play_move();
     }
 
-    // Left/Right to adjust values
+    // 左右で値を調整
     if (bn::keypad::left_pressed() || bn::keypad::right_pressed()) {
         int dir = bn::keypad::right_pressed() ? 1 : -1;
         DebugItem item = static_cast<DebugItem>(cursor_);
@@ -65,18 +83,16 @@ void DebugState::update(StateManager& manager) {
         changed = true;
     }
 
-    // A button = execute
+    // A: 実行
     if (bn::keypad::a_pressed()) {
         DebugItem item = static_cast<DebugItem>(cursor_);
         switch (item) {
             case DebugItem::STORY_CHAPTER:
                 save_.story_chapter = static_cast<uint8_t>(edit_chapter_);
-                // セーブはmain.cpp側で行う
                 sound_.play_clear();
                 break;
             case DebugItem::CLEAR_FLAGS:
                 for (int i = 0; i < 32; i++) save_.flags[i] = 0;
-                // セーブはmain.cpp側で行う
                 sound_.play_clear();
                 break;
             case DebugItem::RESET_SAVE:
@@ -86,12 +102,12 @@ void DebugState::update(StateManager& manager) {
             case DebugItem::GOTO_EVENT:
                 wants_event_ = true;
                 event_index_ = edit_event_;
-                manager.pop();
+                step_ = PhaseStep::CLOSING;
                 return;
             case DebugItem::GOTO_PUZZLE:
                 wants_puzzle_ = true;
                 puzzle_level_ = edit_puzzle_;
-                manager.pop();
+                step_ = PhaseStep::CLOSING;
                 return;
             default:
                 break;
@@ -104,7 +120,7 @@ void DebugState::update(StateManager& manager) {
     }
 
     if (bn::keypad::b_pressed()) {
-        manager.pop();
+        step_ = PhaseStep::CLOSING;
     }
 }
 
@@ -117,7 +133,6 @@ void DebugState::draw_menu() {
     int y = -44;
     int spacing = 16;
 
-    // Story Chapter
     {
         bn::string<32> line;
         if (cursor_ == 0) line.append(">");
@@ -126,8 +141,6 @@ void DebugState::draw_menu() {
         text_gen_.generate(-100, y, line, sprites_);
         y += spacing;
     }
-
-    // Clear Flags
     {
         bn::string<32> line;
         if (cursor_ == 1) line.append(">");
@@ -135,8 +148,6 @@ void DebugState::draw_menu() {
         text_gen_.generate(-100, y, line, sprites_);
         y += spacing;
     }
-
-    // Reset Save
     {
         bn::string<32> line;
         if (cursor_ == 2) line.append(">");
@@ -144,8 +155,6 @@ void DebugState::draw_menu() {
         text_gen_.generate(-100, y, line, sprites_);
         y += spacing;
     }
-
-    // Goto Event
     {
         bn::string<32> line;
         if (cursor_ == 3) line.append(">");
@@ -154,8 +163,6 @@ void DebugState::draw_menu() {
         text_gen_.generate(-100, y, line, sprites_);
         y += spacing;
     }
-
-    // Goto Puzzle
     {
         bn::string<32> line;
         if (cursor_ == 4) line.append(">");

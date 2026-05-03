@@ -17,19 +17,41 @@ namespace {
 
 MenuState::MenuState(bn::sprite_text_generator& text_gen, SoundManager& sound)
     : text_gen_(text_gen), sound_(sound),
-      cursor_(0), last_selected_(MenuItem::STORY), ui_manager_(text_gen) {
+      cursor_(0), last_selected_(MenuItem::STORY),
+      ui_manager_(text_gen), step_(PhaseStep::OPENING) {
 }
 
 void MenuState::init(StateManager& /*manager*/) {
     cursor_ = 0;
-    
+
     ui_manager_.load_screen(ui_data_mainmenu::SCREEN);
     ui_.emplace(ui_manager_);
 
     update_menu_ui();
+    step_ = PhaseStep::RUNNING;  // 現時点はフェードなしで即開始
 }
 
 void MenuState::update(StateManager& manager) {
+    switch (step_) {
+        case PhaseStep::OPENING:
+            // TODO: フェードイン処理
+            step_ = PhaseStep::RUNNING;
+            break;
+
+        case PhaseStep::RUNNING:
+            update_select(manager);
+            break;
+
+        case PhaseStep::CLOSING:
+            // TODO: フェードアウト処理
+            manager.pop();
+            break;
+    }
+
+    ui_manager_.update();
+}
+
+void MenuState::update_select(StateManager& /*manager*/) {
     bool changed = false;
 
     if (bn::keypad::up_pressed()) {
@@ -51,16 +73,14 @@ void MenuState::update(StateManager& manager) {
 
     if (bn::keypad::a_pressed()) {
         last_selected_ = static_cast<MenuItem>(cursor_);
-        manager.pop();
+        step_ = PhaseStep::CLOSING;
     }
 
     // 隠しコマンド: SELECT → デバッグメニュー
     if (bn::keypad::select_pressed()) {
         last_selected_ = MenuItem::DEBUG;
-        manager.pop();
+        step_ = PhaseStep::CLOSING;
     }
-
-    ui_manager_.update();
 }
 
 void MenuState::update_menu_ui() {

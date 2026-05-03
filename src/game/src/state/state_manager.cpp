@@ -2,12 +2,14 @@
 
 void StateManager::push(State* state) {
     stack_.push_back(state);
+    state->on_enter(*this);
     state->init(*this);
 }
 
 void StateManager::pop() {
     if (!stack_.empty()) {
         stack_.back()->shutdown();
+        stack_.back()->on_exit(*this);
         stack_.pop_back();
     }
 }
@@ -15,9 +17,11 @@ void StateManager::pop() {
 void StateManager::replace(State* state) {
     if (!stack_.empty()) {
         stack_.back()->shutdown();
+        stack_.back()->on_exit(*this);
         stack_.pop_back();
     }
     stack_.push_back(state);
+    state->on_enter(*this);
     state->init(*this);
 }
 

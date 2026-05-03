@@ -35,6 +35,7 @@ public:
     int selected_slot() const { return selected_slot_; }
 
 private:
+    void update_select(StateManager& manager);
     void update_slots_ui();
 
     bn::sprite_text_generator& text_gen_;
@@ -43,6 +44,7 @@ private:
     int selected_slot_;
     UIManager ui_manager_;
     bn::optional<SaveSelectUI> ui_;
+    PhaseStep step_;
 };
 
 #endif // SAVE_SELECT_STATE_H

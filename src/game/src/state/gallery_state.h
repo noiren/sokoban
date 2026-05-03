@@ -15,7 +15,10 @@ public:
     void shutdown() override;
 
 private:
+    void update_browse(StateManager& manager);
+
     UIManager ui_manager_;
+    PhaseStep step_;
 };
 
 #endif // GALLERY_STATE_H

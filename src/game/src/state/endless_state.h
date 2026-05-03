@@ -18,6 +18,12 @@
 #include "bn_vector.h"
 #include "../gfx/ui_manager.h"
 
+// エンドレスモードのフェーズ
+enum class EndlessPhase {
+    PLAYING,    // プレイ中
+    RESULT,     // スコア表示中
+};
+
 class EndlessState : public State {
 public:
     EndlessState(bn::sprite_text_generator& text_gen, SoundManager& sound, SaveSlot& save);
@@ -26,16 +32,20 @@ public:
     void shutdown() override;
 
 private:
+    void update_playing(StateManager& manager);
+    void update_result(StateManager& manager);
+    void generate_next();
+    void draw_result();
+
     bn::sprite_text_generator& text_gen_;
     SoundManager& sound_;
     SaveSlot& save_;
     Hud hud_;
     GameState gs_;
 
-    int score_;           // Current run score
-    int difficulty_;      // Current difficulty level
-    int seed_;            // Current puzzle seed
-    bool show_result_;    // Showing game over / score
+    int score_;
+    int difficulty_;
+    int seed_;
 
     bn::optional<bn::regular_bg_ptr> bg_;
     bn::optional<bn::regular_bg_map_ptr> bg_map_;
@@ -43,9 +53,8 @@ private:
 
     bn::vector<bn::sprite_ptr, 32> result_sprites_;
     UIManager ui_manager_;
-
-    void generate_next();
-    void draw_result();
+    EndlessPhase phase_;
+    PhaseStep    step_;
 };
 
 #endif // ENDLESS_STATE_H

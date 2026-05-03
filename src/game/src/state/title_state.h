@@ -13,27 +13,18 @@
 #include "ui_data_autosave_attension.h"
 #include "ui_data_title.h"
 
-// 起動シーケンス全フェーズ
-// EPID_LOGO     : "produced by EPID GAMES" ロゴ表示
-// DOUJIN_NOTICE : "この作品は同人作品です" 注意書き
-// AUTOSAVE_WARN : オートセーブ警告メッセージ
-// TITLE_FADEIN  : タイトル画面フェードイン
-// TITLE_WAIT    : タイトル画面待機 (PRESS START 点滅)
-// TITLE_FADEOUT : タイトル画面フェードアウト → SaveSelectへ
+// 起動シーケンスのシーン単位フェーズ
+// EPID_LOGO_DISP     : "produced by EPID GAMES" ロゴ表示
+// DOUJIN_NOTICE_DISP : "この作品は同人作品です" 注意書き
+// AUTOSAVE_WARN_DISP : オートセーブ警告メッセージ
+// TITLE_DISP         : タイトル画面 (PRESS START 点滅) → SaveSelectへ
 enum class TitlePhase {
-    EPID_LOGO_FADEIN,
-    EPID_LOGO_WAIT,
-    EPID_LOGO_FADEOUT,
-    DOUJIN_NOTICE_FADEIN,
-    DOUJIN_NOTICE_WAIT,
-    DOUJIN_NOTICE_FADEOUT,
-    AUTOSAVE_WARN_FADEIN,
-    AUTOSAVE_WARN_WAIT,
-    AUTOSAVE_WARN_FADEOUT,
-    TITLE_FADEIN,
-    TITLE_WAIT,
-    TITLE_FADEOUT,
+    EPID_LOGO_DISP,
+    DOUJIN_NOTICE_DISP,
+    AUTOSAVE_WARN_DISP,
+    TITLE_DISP,
 };
+
 
 class TitleState : public State {
 public:
@@ -43,13 +34,22 @@ public:
     void shutdown() override;
 
 private:
-    // フェードを0→1に進める。完了したらtrueを返す
+    // フェードヘルパー
     bool fade_in(int duration);
-    // フェードを1→0に進める。完了したらtrueを返す
     bool fade_out(int duration);
+
+    // フェーズ遷移（画面ロード・カウンタリセットを一括管理）
+    void go_to_phase(TitlePhase next);
+
+    // 各フェーズのupdate処理
+    void update_epid_logo(StateManager& manager);
+    void update_doujin_notice(StateManager& manager);
+    void update_autosave_warn(StateManager& manager);
+    void update_title(StateManager& manager);
 
     bn::sprite_text_generator& text_gen_;
     TitlePhase phase_;
+    PhaseStep  step_;
     int frame_counter_;
     int blink_counter_;
     UIManager ui_manager_;

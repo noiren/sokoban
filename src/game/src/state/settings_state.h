@@ -34,6 +34,7 @@ public:
     void shutdown() override;
 
 private:
+    void update_edit(StateManager& manager);
     void update_settings_ui();
 
     bn::sprite_text_generator& text_gen_;
@@ -42,6 +43,7 @@ private:
     int cursor_;
     UIManager ui_manager_;
     bn::optional<SettingsUI> ui_;
+    PhaseStep step_;
     static constexpr int SETTINGS_COUNT = static_cast<int>(SettingsItem::COUNT);
 };
 

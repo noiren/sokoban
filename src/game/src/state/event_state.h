@@ -54,11 +54,11 @@ private:
     UIManager& ui_;
 };
 
-// Sub-phases of event processing
+// イベント処理の内部フェーズ（EventStateのフェーズ単位ではなくスクリプト実行状態）
 enum class EventPhase {
-    EXECUTING,       // Processing commands
-    WAITING_INPUT,   // Waiting for A button
-    FINISHED,        // Script ended
+    EXECUTING,       // コマンド実行中
+    WAITING_INPUT,   // Aボタン待ち
+    FINISHED,        // スクリプト終了
 };
 
 class EventState : public State {
@@ -70,37 +70,37 @@ public:
     void update(StateManager& manager) override;
     void shutdown() override;
 
-    // After END command, did we get a GOTO_PUZZLE?
+    // END コマンド後、GOTO_PUZZLE が発行されたか
     bool wants_puzzle() const { return wants_puzzle_; }
     int puzzle_level() const { return puzzle_level_; }
 
 private:
+    void update_event(StateManager& manager);
+    void execute_next();
+    void update_dialog_text();
+    void clear_all();
+
     bn::sprite_text_generator& text_gen_;
     SoundManager& sound_;
     SaveSlot& save_;
 
     const EventScript* script_;
-    int pc_;                     // Program counter
+    int pc_;
     EventPhase phase_;
 
     bool wants_puzzle_;
     int puzzle_level_;
 
-    // Text display state
-    int text_char_index_;        // Current character being displayed
-    int text_timer_;             // Timer for text scroll speed
+    int text_char_index_;
+    int text_timer_;
     const char* current_text_;
 
-    // Character display names (for placeholder text rendering)
     int left_char_id_;
     int right_char_id_;
 
     UIManager ui_manager_;
     bn::optional<EventUI> ui_;
-
-    void execute_next();
-    void update_dialog_text();
-    void clear_all();
+    PhaseStep step_;
 };
 
 #endif // EVENT_STATE_H

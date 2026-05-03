@@ -15,6 +15,12 @@
 #include "bn_optional.h"
 #include "../gfx/ui_manager.h"
 
+// パズル画面のフェーズ
+enum class PuzzlePhase {
+    PLAYING,    // プレイ中
+    CLEARED,    // クリア表示中
+};
+
 class PuzzleState : public State {
 public:
     PuzzleState(bn::sprite_text_generator& text_gen, SoundManager& sound);
@@ -25,6 +31,9 @@ public:
     GameState& game_state() { return gs_; }
 
 private:
+    void update_playing(StateManager& manager);
+    void update_cleared(StateManager& manager);
+
     bn::sprite_text_generator& text_gen_;
     SoundManager& sound_;
     Hud hud_;
@@ -35,6 +44,8 @@ private:
     alignas(4) bn::array<bn::regular_bg_map_cell, 32 * 32> map_cells_;
 
     UIManager ui_manager_;
+    PuzzlePhase phase_;
+    PhaseStep   step_;
 };
 
 #endif // PUZZLE_STATE_H

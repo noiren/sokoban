@@ -15,7 +15,10 @@ public:
     void shutdown() override;
 
 private:
+    void update_select(StateManager& manager);
+
     UIManager ui_manager_;
+    PhaseStep step_;
 };
 
 #endif // PRACTICE_MENU_STATE_H
