@@ -1,0 +1,36 @@
+{
+    "configurations": [
+        {
+            "name": "GBA (ARM GCC)",
+            "compilerPath": "C:/devkitPro/devkitARM/bin/arm-none-eabi-g++.exe",
+            "intelliSenseMode": "gcc-arm",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "includePath": [
+                "${workspaceFolder}/src/game/include",
+                "${workspaceFolder}/src/game/src",
+                "${workspaceFolder}/src/game/src/state",
+                "${workspaceFolder}/src/game/src/game",
+                "${workspaceFolder}/src/game/src/gfx",
+                "${workspaceFolder}/src/game/src/audio",
+                "${workspaceFolder}/src/game/src/save",
+                "C:/Users/ryota/.gemini/antigravity/scratch/butano/include",
+                "C:/devkitPro/libgba/include",
+                "C:/devkitPro/devkitARM/arm-none-eabi/include"
+            ],
+            "defines": [
+                "__GBA__",
+                "BN_ROM_INCLUDE"
+            ],
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/src/game/include",
+                    "${workspaceFolder}/src/game/src",
+                    "C:/Users/ryota/.gemini/antigravity/scratch/butano/include"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            }
+        }
+    ],
+    "version": 4
+}

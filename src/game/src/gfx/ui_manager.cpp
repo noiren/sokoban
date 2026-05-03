@@ -70,33 +70,33 @@ void UIManager::clear_all() {
 
 void UIManager::_set_bg_from_string(bn::string_view bg_id) {
     if (bg_id == "stl_logo") {
-        bg_ = bn::regular_bg_items::stl_logo.create_bg(0, 0);
+        bg_ = bn::regular_bg_items::stl_logo.create_bg(8, 48);
     } else if (bg_id == "stl_title") {
-        bg_ = bn::regular_bg_items::stl_title.create_bg(0, 0);
+        bg_ = bn::regular_bg_items::stl_title.create_bg(8, 48);
     } else if (bg_id == "stl_attention") {
-        bg_ = bn::regular_bg_items::stl_attention.create_bg(0, 0);
+        bg_ = bn::regular_bg_items::stl_attention.create_bg(8, 48);
     } else if (bg_id == "still_mainmenu") {
-        bg_ = bn::regular_bg_items::still_mainmenu.create_bg(0, 0);
+        bg_ = bn::regular_bg_items::still_mainmenu.create_bg(8, 48);
     } else if (bg_id == "still_practice") {
-        bg_ = bn::regular_bg_items::still_practice.create_bg(0, 0);
+        bg_ = bn::regular_bg_items::still_practice.create_bg(8, 48);
     } else if (bg_id == "still_sokoban_main") {
-        bg_ = bn::regular_bg_items::still_sokoban_main.create_bg(0, 0);
+        bg_ = bn::regular_bg_items::still_sokoban_main.create_bg(8, 48);
     } else if (bg_id == "still_event") {
-        bg_ = bn::regular_bg_items::still_event.create_bg(0, 0);
+        bg_ = bn::regular_bg_items::still_event.create_bg(8, 48);
     } else if (bg_id == "gba_event") {
-        bg_ = bn::regular_bg_items::gba_event.create_bg(0, 0);
+        bg_ = bn::regular_bg_items::gba_event.create_bg(8, 48);
     } else if (bg_id == "still_gallerymenu") {
-        bg_ = bn::regular_bg_items::still_gallerymenu.create_bg(0, 0);
+        bg_ = bn::regular_bg_items::still_gallerymenu.create_bg(8, 48);
     } else if (bg_id == "still_bgm") {
-        bg_ = bn::regular_bg_items::still_bgm.create_bg(0, 0);
+        bg_ = bn::regular_bg_items::still_bgm.create_bg(8, 48);
     } else if (bg_id == "still_se") {
-        bg_ = bn::regular_bg_items::still_se.create_bg(0, 0);
+        bg_ = bn::regular_bg_items::still_se.create_bg(8, 48);
     } else if (bg_id == "still_viewbustup") {
-        bg_ = bn::regular_bg_items::still_viewbustup.create_bg(0, 0);
+        bg_ = bn::regular_bg_items::still_viewbustup.create_bg(8, 48);
     } else if (bg_id == "still_viewstill") {
-        bg_ = bn::regular_bg_items::still_viewstill.create_bg(0, 0);
+        bg_ = bn::regular_bg_items::still_viewstill.create_bg(8, 48);
     } else if (bg_id == "still_saveattention") {
-        bg_ = bn::regular_bg_items::still_saveattention.create_bg(0, 0);
+        bg_ = bn::regular_bg_items::still_saveattention.create_bg(8, 48);
     } else {
         clear_bg();
     }

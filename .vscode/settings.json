@@ -1,0 +1,25 @@
+{
+    // ファイル関連付け: .gba をバイナリとして扱う
+    "files.associations": {
+        "*.gba": "binary"
+    },
+    // 除外設定: ビルド成果物をエクスプローラに表示しない
+    "files.exclude": {
+        "build/": true,
+        "binary/": true,
+        "*.gba": true,
+        "*.elf": true,
+        "*.sav": true
+    },
+    // エディタ設定
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "files.encoding": "utf8",
+    "files.eol": "\n",
+    // C++ 設定
+    "C_Cpp.default.configurationProvider": "ms-vscode.cpptools",
+    "C_Cpp.intelliSenseEngine": "default",
+    // ターミナル
+    "terminal.integrated.defaultProfile.windows": "Command Prompt",
+    "terminal.integrated.cwd": "${workspaceFolder}"
+}

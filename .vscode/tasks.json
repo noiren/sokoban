@@ -1,0 +1,64 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build (make)",
+            "type": "shell",
+            "command": "make",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [],
+            "detail": "make で GBA ROM をビルド"
+        },
+        {
+            "label": "build (ROM copy)",
+            "type": "shell",
+            "command": "build.bat",
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "build.bat でビルド → binary/ に ROM をコピー"
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "command": "make clean",
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "ビルド成果物を削除"
+        },
+        {
+            "label": "rebuild",
+            "type": "shell",
+            "command": "make clean && make",
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "clean してからフルビルド"
+        },
+        {
+            "label": "start mGBA",
+            "type": "shell",
+            "command": "start \"\" \"C:\\Program Files\\mGBA\\mGBA.exe\" \"${workspaceFolder}\\gba-sokoban-bn.gba\"",
+            "group": "none",
+            "problemMatcher": [],
+            "detail": "mGBA エミュレータで ROM を起動"
+        },
+        {
+            "label": "start mGBA (GDB stub)",
+            "type": "shell",
+            "command": "start \"\" \"C:\\Program Files\\mGBA\\mGBA.exe\" -g \"${workspaceFolder}\\gba-sokoban-bn.gba\"",
+            "group": "none",
+            "problemMatcher": [],
+            "detail": "mGBA を GDB デバッグスタブ(port:2345)付きで起動（デバッグ用）"
+        },
+        {
+            "label": "build and debug",
+            "dependsOn": ["build (make)", "start mGBA (GDB stub)"],
+            "dependsOrder": "sequence",
+            "group": "none",
+            "problemMatcher": [],
+            "detail": "make でビルド → mGBA 起動 → デバッグ開始"
+        }
+    ]
+}

@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "GBA: mGBA GDB デバッグ",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/gba-sokoban-bn.elf",
+            "miDebuggerPath": "C:/devkitPro/devkitARM/bin/arm-none-eabi-gdb.exe",
+            "miDebuggerServerAddress": "localhost:2345",
+            "cwd": "${workspaceRoot}",
+            "preLaunchTask": "build and debug"
+        }
+    ]
+}
