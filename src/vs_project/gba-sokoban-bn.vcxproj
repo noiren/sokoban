@@ -40,11 +40,11 @@
     <NMakeBuildCommandLine>cd ../../ &amp;&amp; cmd.exe /c "set PATH=C:\devkitPro\msys2\usr\bin;%PATH% &amp; make -j8 -C C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn 2&gt;&amp;1"</NMakeBuildCommandLine>
     <NMakeReBuildCommandLine>cd ../../ &amp;&amp; cmd.exe /c "set PATH=C:\devkitPro\msys2\usr\bin;%PATH% &amp; make -C C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn clean &amp; make -j8 -C C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn 2&gt;&amp;1"</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine>cd ../../ &amp;&amp; cmd.exe /c "set PATH=C:\devkitPro\msys2\usr\bin;%PATH% &amp; make -C C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn clean 2&gt;&amp;1"</NMakeCleanCommandLine>
-    <NMakeOutput>../../gba-sokoban-bn.gba</NMakeOutput>
+    <NMakeOutput>../../build/gba-sokoban-bn.elf</NMakeOutput>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakeIncludeSearchPath>C:\Users\ryota\.gemini\antigravity\scratch\butano\include;C:\devkitPro\libgba\include;C:\devkitPro\devkitARM\arm-none-eabi\include;include;src;src\state;src\game;src\gfx;src\audio;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
     <LocalDebuggerCommand>C:\Program Files\mGBA\mGBA.exe</LocalDebuggerCommand>
-    <LocalDebuggerCommandArguments>C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn\gba-sokoban-bn.gba</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>gba-sokoban-bn.gba</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory>C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
@@ -52,7 +52,7 @@
     <NMakeBuildCommandLine>cd ../../ &amp;&amp; cmd.exe /c "set PATH=C:\devkitPro\msys2\usr\bin;%PATH% &amp; make -j8 -C C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn 2&gt;&amp;1"</NMakeBuildCommandLine>
     <NMakeReBuildCommandLine>cd ../../ &amp;&amp; cmd.exe /c "set PATH=C:\devkitPro\msys2\usr\bin;%PATH% &amp; make -C C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn clean &amp; make -j8 -C C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn 2&gt;&amp;1"</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine>cd ../../ &amp;&amp; cmd.exe /c "set PATH=C:\devkitPro\msys2\usr\bin;%PATH% &amp; make -C C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn clean 2&gt;&amp;1"</NMakeCleanCommandLine>
-    <NMakeOutput>../../gba-sokoban-bn.gba</NMakeOutput>
+    <NMakeOutput>../../build/gba-sokoban-bn.elf</NMakeOutput>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakeIncludeSearchPath>C:\Users\ryota\.gemini\antigravity\scratch\butano\include;C:\devkitPro\libgba\include;C:\devkitPro\devkitARM\arm-none-eabi\include;include;src;src\state;src\game;src\gfx;src\audio;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
     <LocalDebuggerCommand>C:\Program Files\mGBA\mGBA.exe</LocalDebuggerCommand>
@@ -73,51 +73,51 @@
   
   
   <ItemGroup>
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\audio\sound_manager.cpp" />
-    <ClCompile Include="src\game\puzzle_gen.cpp" />
-    <ClCompile Include="src\game\sokoban.cpp" />
-    <ClCompile Include="src\gfx\hud.cpp" />
-    <ClCompile Include="src\gfx\renderer.cpp" />
-    <ClCompile Include="src\gfx\ui_manager.cpp" />
-    <ClCompile Include="src\save\save_data.cpp" />
-    <ClCompile Include="src\state\debug_state.cpp" />
-    <ClCompile Include="src\state\endless_state.cpp" />
-    <ClCompile Include="src\state\event_state.cpp" />
-    <ClCompile Include="src\state\gallery_state.cpp" />
-    <ClCompile Include="src\state\menu_state.cpp" />
-    <ClCompile Include="src\state\practice_menu_state.cpp" />
-    <ClCompile Include="src\state\puzzle_state.cpp" />
-    <ClCompile Include="src\state\save_select_state.cpp" />
-    <ClCompile Include="src\state\settings_state.cpp" />
-    <ClCompile Include="src\state\state_manager.cpp" />
-    <ClCompile Include="src\state\title_state.cpp" />
+    <ClCompile Include="..\game\src\main.cpp" />
+    <ClCompile Include="..\game\src\audio\sound_manager.cpp" />
+    <ClCompile Include="..\game\src\game\puzzle_gen.cpp" />
+    <ClCompile Include="..\game\src\game\sokoban.cpp" />
+    <ClCompile Include="..\game\src\gfx\hud.cpp" />
+    <ClCompile Include="..\game\src\gfx\renderer.cpp" />
+    <ClCompile Include="..\game\src\gfx\ui_manager.cpp" />
+    <ClCompile Include="..\game\src\save\save_data.cpp" />
+    <ClCompile Include="..\game\src\state\debug_state.cpp" />
+    <ClCompile Include="..\game\src\state\endless_state.cpp" />
+    <ClCompile Include="..\game\src\state\event_state.cpp" />
+    <ClCompile Include="..\game\src\state\gallery_state.cpp" />
+    <ClCompile Include="..\game\src\state\menu_state.cpp" />
+    <ClCompile Include="..\game\src\state\practice_menu_state.cpp" />
+    <ClCompile Include="..\game\src\state\puzzle_state.cpp" />
+    <ClCompile Include="..\game\src\state\save_select_state.cpp" />
+    <ClCompile Include="..\game\src\state\settings_state.cpp" />
+    <ClCompile Include="..\game\src\state\state_manager.cpp" />
+    <ClCompile Include="..\game\src\state\title_state.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\audio\sound_manager.h" />
-    <ClInclude Include="src\game\event_script.h" />
-    <ClInclude Include="src\game\levels.h" />
-    <ClInclude Include="src\game\puzzle_gen.h" />
-    <ClInclude Include="src\game\sokoban.h" />
-    <ClInclude Include="src\game\story_data.h" />
-    <ClInclude Include="src\gfx\hud.h" />
-    <ClInclude Include="src\gfx\renderer.h" />
-    <ClInclude Include="src\gfx\ui_manager.h" />
-    <ClInclude Include="src\save\save_data.h" />
-    <ClInclude Include="src\state\debug_state.h" />
-    <ClInclude Include="src\state\endless_state.h" />
-    <ClInclude Include="src\state\event_state.h" />
-    <ClInclude Include="src\state\gallery_state.h" />
-    <ClInclude Include="src\state\menu_state.h" />
-    <ClInclude Include="src\state\practice_menu_state.h" />
-    <ClInclude Include="src\state\puzzle_state.h" />
-    <ClInclude Include="src\state\save_select_state.h" />
-    <ClInclude Include="src\state\settings_state.h" />
-    <ClInclude Include="src\state\state.h" />
-    <ClInclude Include="src\state\state_manager.h" />
-    <ClInclude Include="src\state\title_state.h" />
-    <ClInclude Include="include\common_fixed_8x16_sprite_font.h" />
-    <ClInclude Include="include\common_fixed_8x8_sprite_font.h" />
-    <ClInclude Include="include\japanese_sprite_font.h" />
+    <ClInclude Include="..\game\src\audio\sound_manager.h" />
+    <ClInclude Include="..\game\src\game\event_script.h" />
+    <ClInclude Include="..\game\src\game\levels.h" />
+    <ClInclude Include="..\game\src\game\puzzle_gen.h" />
+    <ClInclude Include="..\game\src\game\sokoban.h" />
+    <ClInclude Include="..\game\src\game\story_data.h" />
+    <ClInclude Include="..\game\src\gfx\hud.h" />
+    <ClInclude Include="..\game\src\gfx\renderer.h" />
+    <ClInclude Include="..\game\src\gfx\ui_manager.h" />
+    <ClInclude Include="..\game\src\save\save_data.h" />
+    <ClInclude Include="..\game\src\state\debug_state.h" />
+    <ClInclude Include="..\game\src\state\endless_state.h" />
+    <ClInclude Include="..\game\src\state\event_state.h" />
+    <ClInclude Include="..\game\src\state\gallery_state.h" />
+    <ClInclude Include="..\game\src\state\menu_state.h" />
+    <ClInclude Include="..\game\src\state\practice_menu_state.h" />
+    <ClInclude Include="..\game\src\state\puzzle_state.h" />
+    <ClInclude Include="..\game\src\state\save_select_state.h" />
+    <ClInclude Include="..\game\src\state\settings_state.h" />
+    <ClInclude Include="..\game\src\state\state.h" />
+    <ClInclude Include="..\game\src\state\state_manager.h" />
+    <ClInclude Include="..\game\src\state\title_state.h" />
+    <ClInclude Include="..\game\include\common_fixed_8x16_sprite_font.h" />
+    <ClInclude Include="..\game\include\common_fixed_8x8_sprite_font.h" />
+    <ClInclude Include="..\game\include\japanese_sprite_font.h" />
   </ItemGroup>
 </Project>

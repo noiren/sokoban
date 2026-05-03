@@ -26,12 +26,11 @@ void TitleState::init(StateManager& /*manager*/) {
     phase_ = TitlePhase::EPID_LOGO_FADEIN;
     frame_counter_ = 0;
     blink_counter_ = 0;
-    clear_sprites();
-    ui_manager_.set_bg(BgImageID::LOGO);
+    ui_manager_.load_screen(ui_data_logo::SCREEN);
 
     // 黒画面から開始
-    bn::bg_palettes::set_fade(bn::color(0, 0, 0), 1);
-    bn::sprite_palettes::set_fade(bn::color(0, 0, 0), 1);
+    bn::bg_palettes::set_fade(bn::color(0, 0, 0), 0); // DEBUG: フェードなし
+    bn::sprite_palettes::set_fade(bn::color(0, 0, 0), 0); // DEBUG: フェードなし
 }
 
 // ==========================================
@@ -65,40 +64,10 @@ bool TitleState::fade_out(int duration) {
 }
 
 // ==========================================
-// 各フェーズの描画
 // ==========================================
-
-void TitleState::draw_epid_logo() {
-    // UIManagerが背景を管理するため、ここではテキストのみ（必要なら）
-    clear_sprites();
-}
-
-void TitleState::draw_doujin_notice() {
-    clear_sprites();
-    text_gen_.set_center_alignment();
-    // TODO: 今後画像（注意.png）に差し替える
-    text_gen_.generate(0, -24, "この作品は同人作品です", sprites_);
-    text_gen_.generate(0,   0, "produced by 黑 - en",    sprites_);
-    text_gen_.generate(0,  24, "Press A to continue",      sprites_);
-}
-
-void TitleState::draw_autosave_warn() {
-    clear_sprites();
-    text_gen_.set_center_alignment();
-    // TODO: 今後画像（オートセーブ喚起.png）に差し替える
-    text_gen_.generate(0, -16, "この作品はオートセーブを使用します",  sprites_);
-    text_gen_.generate(0,   0, "セーブデータが上書きされることがあります", sprites_);
-    text_gen_.generate(0,  24, "Press A to continue",                        sprites_);
-}
-
-void TitleState::draw_title() {
-    // 常に背景(TITLE)が出ているため、テキストが不要ならクリアのみ
-    clear_sprites();
-}
-
-void TitleState::clear_sprites() {
-    sprites_.clear();
-}
+// 各フェーズは UIManager を通じて描画されるため、
+// 独自のテキスト描画関数は不要になりました。
+// ==========================================
 
 // ==========================================
 // メインアップデート
@@ -111,7 +80,6 @@ void TitleState::update(StateManager& manager) {
 
         // ---- EPID GAMES ロゴ ----
         case TitlePhase::EPID_LOGO_FADEIN:
-            draw_epid_logo();
             if (fade_in(FADE_FRAMES)) {
                 phase_ = TitlePhase::EPID_LOGO_WAIT;
                 frame_counter_ = 0;
@@ -127,8 +95,7 @@ void TitleState::update(StateManager& manager) {
 
         case TitlePhase::EPID_LOGO_FADEOUT:
             if (fade_out(FADE_FRAMES)) {
-                clear_sprites();
-                ui_manager_.clear_bg();
+                ui_manager_.load_screen(ui_data_attention::SCREEN);
                 phase_ = TitlePhase::DOUJIN_NOTICE_FADEIN;
                 frame_counter_ = 0;
             }
@@ -136,7 +103,6 @@ void TitleState::update(StateManager& manager) {
 
         // ---- 同人作品注意書き ----
         case TitlePhase::DOUJIN_NOTICE_FADEIN:
-            draw_doujin_notice();
             if (fade_in(FADE_FRAMES)) {
                 phase_ = TitlePhase::DOUJIN_NOTICE_WAIT;
                 frame_counter_ = 0;
@@ -152,7 +118,7 @@ void TitleState::update(StateManager& manager) {
 
         case TitlePhase::DOUJIN_NOTICE_FADEOUT:
             if (fade_out(FADE_FRAMES)) {
-                clear_sprites();
+                ui_manager_.load_screen(ui_data_autosave_attension::SCREEN);
                 phase_ = TitlePhase::AUTOSAVE_WARN_FADEIN;
                 frame_counter_ = 0;
             }
@@ -160,7 +126,6 @@ void TitleState::update(StateManager& manager) {
 
         // ---- オートセーブ警告 ----
         case TitlePhase::AUTOSAVE_WARN_FADEIN:
-            draw_autosave_warn();
             if (fade_in(FADE_FRAMES)) {
                 phase_ = TitlePhase::AUTOSAVE_WARN_WAIT;
                 frame_counter_ = 0;
@@ -176,7 +141,6 @@ void TitleState::update(StateManager& manager) {
 
         case TitlePhase::AUTOSAVE_WARN_FADEOUT:
             if (fade_out(FADE_FRAMES)) {
-                clear_sprites();
                 ui_manager_.load_screen(ui_data_title::SCREEN);
                 phase_ = TitlePhase::TITLE_FADEIN;
                 frame_counter_ = 0;
@@ -185,7 +149,6 @@ void TitleState::update(StateManager& manager) {
 
         // ---- タイトル画面 ----
         case TitlePhase::TITLE_FADEIN:
-            draw_title();
             if (fade_in(FADE_FRAMES)) {
                 phase_ = TitlePhase::TITLE_WAIT;
                 frame_counter_ = 0;
@@ -203,7 +166,6 @@ void TitleState::update(StateManager& manager) {
 
         case TitlePhase::TITLE_FADEOUT:
             if (fade_out(FADE_FRAMES)) {
-                clear_sprites();
                 manager.pop();  // → main.cpp で SaveSelectState へ遷移
             }
             break;
@@ -216,8 +178,7 @@ void TitleState::update(StateManager& manager) {
 }
 
 void TitleState::shutdown() {
-    clear_sprites();
-    ui_manager_.clear_bg();
+    ui_manager_.clear_all();
     bn::bg_palettes::set_fade(bn::color(0, 0, 0), 0);
     bn::sprite_palettes::set_fade(bn::color(0, 0, 0), 0);
 }

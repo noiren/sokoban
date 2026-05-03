@@ -10,6 +10,70 @@
         "type": "bg",
         "id": "background",
         "image_id": "still_sokoban_main"
+      },
+      {
+        "type": "text",
+        "id": "moves_text",
+        "x": -80,
+        "y": 68,
+        "text": "",
+        "visible": true
+      },
+      {
+        "type": "text",
+        "id": "stage_text",
+        "x": 80,
+        "y": 68,
+        "text": "",
+        "visible": true
+      },
+      {
+        "type": "text",
+        "id": "clear_text",
+        "x": 0,
+        "y": -16,
+        "text": "",
+        "visible": false
+      },
+      {
+        "type": "text",
+        "id": "start_text",
+        "x": 0,
+        "y": 0,
+        "text": "",
+        "visible": false
+      },
+      {
+        "type": "text",
+        "id": "endless_score_label",
+        "x": 0,
+        "y": -24,
+        "text": "",
+        "visible": false
+      },
+      {
+        "type": "text",
+        "id": "endless_best_label",
+        "x": 0,
+        "y": -4,
+        "text": "",
+        "visible": false
+      },
+      {
+        "type": "text",
+        "id": "endless_new_record",
+        "x": 0,
+        "y": 16,
+        "text": "",
+        "visible": false
+      },
+      {
+        "type": "text",
+        "id": "endless_press_a",
+        "x": 0,
+        "y": 40,
+        "text": "",
+        "visible": false
       }
     ]
   }

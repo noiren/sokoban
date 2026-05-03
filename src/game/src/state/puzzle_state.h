@@ -13,6 +13,7 @@
 #include "bn_sprite_text_generator.h"
 #include "bn_array.h"
 #include "bn_optional.h"
+#include "../gfx/ui_manager.h"
 
 class PuzzleState : public State {
 public:
@@ -32,6 +33,8 @@ private:
     bn::optional<bn::regular_bg_ptr> bg_;
     bn::optional<bn::regular_bg_map_ptr> bg_map_;
     alignas(4) bn::array<bn::regular_bg_map_cell, 32 * 32> map_cells_;
+
+    UIManager ui_manager_;
 };
 
 #endif // PUZZLE_STATE_H

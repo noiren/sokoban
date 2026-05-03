@@ -4,8 +4,20 @@
 #include "state/state.h"
 #include "save/save_data.h"
 #include "bn_sprite_text_generator.h"
-#include "bn_sprite_ptr.h"
-#include "bn_vector.h"
+#include "bn_optional.h"
+#include "../gfx/ui_manager.h"
+
+class SaveSelectUI {
+public:
+    SaveSelectUI(UIManager& ui) : ui_(ui) {}
+    void set_slot_text(int index, const bn::string_view& text) {
+        if (index == 0) ui_.set_text("slot_0", text);
+        else if (index == 1) ui_.set_text("slot_1", text);
+        else if (index == 2) ui_.set_text("slot_2", text);
+    }
+private:
+    UIManager& ui_;
+};
 
 // セーブスロット選択画面
 // ・スロット1〜3を上下で選択
@@ -23,13 +35,14 @@ public:
     int selected_slot() const { return selected_slot_; }
 
 private:
-    void draw_slots();
+    void update_slots_ui();
 
     bn::sprite_text_generator& text_gen_;
     SaveData& save_;
     int cursor_;
     int selected_slot_;
-    bn::vector<bn::sprite_ptr, 64> sprites_;
+    UIManager ui_manager_;
+    bn::optional<SaveSelectUI> ui_;
 };
 
 #endif // SAVE_SELECT_STATE_H

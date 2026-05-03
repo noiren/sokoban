@@ -4,8 +4,22 @@
 #include "state/state.h"
 #include "audio/sound_manager.h"
 #include "bn_sprite_text_generator.h"
-#include "bn_sprite_ptr.h"
-#include "bn_vector.h"
+#include "bn_optional.h"
+#include "../gfx/ui_manager.h"
+
+class MenuUI {
+public:
+    MenuUI(UIManager& ui) : ui_(ui) {}
+    void set_menu_item(int index, const bn::string_view& text) {
+        if (index == 0) ui_.set_text("menu_0", text);
+        else if (index == 1) ui_.set_text("menu_1", text);
+        else if (index == 2) ui_.set_text("menu_2", text);
+        else if (index == 3) ui_.set_text("menu_3", text);
+        else if (index == 4) ui_.set_text("menu_4", text);
+    }
+private:
+    UIManager& ui_;
+};
 
 // メインメニューの選択肢
 // 設計書に合わせてプラクティスとギャラリーを追加
@@ -33,13 +47,14 @@ public:
     MenuItem last_selected() const { return last_selected_; }
 
 private:
-    void draw_menu();
+    void update_menu_ui();
 
     bn::sprite_text_generator& text_gen_;
     SoundManager& sound_;
     int cursor_;
     MenuItem last_selected_;
-    bn::vector<bn::sprite_ptr, 64> sprites_;
+    UIManager ui_manager_;
+    bn::optional<MenuUI> ui_;
 };
 
 #endif // MENU_STATE_H

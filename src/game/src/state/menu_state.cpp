@@ -2,6 +2,7 @@
 #include "state_manager.h"
 #include "bn_keypad.h"
 #include "bn_string.h"
+#include "ui_data_mainmenu.h"
 
 // メニュー表示ラベル（DIBUGは非表示、VISIBLE_MENU_COUNTまで表示）
 namespace {
@@ -16,13 +17,16 @@ namespace {
 
 MenuState::MenuState(bn::sprite_text_generator& text_gen, SoundManager& sound)
     : text_gen_(text_gen), sound_(sound),
-      cursor_(0), last_selected_(MenuItem::STORY) {
+      cursor_(0), last_selected_(MenuItem::STORY), ui_manager_(text_gen) {
 }
 
 void MenuState::init(StateManager& /*manager*/) {
     cursor_ = 0;
-    sprites_.clear();
-    draw_menu();
+    
+    ui_manager_.load_screen(ui_data_mainmenu::SCREEN);
+    ui_.emplace(ui_manager_);
+
+    update_menu_ui();
 }
 
 void MenuState::update(StateManager& manager) {
@@ -42,7 +46,7 @@ void MenuState::update(StateManager& manager) {
     }
 
     if (changed) {
-        draw_menu();
+        update_menu_ui();
     }
 
     if (bn::keypad::a_pressed()) {
@@ -55,27 +59,25 @@ void MenuState::update(StateManager& manager) {
         last_selected_ = MenuItem::DEBUG;
         manager.pop();
     }
+
+    ui_manager_.update();
 }
 
-void MenuState::draw_menu() {
-    sprites_.clear();
-    text_gen_.set_center_alignment();
-
-    // タイトル
-    text_gen_.generate(0, -56, "ｽﾋﾟｷとマヨの倉庫番", sprites_);
+void MenuState::update_menu_ui() {
+    if (!ui_) return;
 
     for (int i = 0; i < VISIBLE_MENU_COUNT; i++) {
-        int y = -32 + i * 18;
         if (i == cursor_) {
             bn::string<48> line = "> ";
             line.append(MENU_LABELS[i]);
-            text_gen_.generate(0, y, line, sprites_);
+            ui_->set_menu_item(i, line);
         } else {
-            text_gen_.generate(0, y, MENU_LABELS[i], sprites_);
+            ui_->set_menu_item(i, MENU_LABELS[i]);
         }
     }
 }
 
 void MenuState::shutdown() {
-    sprites_.clear();
+    ui_manager_.clear_all();
+    ui_.reset();
 }

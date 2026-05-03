@@ -3,8 +3,8 @@
 
 #include "state/state.h"
 #include "bn_sprite_text_generator.h"
-#include "bn_sprite_ptr.h"
-#include "bn_vector.h"
+#include "bn_optional.h"
+#include "../gfx/ui_manager.h"
 
 // プラクティスモード: ステージ選択画面 (TODO: 実装予定)
 class PracticeMenuState : public State {
@@ -15,8 +15,7 @@ public:
     void shutdown() override;
 
 private:
-    bn::sprite_text_generator& text_gen_;
-    bn::vector<bn::sprite_ptr, 32> sprites_;
+    UIManager ui_manager_;
 };
 
 #endif // PRACTICE_MENU_STATE_H

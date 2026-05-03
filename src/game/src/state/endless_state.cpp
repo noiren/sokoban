@@ -2,18 +2,24 @@
 #include "state_manager.h"
 #include "game/puzzle_gen.h"
 #include "bn_keypad.h"
-#include "bn_regular_bg_items_bg.h"
+#include "bn_regular_bg_items_test_bg.h"
 #include "bn_string.h"
+#include "ui_data_sokoban_main.h"
 
 EndlessState::EndlessState(bn::sprite_text_generator& text_gen, SoundManager& sound, SaveSlot& save)
     : text_gen_(text_gen), sound_(sound), save_(save),
-      score_(0), difficulty_(0), seed_(42), show_result_(false) {
+      score_(0), difficulty_(0), seed_(42), show_result_(false), ui_manager_(text_gen) {
 }
 
 void EndlessState::init(StateManager& /*manager*/) {
-    bg_ = bn::regular_bg_items::bg.create_bg(0, 0);
+    ui_manager_.load_screen(ui_data_sokoban_main::SCREEN);
+
+    bg_ = bn::regular_bg_items::test_bg.create_bg(0, 0);
+    // UI背景の上にパズルを重ねるため優先度を下げる
+    bg_->set_priority(1);
+
     bg_map_ = bg_->map();
-    hud_.init(text_gen_);
+    hud_.init(ui_manager_);
 
     score_ = 0;
     difficulty_ = 0;
@@ -111,41 +117,41 @@ void EndlessState::update(StateManager& manager) {
     }
 
     // Draw HUD with score instead of moves
-    result_sprites_.clear();
-    text_gen_.set_left_alignment();
     bn::string<32> score_text = "SCORE:";
     score_text.append(bn::to_string<8>(score_));
-    text_gen_.generate(-120 + 8, 80 - 12, score_text, result_sprites_);
+    ui_manager_.set_text("moves_text", score_text); // HUDの使いまわし（左側）
 
-    text_gen_.set_right_alignment();
     bn::string<32> moves_text = "MOVES:";
     moves_text.append(bn::to_string<8>(gs_.moves));
-    text_gen_.generate(120 - 8, 80 - 12, moves_text, result_sprites_);
+    ui_manager_.set_text("stage_text", moves_text); // HUDの使いまわし（右側）
+
+    ui_manager_.update();
 }
 
 void EndlessState::draw_result() {
-    result_sprites_.clear();
-    text_gen_.set_center_alignment();
-
     bn::string<32> score_text = "SCORE: ";
     score_text.append(bn::to_string<8>(score_));
-    text_gen_.generate(0, -24, score_text, result_sprites_);
+    ui_manager_.set_text("endless_score_label", score_text);
+    ui_manager_.set_text_visible("endless_score_label", true);
 
     bn::string<32> high_text = "BEST:  ";
     int best = score_ > save_.endless_high_score ? score_ : save_.endless_high_score;
     high_text.append(bn::to_string<8>(best));
-    text_gen_.generate(0, -4, high_text, result_sprites_);
+    ui_manager_.set_text("endless_best_label", high_text);
+    ui_manager_.set_text_visible("endless_best_label", true);
 
     if (score_ > save_.endless_high_score) {
-        text_gen_.generate(0, 16, "NEW RECORD!", result_sprites_);
+        ui_manager_.set_text("endless_new_record", "NEW RECORD!");
+        ui_manager_.set_text_visible("endless_new_record", true);
     }
 
-    text_gen_.generate(0, 40, "PRESS A", result_sprites_);
+    ui_manager_.set_text("endless_press_a", "PRESS A");
+    ui_manager_.set_text_visible("endless_press_a", true);
 }
 
 void EndlessState::shutdown() {
-    result_sprites_.clear();
     hud_.clear();
     bg_map_.reset();
     bg_.reset();
+    ui_manager_.clear_all();
 }

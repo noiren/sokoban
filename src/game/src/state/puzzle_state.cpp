@@ -1,16 +1,22 @@
 #include "puzzle_state.h"
 #include "state_manager.h"
 #include "bn_keypad.h"
-#include "bn_regular_bg_items_bg.h"
+#include "bn_regular_bg_items_test_bg.h"
+#include "ui_data_sokoban_main.h"
 
 PuzzleState::PuzzleState(bn::sprite_text_generator& text_gen, SoundManager& sound)
-    : text_gen_(text_gen), sound_(sound) {
+    : text_gen_(text_gen), sound_(sound), ui_manager_(text_gen) {
 }
 
 void PuzzleState::init(StateManager& /*manager*/) {
-    bg_ = bn::regular_bg_items::bg.create_bg(0, 0);
+    ui_manager_.load_screen(ui_data_sokoban_main::SCREEN);
+
+    bg_ = bn::regular_bg_items::test_bg.create_bg(0, 0);
+    // UIの背景の上にパズルボードを重ねるため、Zオーダーを下げる（手前にする）
+    bg_->set_priority(1);
+    
     bg_map_ = bg_->map();
-    hud_.init(text_gen_);
+    hud_.init(ui_manager_);
 
     game_init(gs_, 0);
     render_draw_map(map_cells_, *bg_map_, gs_);
@@ -66,10 +72,13 @@ void PuzzleState::update(StateManager& /*manager*/) {
 
         hud_.draw_game_hud(gs_.moves, gs_.current_level + 1);
     }
+
+    ui_manager_.update();
 }
 
 void PuzzleState::shutdown() {
     hud_.clear();
     bg_map_.reset();
     bg_.reset();
+    ui_manager_.clear_all();
 }

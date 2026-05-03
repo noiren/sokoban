@@ -2,15 +2,19 @@
 #include "state_manager.h"
 #include "bn_keypad.h"
 #include "bn_string.h"
+#include "ui_data_settings.h"
 
 SettingsState::SettingsState(bn::sprite_text_generator& text_gen, SoundManager& sound, SaveSlot& save)
-    : text_gen_(text_gen), sound_(sound), save_(save), cursor_(0) {
+    : text_gen_(text_gen), sound_(sound), save_(save), cursor_(0), ui_manager_(text_gen) {
 }
 
 void SettingsState::init(StateManager& /*manager*/) {
     cursor_ = 0;
-    sprites_.clear();
-    draw_settings();
+    
+    ui_manager_.load_screen(ui_data_settings::SCREEN);
+    ui_.emplace(ui_manager_);
+
+    update_settings_ui();
 }
 
 void SettingsState::update(StateManager& manager) {
@@ -49,19 +53,19 @@ void SettingsState::update(StateManager& manager) {
     }
 
     if (changed) {
-        draw_settings();
+        update_settings_ui();
     }
 
     if (bn::keypad::b_pressed()) {
         // セーブはmain.cpp側で行う（slot_save）
         manager.pop();
     }
+
+    ui_manager_.update();
 }
 
-void SettingsState::draw_settings() {
-    sprites_.clear();
-    text_gen_.set_center_alignment();
-    text_gen_.generate(0, -50, "- SETTINGS -", sprites_);
+void SettingsState::update_settings_ui() {
+    if (!ui_) return;
 
     const char* speed_labels[] = { "SLOW", "NORMAL", "FAST" };
 
@@ -72,7 +76,7 @@ void SettingsState::draw_settings() {
         line.append("BGM: ");
         line.append(save_.bgm_enabled ? "ON" : "OFF");
         if (cursor_ == 0) line.append(" <");
-        text_gen_.generate(0, -16, line, sprites_);
+        ui_->set_setting_item(0, line);
     }
 
     // SE
@@ -82,7 +86,7 @@ void SettingsState::draw_settings() {
         line.append("SE:  ");
         line.append(save_.se_enabled ? "ON" : "OFF");
         if (cursor_ == 1) line.append(" <");
-        text_gen_.generate(0, 4, line, sprites_);
+        ui_->set_setting_item(1, line);
     }
 
     // Text Speed
@@ -92,12 +96,11 @@ void SettingsState::draw_settings() {
         line.append("TEXT:");
         line.append(speed_labels[save_.text_speed]);
         if (cursor_ == 2) line.append(" <");
-        text_gen_.generate(0, 24, line, sprites_);
+        ui_->set_setting_item(2, line);
     }
-
-    text_gen_.generate(0, 56, "B:BACK", sprites_);
 }
 
 void SettingsState::shutdown() {
-    sprites_.clear();
+    ui_manager_.clear_all();
+    ui_.reset();
 }

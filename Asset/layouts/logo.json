@@ -1,5 +1,5 @@
 {
-  "screen": "gallery_se",
+  "screen": "logo",
   "root": {
     "type": "group",
     "id": "root",
@@ -9,7 +9,7 @@
       {
         "type": "bg",
         "id": "background",
-        "image_id": "still_se"
+        "image_id": "stl_logo"
       }
     ]
   }

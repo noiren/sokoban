@@ -4,9 +4,14 @@
 #include "state/state.h"
 #include "bn_sprite_text_generator.h"
 #include "bn_sprite_ptr.h"
-#include "bn_vector.h"
 #include "bn_optional.h"
 #include "../gfx/ui_manager.h"
+
+// 自動生成UIデータヘッダ
+#include "ui_data_logo.h"
+#include "ui_data_attention.h"
+#include "ui_data_autosave_attension.h"
+#include "ui_data_title.h"
 
 // 起動シーケンス全フェーズ
 // EPID_LOGO     : "produced by EPID GAMES" ロゴ表示
@@ -38,12 +43,6 @@ public:
     void shutdown() override;
 
 private:
-    void draw_epid_logo();
-    void draw_doujin_notice();
-    void draw_autosave_warn();
-    void draw_title();
-    void clear_sprites();
-
     // フェードを0→1に進める。完了したらtrueを返す
     bool fade_in(int duration);
     // フェードを1→0に進める。完了したらtrueを返す
@@ -53,7 +52,6 @@ private:
     TitlePhase phase_;
     int frame_counter_;
     int blink_counter_;
-    bn::vector<bn::sprite_ptr, 64> sprites_;
     UIManager ui_manager_;
 };
 

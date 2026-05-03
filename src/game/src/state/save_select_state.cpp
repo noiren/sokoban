@@ -4,20 +4,23 @@
 #include "bn_string.h"
 #include "bn_bg_palettes.h"
 #include "bn_sprite_palettes.h"
+#include "ui_data_save_select.h"
 
 SaveSelectState::SaveSelectState(bn::sprite_text_generator& text_gen, SaveData& save)
-    : text_gen_(text_gen), save_(save), cursor_(0), selected_slot_(-1) {
+    : text_gen_(text_gen), save_(save), cursor_(0), selected_slot_(-1), ui_manager_(text_gen) {
 }
 
 void SaveSelectState::init(StateManager& /*manager*/) {
     cursor_        = 0;
     selected_slot_ = -1;
-    sprites_.clear();
+
+    ui_manager_.load_screen(ui_data_save_select::SCREEN);
+    ui_.emplace(ui_manager_);
 
     bn::bg_palettes::set_fade(bn::color(0, 0, 0), 0);
     bn::sprite_palettes::set_fade(bn::color(0, 0, 0), 0);
 
-    draw_slots();
+    update_slots_ui();
 }
 
 void SaveSelectState::update(StateManager& manager) {
@@ -35,28 +38,23 @@ void SaveSelectState::update(StateManager& manager) {
     }
 
     if (changed) {
-        draw_slots();
+        update_slots_ui();
     }
 
     if (bn::keypad::a_pressed()) {
         selected_slot_ = cursor_;
         manager.pop();  // → main.cpp がスロットを受け取り MenuState へ
     }
+
+    ui_manager_.update();
 }
 
-void SaveSelectState::draw_slots() {
-    sprites_.clear();
-    text_gen_.set_center_alignment();
-
-    // タイトル
-    text_gen_.generate(0, -56, "セーブデータを選んでください", sprites_);
+void SaveSelectState::update_slots_ui() {
+    if (!ui_) return;
 
     for (int i = 0; i < NUM_SAVE_SLOTS; i++) {
         const SaveSlot& slot = save_.slots[i];
         bool valid = save_slot_is_valid(slot);
-
-        // スロット番号 (y位置: -24, 0, 24)
-        int y = -16 + i * 28;
 
         // スロット情報文字列を構築
         bn::string<48> line;
@@ -80,13 +78,11 @@ void SaveSelectState::draw_slots() {
             line.append("--- NEW GAME ---");
         }
 
-        text_gen_.generate(0, y, line, sprites_);
+        ui_->set_slot_text(i, line);
     }
-
-    // 操作説明
-    text_gen_.generate(0, 60, "A: 選択  B: タイトルへ", sprites_);
 }
 
 void SaveSelectState::shutdown() {
-    sprites_.clear();
+    ui_manager_.clear_all();
+    ui_.reset();
 }

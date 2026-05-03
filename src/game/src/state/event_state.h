@@ -5,9 +5,54 @@
 #include "game/event_script.h"
 #include "save/save_data.h"
 #include "audio/sound_manager.h"
-#include "bn_sprite_text_generator.h"
-#include "bn_sprite_ptr.h"
-#include "bn_vector.h"
+#include "bn_optional.h"
+#include "../gfx/ui_manager.h"
+
+class EventUI {
+public:
+    EventUI(UIManager& ui) : ui_(ui) {}
+
+    void set_name(const bn::string_view& name) {
+        ui_.set_text("name_box", name);
+    }
+    
+    void set_message(const bn::string_view& msg) {
+        ui_.set_text("message_text", msg);
+    }
+    
+    void set_left_char(int image_no) {
+        ui_.set_sprite_image("char_left", "chara_portraits", image_no);
+        ui_.set_sprite_visible("char_left", true);
+    }
+    
+    void set_right_char(int image_no) {
+        ui_.set_sprite_image("char_right", "chara_portraits", image_no);
+        ui_.set_sprite_visible("char_right", true);
+    }
+
+    void clear_left_char() {
+        ui_.set_sprite_visible("char_left", false);
+    }
+
+    void clear_right_char() {
+        ui_.set_sprite_visible("char_right", false);
+    }
+
+    void clear_chars() {
+        clear_left_char();
+        clear_right_char();
+    }
+    
+    void set_cg(int image_no) {
+        (void)image_no;
+        // CG would be set dynamically here
+        // ui_.set_sprite_image("event_cg", "stills", image_no);
+        ui_.set_sprite_visible("event_cg", true);
+    }
+
+private:
+    UIManager& ui_;
+};
 
 // Sub-phases of event processing
 enum class EventPhase {
@@ -46,17 +91,15 @@ private:
     int text_timer_;             // Timer for text scroll speed
     const char* current_text_;
 
-    // Visual elements
-    bn::vector<bn::sprite_ptr, 64> dialog_sprites_;
-    bn::vector<bn::sprite_ptr, 16> label_sprites_;
-
     // Character display names (for placeholder text rendering)
     int left_char_id_;
     int right_char_id_;
 
+    UIManager ui_manager_;
+    bn::optional<EventUI> ui_;
+
     void execute_next();
-    void draw_dialog();
-    void draw_characters();
+    void update_dialog_text();
     void clear_all();
 };
 

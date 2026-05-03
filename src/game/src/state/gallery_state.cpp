@@ -1,24 +1,23 @@
 #include "gallery_state.h"
 #include "state_manager.h"
 #include "bn_keypad.h"
+#include "ui_data_gallerymenu.h"
 
 GalleryState::GalleryState(bn::sprite_text_generator& text_gen)
-    : text_gen_(text_gen) {
+    : ui_manager_(text_gen) {
 }
 
 void GalleryState::init(StateManager& /*manager*/) {
-    sprites_.clear();
-    text_gen_.set_center_alignment();
-    text_gen_.generate(0, -8, "GALLERY",        sprites_);
-    text_gen_.generate(0,  8, "Coming Soon...", sprites_);
+    ui_manager_.load_screen(ui_data_gallerymenu::SCREEN);
 }
 
 void GalleryState::update(StateManager& manager) {
     if (bn::keypad::b_pressed() || bn::keypad::a_pressed()) {
         manager.pop();
     }
+    ui_manager_.update();
 }
 
 void GalleryState::shutdown() {
-    sprites_.clear();
+    ui_manager_.clear_all();
 }

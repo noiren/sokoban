@@ -10,6 +10,58 @@
         "type": "bg",
         "id": "background",
         "image_id": "gba_event"
+      },
+      {
+        "type": "sprite",
+        "id": "event_cg",
+        "x": 0,
+        "y": -20,
+        "image_set": "dummy",
+        "image_no": 0,
+        "visible": false
+      },
+      {
+        "type": "sprite",
+        "id": "char_left",
+        "x": -60,
+        "y": 0,
+        "image_set": "chara_portraits",
+        "image_no": 0,
+        "visible": false
+      },
+      {
+        "type": "sprite",
+        "id": "char_right",
+        "x": 60,
+        "y": 0,
+        "image_set": "chara_portraits",
+        "image_no": 3,
+        "visible": false
+      },
+      {
+        "type": "sprite",
+        "id": "msg_window",
+        "x": 0,
+        "y": 50,
+        "image_set": "ui_paper",
+        "image_no": 0,
+        "visible": true
+      },
+      {
+        "type": "text",
+        "id": "name_box",
+        "x": -100,
+        "y": 20,
+        "text": "",
+        "visible": true
+      },
+      {
+        "type": "text",
+        "id": "message_text",
+        "x": -110,
+        "y": 40,
+        "text": "",
+        "visible": true
       }
     ]
   }

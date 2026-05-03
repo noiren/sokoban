@@ -16,6 +16,7 @@
 #include "bn_array.h"
 #include "bn_optional.h"
 #include "bn_vector.h"
+#include "../gfx/ui_manager.h"
 
 class EndlessState : public State {
 public:
@@ -41,6 +42,7 @@ private:
     alignas(4) bn::array<bn::regular_bg_map_cell, 32 * 32> map_cells_;
 
     bn::vector<bn::sprite_ptr, 32> result_sprites_;
+    UIManager ui_manager_;
 
     void generate_next();
     void draw_result();

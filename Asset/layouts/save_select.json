@@ -1,5 +1,5 @@
 {
-  "screen": "mainmenu",
+  "screen": "save_select",
   "root": {
     "type": "group",
     "id": "root",
@@ -9,43 +9,35 @@
       {
         "type": "bg",
         "id": "background",
-        "image_id": "still_mainmenu"
+        "image_id": "still_saveattention"
       },
       {
         "type": "text",
-        "id": "menu_0",
+        "id": "title_text",
         "x": 0,
-        "y": -32,
+        "y": -40,
+        "text": "SAVE SELECT",
+        "visible": true
+      },
+      {
+        "type": "text",
+        "id": "slot_0",
+        "x": 0,
+        "y": -16,
         "text": "",
         "visible": true
       },
       {
         "type": "text",
-        "id": "menu_1",
+        "id": "slot_1",
         "x": 0,
-        "y": -14,
+        "y": 12,
         "text": "",
         "visible": true
       },
       {
         "type": "text",
-        "id": "menu_2",
-        "x": 0,
-        "y": 4,
-        "text": "",
-        "visible": true
-      },
-      {
-        "type": "text",
-        "id": "menu_3",
-        "x": 0,
-        "y": 22,
-        "text": "",
-        "visible": true
-      },
-      {
-        "type": "text",
-        "id": "menu_4",
+        "id": "slot_2",
         "x": 0,
         "y": 40,
         "text": "",
@@ -53,10 +45,10 @@
       },
       {
         "type": "text",
-        "id": "title_text",
+        "id": "nav_text",
         "x": 0,
-        "y": -56,
-        "text": "\uff7d\uff8b\uff9f\uff77\u3068\u30de\u30e8\u306e\u5009\u5eab\u756a",
+        "y": 60,
+        "text": "A: Select  B: Title",
         "visible": true
       }
     ]
