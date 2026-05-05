@@ -1,35 +1,28 @@
 #ifndef STATE_H
 #define STATE_H
 
-// Forward declaration
 class StateManager;
+#include "state/shared_context.h"
+enum class PhaseStep { OPENING, RUNNING, CLOSING };
 
-// 各フェーズ共通のライフサイクルステップ
-// OPENING : 入場処理中（フェードインなど）
-// RUNNING : 通常更新中
-// CLOSING : 退場処理中（フェードアウトなど）
-enum class PhaseStep {
-    OPENING,
-    RUNNING,
-    CLOSING,
-};
-
-// Abstract base class for all game states
 class State {
 public:
-    virtual ~State() = default;
+    virtual ~State();
 
-    // StateManager から push/replace されたとき（画面遷移で入ってきたとき）に呼ばれる
-    // デフォルトは空実装。必要なら各Stateでオーバーライドする。
-    virtual void on_enter(StateManager& /*manager*/) {}
+    // 状態が開始された（スタックに積まれた）時に呼ばれる
+    virtual void enter(StateManager& sm, SharedContext& ctx);
 
-    // StateManager から pop/replace されるとき（画面から出るとき）に呼ばれる
-    // shutdown() の後に呼ばれる。デフォルトは空実装。
-    virtual void on_exit(StateManager& /*manager*/) {}
+    // 毎フレーム呼ばれる（派生クラスでの実装を強制するため純粋仮想関数）
+    virtual void update(StateManager& sm, SharedContext& ctx) = 0;
 
-    virtual void init(StateManager& manager) = 0;
-    virtual void update(StateManager& manager) = 0;
-    virtual void shutdown() = 0;
+    // 状態が終了した（スタックから取り除かれる）時に呼ばれる
+    virtual void exit(StateManager& sm, SharedContext& ctx);
+
+    // 上に別のStateが積まれてバックグラウンドに回った時に呼ばれる
+    virtual void pause(StateManager& sm, SharedContext& ctx);
+
+    // 上のStateがなくなり、再びアクティブになった時に呼ばれる
+    virtual void resume(StateManager& sm, SharedContext& ctx);
 };
 
 #endif // STATE_H

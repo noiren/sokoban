@@ -1,60 +1,61 @@
 #include "debug_state.h"
-#include "state_manager.h"
+#include "state/Manager/state_manager.h"
 #include "bn_keypad.h"
 #include "bn_string.h"
 #include "game/sokoban.h"
 #include "game/story_data.h"
 
-DebugState::DebugState(bn::sprite_text_generator& text_gen, SoundManager& sound, SaveSlot& save)
-    : text_gen_(text_gen), sound_(sound), save_(save), cursor_(0),
+DebugState::DebugState()
+    : cursor_(0),
       wants_event_(false), event_index_(0),
       wants_puzzle_(false), puzzle_level_(0),
       edit_chapter_(0), edit_event_(0), edit_puzzle_(0),
       step_(PhaseStep::OPENING) {
 }
 
-void DebugState::init(StateManager& /*manager*/) {
+void DebugState::enter(StateManager& /*sm*/, SharedContext& ctx) {
+    SaveSlot& save = ctx.save->slots[ctx.active_slot];
     cursor_       = 0;
     wants_event_  = false;
     wants_puzzle_ = false;
-    edit_chapter_ = save_.story_chapter;
+    edit_chapter_ = save.story_chapter;
     edit_event_   = 0;
     edit_puzzle_  = 0;
     sprites_.clear();
-    draw_menu();
+    draw_menu(ctx);
     step_ = PhaseStep::RUNNING;
 }
 
-void DebugState::update(StateManager& manager) {
+void DebugState::update(StateManager& sm, SharedContext& ctx) {
     switch (step_) {
         case PhaseStep::OPENING:
             step_ = PhaseStep::RUNNING;
             break;
 
         case PhaseStep::RUNNING:
-            update_menu(manager);
+            update_menu(sm, ctx);
             break;
 
         case PhaseStep::CLOSING:
-            manager.pop();
             break;
     }
 }
 
-void DebugState::update_menu(StateManager& /*manager*/) {
+void DebugState::update_menu(StateManager& sm, SharedContext& ctx) {
     bool changed = false;
+    SaveSlot& save = ctx.save->slots[ctx.active_slot];
 
     if (bn::keypad::up_pressed()) {
         cursor_--;
         if (cursor_ < 0) cursor_ = MENU_COUNT - 1;
         changed = true;
-        sound_.play_move();
+        if (ctx.sound) ctx.sound->play_move();
     }
     if (bn::keypad::down_pressed()) {
         cursor_++;
         if (cursor_ >= MENU_COUNT) cursor_ = 0;
         changed = true;
-        sound_.play_move();
+        if (ctx.sound) ctx.sound->play_move();
     }
 
     // 左右で値を調整
@@ -88,26 +89,24 @@ void DebugState::update_menu(StateManager& /*manager*/) {
         DebugItem item = static_cast<DebugItem>(cursor_);
         switch (item) {
             case DebugItem::STORY_CHAPTER:
-                save_.story_chapter = static_cast<uint8_t>(edit_chapter_);
-                sound_.play_clear();
+                save.story_chapter = static_cast<uint8_t>(edit_chapter_);
+                if (ctx.sound) ctx.sound->play_clear();
                 break;
             case DebugItem::CLEAR_FLAGS:
-                for (int i = 0; i < 32; i++) save_.flags[i] = 0;
-                sound_.play_clear();
+                for (int i = 0; i < 32; i++) save.flags[i] = 0;
+                if (ctx.sound) ctx.sound->play_clear();
                 break;
             case DebugItem::RESET_SAVE:
-                save_slot_init(save_);
-                sound_.play_clear();
+                save_slot_init(save);
+                if (ctx.sound) ctx.sound->play_clear();
                 break;
             case DebugItem::GOTO_EVENT:
-                wants_event_ = true;
-                event_index_ = edit_event_;
-                step_ = PhaseStep::CLOSING;
+                ctx.story_script_index = edit_event_;
+                sm.change_state(StateID::EVENT);
                 return;
             case DebugItem::GOTO_PUZZLE:
-                wants_puzzle_ = true;
-                puzzle_level_ = edit_puzzle_;
-                step_ = PhaseStep::CLOSING;
+                // TODO: 実際のパズル遷移
+                sm.change_state(StateID::PUZZLE);
                 return;
             default:
                 break;
@@ -116,20 +115,21 @@ void DebugState::update_menu(StateManager& /*manager*/) {
     }
 
     if (changed) {
-        draw_menu();
+        draw_menu(ctx);
     }
 
     if (bn::keypad::b_pressed()) {
-        step_ = PhaseStep::CLOSING;
+        sm.change_state(StateID::MENU);
     }
 }
 
-void DebugState::draw_menu() {
+void DebugState::draw_menu(SharedContext& ctx) {
+    if (!ctx.text_generator) return;
     sprites_.clear();
-    text_gen_.set_center_alignment();
-    text_gen_.generate(0, -68, "- DEBUG -", sprites_);
+    ctx.text_generator->set_center_alignment();
+    ctx.text_generator->generate(0, -68, "- DEBUG -", sprites_);
 
-    text_gen_.set_left_alignment();
+    ctx.text_generator->set_left_alignment();
     int y = -44;
     int spacing = 16;
 
@@ -138,21 +138,21 @@ void DebugState::draw_menu() {
         if (cursor_ == 0) line.append(">");
         line.append("CHAPTER:");
         line.append(bn::to_string<4>(edit_chapter_));
-        text_gen_.generate(-100, y, line, sprites_);
+        ctx.text_generator->generate(-100, y, line, sprites_);
         y += spacing;
     }
     {
         bn::string<32> line;
         if (cursor_ == 1) line.append(">");
         line.append("CLEAR ALL FLAGS");
-        text_gen_.generate(-100, y, line, sprites_);
+        ctx.text_generator->generate(-100, y, line, sprites_);
         y += spacing;
     }
     {
         bn::string<32> line;
         if (cursor_ == 2) line.append(">");
         line.append("RESET SAVE");
-        text_gen_.generate(-100, y, line, sprites_);
+        ctx.text_generator->generate(-100, y, line, sprites_);
         y += spacing;
     }
     {
@@ -160,7 +160,7 @@ void DebugState::draw_menu() {
         if (cursor_ == 3) line.append(">");
         line.append("EVENT:");
         line.append(bn::to_string<4>(edit_event_));
-        text_gen_.generate(-100, y, line, sprites_);
+        ctx.text_generator->generate(-100, y, line, sprites_);
         y += spacing;
     }
     {
@@ -168,14 +168,14 @@ void DebugState::draw_menu() {
         if (cursor_ == 4) line.append(">");
         line.append("PUZZLE:");
         line.append(bn::to_string<4>(edit_puzzle_));
-        text_gen_.generate(-100, y, line, sprites_);
+        ctx.text_generator->generate(-100, y, line, sprites_);
         y += spacing;
     }
 
-    text_gen_.set_center_alignment();
-    text_gen_.generate(0, 68, "A:EXEC B:BACK LR:ADJ", sprites_);
+    ctx.text_generator->set_center_alignment();
+    ctx.text_generator->generate(0, 68, "A:EXEC B:BACK LR:ADJ", sprites_);
 }
 
-void DebugState::shutdown() {
+void DebugState::exit(StateManager& /*sm*/, SharedContext& /*ctx*/) {
     sprites_.clear();
 }

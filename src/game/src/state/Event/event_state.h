@@ -6,7 +6,7 @@
 #include "save/save_data.h"
 #include "audio/sound_manager.h"
 #include "bn_optional.h"
-#include "../gfx/ui_manager.h"
+#include "gfx/ui_manager.h"
 
 class EventUI {
 public:
@@ -63,26 +63,19 @@ enum class EventPhase {
 
 class EventState : public State {
 public:
-    EventState(bn::sprite_text_generator& text_gen, SoundManager& sound, SaveSlot& save);
+    EventState();
 
-    void set_script(const EventScript& script);
-    void init(StateManager& manager) override;
-    void update(StateManager& manager) override;
-    void shutdown() override;
-
-    // END コマンド後、GOTO_PUZZLE が発行されたか
-    bool wants_puzzle() const { return wants_puzzle_; }
-    int puzzle_level() const { return puzzle_level_; }
+    void enter(StateManager& sm, SharedContext& ctx) override;
+    void update(StateManager& sm, SharedContext& ctx) override;
+    void exit(StateManager& sm, SharedContext& ctx) override;
+    void pause(StateManager& sm, SharedContext& ctx) override {}
+    void resume(StateManager& sm, SharedContext& ctx) override {}
 
 private:
-    void update_event(StateManager& manager);
-    void execute_next();
-    void update_dialog_text();
+    void update_event(StateManager& sm, SharedContext& ctx);
+    void execute_next(SharedContext& ctx);
+    void update_dialog_text(SharedContext& ctx);
     void clear_all();
-
-    bn::sprite_text_generator& text_gen_;
-    SoundManager& sound_;
-    SaveSlot& save_;
 
     const EventScript* script_;
     int pc_;
@@ -98,7 +91,7 @@ private:
     int left_char_id_;
     int right_char_id_;
 
-    UIManager ui_manager_;
+    bn::optional<UIManager> ui_manager_;
     bn::optional<EventUI> ui_;
     PhaseStep step_;
 };

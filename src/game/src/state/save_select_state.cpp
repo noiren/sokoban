@@ -1,112 +1,102 @@
 #include "save_select_state.h"
-#include "state_manager.h"
+#include "state/Manager/state_manager.h"
 #include "bn_keypad.h"
 #include "bn_string.h"
 #include "ui_data_save_select.h"
 
-SaveSelectState::SaveSelectState(bn::sprite_text_generator& text_gen, SaveData& save)
-    : text_gen_(text_gen), save_(save),
-      cursor_(0), selected_slot_(-1),
-      ui_manager_(text_gen), step_(PhaseStep::OPENING) {
+SaveSelectState::SaveSelectState()
+    : cursor_(0), selected_slot_(-1),
+      step_(PhaseStep::OPENING) {
 }
 
-void SaveSelectState::init(StateManager& /*manager*/) {
-    cursor_        = 0;
+void SaveSelectState::enter(StateManager& /*sm*/, SharedContext& ctx) {
+    ui_manager_.emplace(*ctx.text_generator);
+    ui_manager_->load_screen(ui_data_save_select::SCREEN);
+    ui_.emplace(*ui_manager_);
+    cursor_ = 0;
     selected_slot_ = -1;
-
-    ui_manager_.load_screen(ui_data_save_select::SCREEN);
-    ui_.emplace(ui_manager_);
-
-    update_slots_ui();
-
-    // フェードインで開始
-    fade_.start_fade_in(FADE_FRAMES);
-    step_ = PhaseStep::OPENING;
+    update_slots_ui(ctx);
+    step_ = PhaseStep::RUNNING;
 }
 
-void SaveSelectState::update(StateManager& manager) {
+void SaveSelectState::update(StateManager& sm, SharedContext& ctx) {
     switch (step_) {
         case PhaseStep::OPENING:
-            if (!fade_.update()) {
-                // フェード完了
-                step_ = PhaseStep::RUNNING;
-            }
+            step_ = PhaseStep::RUNNING;
             break;
 
         case PhaseStep::RUNNING:
-            update_select(manager);
+            update_select(sm, ctx);
             break;
 
         case PhaseStep::CLOSING:
-            if (!fade_.update()) {
-                manager.pop();  // → main.cpp がスロットを受け取り MenuState へ
-            }
             break;
     }
 
-    ui_manager_.update();
+    if (ui_manager_) {
+        ui_manager_->update();
+    }
 }
 
-void SaveSelectState::update_select(StateManager& /*manager*/) {
-    bool changed = false;
-
+void SaveSelectState::update_select(StateManager& sm, SharedContext& ctx) {
     if (bn::keypad::up_pressed()) {
         cursor_--;
         if (cursor_ < 0) cursor_ = NUM_SAVE_SLOTS - 1;
-        changed = true;
+        update_slots_ui(ctx);
     }
+
     if (bn::keypad::down_pressed()) {
         cursor_++;
         if (cursor_ >= NUM_SAVE_SLOTS) cursor_ = 0;
-        changed = true;
-    }
-
-    if (changed) {
-        update_slots_ui();
+        update_slots_ui(ctx);
     }
 
     if (bn::keypad::a_pressed()) {
+        // スロットを選択→init済みならロード、未初期化なら新規
+        SaveSlot& slot = ctx.save->slots[cursor_];
+        if (!save_slot_is_valid(slot)) {
+            save_slot_init(slot);
+        }
+        ctx.active_slot = cursor_;
         selected_slot_ = cursor_;
-        fade_.start_fade_out(FADE_FRAMES);
         step_ = PhaseStep::CLOSING;
+        sm.change_state(StateID::MENU);
+    }
+
+    // B = タイトルに戻る
+    if (bn::keypad::b_pressed()) {
+        sm.change_state(StateID::TITLE);
     }
 }
 
-void SaveSelectState::update_slots_ui() {
-    if (!ui_) return;
+void SaveSelectState::update_slots_ui(SharedContext& ctx) {
+    if (!ui_.has_value()) return;
 
     for (int i = 0; i < NUM_SAVE_SLOTS; i++) {
-        const SaveSlot& slot = save_.slots[i];
-        bool valid = save_slot_is_valid(slot);
-
-        // スロット情報文字列を構築
-        bn::string<48> line;
-        if (i == cursor_) {
-            line.append("> ");
-        } else {
-            line.append("  ");
-        }
-
-        line.append("SLOT ");
-        line.append(bn::to_string<8>(i + 1));
-        line.append(": ");
+        bool valid = save_slot_is_valid(ctx.save->slots[i]);
+        bn::string<32> text;
+        if (i == cursor_) text.append("> ");
 
         if (valid) {
-            // 進捗表示: "Ch.X Lv.X"
-            line.append("Ch.");
-            line.append(bn::to_string<8>(slot.story_chapter + 1));
-            line.append(" Lv.");
-            line.append(bn::to_string<8>(slot.story_level + 1));
+            text.append("SLOT ");
+            text.append(bn::to_string<4>(i + 1));
+            text.append(" (");
+            text.append(bn::to_string<4>(ctx.save->slots[i].story_chapter));
+            text.append(")");
         } else {
-            line.append("--- NEW GAME ---");
+            text.append("SLOT ");
+            text.append(bn::to_string<4>(i + 1));
+            text.append(" - NEW");
         }
 
-        ui_->set_slot_text(i, line);
+        ui_.value().set_slot_text(i, text);
     }
 }
 
-void SaveSelectState::shutdown() {
-    FadeEffect::reset_palette();
-    ui_manager_.clear_all();
+void SaveSelectState::exit(StateManager& /*sm*/, SharedContext& /*ctx*/) {
     ui_.reset();
+    if (ui_manager_) {
+        ui_manager_->clear_all();
+        ui_manager_.reset();
+    }
 }

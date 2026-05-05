@@ -19,24 +19,18 @@ enum class DebugItem {
 
 class DebugState : public State {
 public:
-    DebugState(bn::sprite_text_generator& text_gen, SoundManager& sound, SaveSlot& save);
-    void init(StateManager& manager) override;
-    void update(StateManager& manager) override;
-    void shutdown() override;
-
-    bool wants_event() const { return wants_event_; }
-    int event_index() const { return event_index_; }
-    bool wants_puzzle() const { return wants_puzzle_; }
-    int puzzle_level() const { return puzzle_level_; }
+    DebugState();
+    void enter(StateManager& sm, SharedContext& ctx) override;
+    void update(StateManager& sm, SharedContext& ctx) override;
+    void exit(StateManager& sm, SharedContext& ctx) override;
+    void pause(StateManager& sm, SharedContext& ctx) override {}
+    void resume(StateManager& sm, SharedContext& ctx) override {}
 
 private:
-    void update_menu(StateManager& manager);
-    void draw_menu();
+    void update_menu(StateManager& sm, SharedContext& ctx);
+    void draw_menu(SharedContext& ctx);
     static constexpr int MENU_COUNT = static_cast<int>(DebugItem::COUNT);
 
-    bn::sprite_text_generator& text_gen_;
-    SoundManager& sound_;
-    SaveSlot& save_;
     int cursor_;
     bn::vector<bn::sprite_ptr, 48> sprites_;
 

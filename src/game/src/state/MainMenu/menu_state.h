@@ -5,7 +5,7 @@
 #include "audio/sound_manager.h"
 #include "bn_sprite_text_generator.h"
 #include "bn_optional.h"
-#include "../gfx/ui_manager.h"
+#include "gfx/ui_manager.h"
 
 class MenuUI {
 public:
@@ -39,22 +39,20 @@ constexpr int VISIBLE_MENU_COUNT = 5;
 
 class MenuState : public State {
 public:
-    MenuState(bn::sprite_text_generator& text_gen, SoundManager& sound);
-    void init(StateManager& manager) override;
-    void update(StateManager& manager) override;
-    void shutdown() override;
-
-    MenuItem last_selected() const { return last_selected_; }
+    MenuState();
+    void enter(StateManager& sm, SharedContext& ctx) override;
+    void update(StateManager& sm, SharedContext& ctx) override;
+    void exit(StateManager& sm, SharedContext& ctx) override;
+    void pause(StateManager& sm, SharedContext& ctx) override {}
+    void resume(StateManager& sm, SharedContext& ctx) override {}
 
 private:
-    void update_select(StateManager& manager);
+    void update_menu(StateManager& sm, SharedContext& ctx);
     void update_menu_ui();
 
-    bn::sprite_text_generator& text_gen_;
-    SoundManager& sound_;
     int cursor_;
     MenuItem last_selected_;
-    UIManager ui_manager_;
+    bn::optional<UIManager> ui_manager_;
     bn::optional<MenuUI> ui_;
     PhaseStep step_;
 };

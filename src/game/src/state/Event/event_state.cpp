@@ -1,24 +1,27 @@
 #include "event_state.h"
-#include "state_manager.h"
+#include "state/Manager/state_manager.h"
 #include "bn_keypad.h"
 #include "bn_string.h"
 #include "bn_bg_palettes.h"
 #include "ui_data_event.h"
+#include "game/story_data.h"
+#include "save/save_data.h"
 
-EventState::EventState(bn::sprite_text_generator& text_gen, SoundManager& sound, SaveSlot& save)
-    : text_gen_(text_gen), sound_(sound), save_(save),
-      script_(nullptr), pc_(0), phase_(EventPhase::EXECUTING),
+EventState::EventState()
+    : script_(nullptr), pc_(0), phase_(EventPhase::EXECUTING),
       wants_puzzle_(false), puzzle_level_(0),
       text_char_index_(0), text_timer_(0), current_text_(nullptr),
       left_char_id_(-1), right_char_id_(-1),
-      ui_manager_(text_gen), step_(PhaseStep::OPENING) {
+      step_(PhaseStep::OPENING) {
 }
 
-void EventState::set_script(const EventScript& script) {
-    script_ = &script;
-}
+void EventState::enter(StateManager& /*sm*/, SharedContext& ctx) {
+    if (ctx.story_script_index < NUM_STORY_SCRIPTS) {
+        script_ = story_scripts[ctx.story_script_index];
+    } else {
+        script_ = nullptr;
+    }
 
-void EventState::init(StateManager& /*manager*/) {
     pc_              = 0;
     phase_           = EventPhase::EXECUTING;
     wants_puzzle_    = false;
@@ -29,43 +32,42 @@ void EventState::init(StateManager& /*manager*/) {
     left_char_id_    = -1;
     right_char_id_   = -1;
 
-    ui_manager_.load_screen(ui_data_event::SCREEN);
-    ui_.emplace(ui_manager_);
+    ui_manager_.emplace(*ctx.text_generator);
+    ui_manager_->load_screen(ui_data_event::SCREEN);
+    ui_.emplace(*ui_manager_);
     clear_all();
 
     bn::bg_palettes::set_fade(bn::color(0, 0, 0), 0);
 
-    step_ = PhaseStep::RUNNING;  // 現時点はフェードなしで即開始
+    step_ = PhaseStep::RUNNING;
 }
 
-void EventState::update(StateManager& manager) {
+void EventState::update(StateManager& sm, SharedContext& ctx) {
     switch (step_) {
         case PhaseStep::OPENING:
-            // TODO: フェードイン処理
             step_ = PhaseStep::RUNNING;
             break;
 
         case PhaseStep::RUNNING:
-            update_event(manager);
+            update_event(sm, ctx);
             break;
 
         case PhaseStep::CLOSING:
-            // TODO: フェードアウト処理
-            manager.pop();
             break;
     }
 
-    ui_manager_.update();
+    if (ui_manager_) {
+        ui_manager_->update();
+    }
 }
 
-void EventState::update_event(StateManager& /*manager*/) {
+void EventState::update_event(StateManager& sm, SharedContext& ctx) {
     switch (phase_) {
         case EventPhase::EXECUTING:
-            execute_next();
+            execute_next(ctx);
             break;
 
         case EventPhase::WAITING_INPUT: {
-            // テキストスクロールアニメーション
             if (current_text_ != nullptr) {
                 int text_len = 0;
                 {
@@ -75,7 +77,8 @@ void EventState::update_event(StateManager& /*manager*/) {
 
                 if (text_char_index_ < text_len) {
                     int speed = 1;
-                    switch (save_.text_speed) {
+                    SaveSlot& save = ctx.save->slots[ctx.active_slot];
+                    switch (save.text_speed) {
                         case 0: speed = 3; break;  // slow
                         case 1: speed = 1; break;  // normal
                         case 2: speed = 0; break;  // fast (instant)
@@ -87,14 +90,14 @@ void EventState::update_event(StateManager& /*manager*/) {
                         text_timer_ = 0;
                         text_char_index_++;
                         if (speed == 0) text_char_index_ = text_len;
-                        update_dialog_text();
+                        update_dialog_text(ctx);
                     }
                 }
 
                 if (bn::keypad::a_pressed()) {
                     if (text_char_index_ < text_len) {
                         text_char_index_ = text_len;
-                        update_dialog_text();
+                        update_dialog_text(ctx);
                     } else {
                         phase_ = EventPhase::EXECUTING;
                     }
@@ -108,7 +111,16 @@ void EventState::update_event(StateManager& /*manager*/) {
         }
 
         case EventPhase::FINISHED:
-            step_ = PhaseStep::CLOSING;
+            if (wants_puzzle_) {
+                sm.change_state(StateID::PUZZLE);
+            } else {
+                ctx.story_script_index++;
+                if (ctx.story_script_index < NUM_STORY_SCRIPTS) {
+                    sm.change_state(StateID::EVENT);
+                } else {
+                    sm.change_state(StateID::MENU);
+                }
+            }
             break;
 
         default:
@@ -116,7 +128,7 @@ void EventState::update_event(StateManager& /*manager*/) {
     }
 }
 
-void EventState::execute_next() {
+void EventState::execute_next(SharedContext& ctx) {
     if (!script_ || pc_ >= script_->num_commands) {
         phase_ = EventPhase::FINISHED;
         return;
@@ -125,12 +137,14 @@ void EventState::execute_next() {
     const EventCommand& cmd = script_->commands[pc_];
     pc_++;
 
+    SaveSlot& save = ctx.save->slots[ctx.active_slot];
+
     switch (cmd.cmd) {
         case EventCmd::TEXT:
             current_text_    = cmd.text;
             text_char_index_ = 0;
             text_timer_      = 0;
-            update_dialog_text();
+            update_dialog_text(ctx);
             phase_ = EventPhase::WAITING_INPUT;
             break;
 
@@ -165,11 +179,11 @@ void EventState::execute_next() {
             break;
 
         case EventCmd::SET_FLAG:
-            save_data_set_flag(save_, cmd.arg1, true);
+            save_data_set_flag(save, cmd.arg1, true);
             break;
 
         case EventCmd::CHECK_FLAG:
-            if (!save_data_get_flag(save_, cmd.arg1)) {
+            if (!save_data_get_flag(save, cmd.arg1)) {
                 pc_ += cmd.arg2;  // N個のコマンドをスキップ
             }
             break;
@@ -185,16 +199,15 @@ void EventState::execute_next() {
             break;
 
         case EventCmd::PLAY_SE:
-            sound_.play_move();  // Placeholder
+            if (ctx.sound) ctx.sound->play_move();  // Placeholder
             break;
 
         default:
-            // 未知のコマンドはスキップ
             break;
     }
 }
 
-void EventState::update_dialog_text() {
+void EventState::update_dialog_text(SharedContext& /*ctx*/) {
     if (!ui_) return;
     if (!current_text_) {
         ui_->set_message("");
@@ -221,9 +234,12 @@ void EventState::clear_all() {
     }
 }
 
-void EventState::shutdown() {
+void EventState::exit(StateManager& /*sm*/, SharedContext& /*ctx*/) {
     clear_all();
-    ui_manager_.clear_all();
+    if (ui_manager_) {
+        ui_manager_->clear_all();
+        ui_manager_.reset();
+    }
     ui_.reset();
     bn::bg_palettes::set_fade(bn::color(0, 0, 0), 0);
 }

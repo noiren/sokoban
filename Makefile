@@ -35,7 +35,7 @@ TARGET      	:=  gba-sokoban-bn
 BUILD       	:=  build
 LIBBUTANO   	:=  ../butano
 PYTHON      	:=  python
-SOURCES     	:=  src/game/src src/game/src/audio src/game/src/gfx src/game/src/save src/game/src/state src/game/src/game
+SOURCES     	:=  $(shell python -c "import os,glob; dirs=[d.replace(os.sep,'/') for d in glob.glob('src/game/src/**',recursive=True) if os.path.isdir(d)]; print(' '.join(dirs))")
 INCLUDES    	:=  src/game/include src/game/src
 DATA        	:=
 GRAPHICS    	:=  build/asset_tmp/sprites/chara/chara build/asset_tmp/sprites/mini build/asset_tmp/sprites/ui build/asset_tmp/sprites/ui/common build/asset_tmp/sprites/ui/gallery build/asset_tmp/sprites/ui/icons build/asset_tmp/sprites/ui/menu build/asset_tmp/sprites/ui/paper build/asset_tmp/sprites/ui/practice build/asset_tmp/sprites/ui/title build/asset_tmp/stills build/asset_tmp/stills/event build/asset_tmp/stills/gallery build/asset_tmp/stills/gallery/bgm build/asset_tmp/stills/gallery/event_select build/asset_tmp/stills/gallery/view_bustup build/asset_tmp/stills/gallery/view_still build/asset_tmp/stills/mainmenu build/asset_tmp/stills/practice build/asset_tmp/stills/save_attention build/asset_tmp/stills/soukoban_gamentest build/asset_tmp/stills/title

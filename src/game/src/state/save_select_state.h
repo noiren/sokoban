@@ -5,8 +5,8 @@
 #include "save/save_data.h"
 #include "bn_sprite_text_generator.h"
 #include "bn_optional.h"
-#include "../gfx/ui_manager.h"
-#include "../gfx/fade_effect.h"
+#include "gfx/ui_manager.h"
+#include "gfx/fade_effect.h"
 
 class SaveSelectUI {
 public:
@@ -26,25 +26,22 @@ private:
 // ・B: タイトルに戻る（TODO: 今後検討）
 class SaveSelectState : public State {
 public:
-    SaveSelectState(bn::sprite_text_generator& text_gen, SaveData& save);
+    SaveSelectState();
 
-    void init(StateManager& manager) override;
-    void update(StateManager& manager) override;
-    void shutdown() override;
-
-    // 選択されたスロットインデックス (0-2)
-    int selected_slot() const { return selected_slot_; }
+    void enter(StateManager& sm, SharedContext& ctx) override;
+    void update(StateManager& sm, SharedContext& ctx) override;
+    void exit(StateManager& sm, SharedContext& ctx) override;
+    void pause(StateManager& sm, SharedContext& ctx) override {}
+    void resume(StateManager& sm, SharedContext& ctx) override {}
 
 private:
-    void update_select(StateManager& manager);
-    void update_slots_ui();
+    void update_select(StateManager& sm, SharedContext& ctx);
+    void update_slots_ui(SharedContext& ctx);
 
-    bn::sprite_text_generator& text_gen_;
-    SaveData& save_;
     int cursor_;
     int selected_slot_;
     FadeEffect fade_;
-    UIManager ui_manager_;
+    bn::optional<UIManager> ui_manager_;
     bn::optional<SaveSelectUI> ui_;
     PhaseStep step_;
 

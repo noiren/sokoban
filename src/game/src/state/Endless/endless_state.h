@@ -16,7 +16,7 @@
 #include "bn_array.h"
 #include "bn_optional.h"
 #include "bn_vector.h"
-#include "../gfx/ui_manager.h"
+#include "gfx/ui_manager.h"
 
 // エンドレスモードのフェーズ
 enum class EndlessPhase {
@@ -26,20 +26,19 @@ enum class EndlessPhase {
 
 class EndlessState : public State {
 public:
-    EndlessState(bn::sprite_text_generator& text_gen, SoundManager& sound, SaveSlot& save);
-    void init(StateManager& manager) override;
-    void update(StateManager& manager) override;
-    void shutdown() override;
+    EndlessState();
+    void enter(StateManager& sm, SharedContext& ctx) override;
+    void update(StateManager& sm, SharedContext& ctx) override;
+    void exit(StateManager& sm, SharedContext& ctx) override;
+    void pause(StateManager& sm, SharedContext& ctx) override {}
+    void resume(StateManager& sm, SharedContext& ctx) override {}
 
 private:
-    void update_playing(StateManager& manager);
-    void update_result(StateManager& manager);
+    void update_playing(StateManager& sm, SharedContext& ctx);
+    void update_result(StateManager& sm, SharedContext& ctx);
     void generate_next();
-    void draw_result();
+    void draw_result(SharedContext& ctx);
 
-    bn::sprite_text_generator& text_gen_;
-    SoundManager& sound_;
-    SaveSlot& save_;
     Hud hud_;
     GameState gs_;
 
@@ -52,7 +51,7 @@ private:
     alignas(4) bn::array<bn::regular_bg_map_cell, 32 * 32> map_cells_;
 
     bn::vector<bn::sprite_ptr, 32> result_sprites_;
-    UIManager ui_manager_;
+    bn::optional<UIManager> ui_manager_;
     EndlessPhase phase_;
     PhaseStep    step_;
 };

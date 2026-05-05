@@ -1,5 +1,5 @@
 #include "title_state.h"
-#include "state_manager.h"
+#include "state/Manager/state_manager.h"
 #include "bn_keypad.h"
 #include "bn_bg_palettes.h"
 #include "bn_sprite_palettes.h"
@@ -16,17 +16,16 @@ namespace {
     constexpr int AUTOSAVE_WAIT_FRAMES = 150; // オートセーブ警告の表示時間
 }
 
-TitleState::TitleState(bn::sprite_text_generator& text_gen)
-    : text_gen_(text_gen),
-      phase_(TitlePhase::EPID_LOGO_DISP),
+TitleState::TitleState()
+    : phase_(TitlePhase::EPID_LOGO_DISP),
       step_(PhaseStep::OPENING),
       frame_counter_(0),
-      blink_counter_(0),
-      ui_manager_(text_gen) {
+      blink_counter_(0) {
 }
 
-void TitleState::init(StateManager& /*manager*/) {
-    ui_manager_.load_screen(ui_data_logo::SCREEN);
+void TitleState::enter(StateManager& /*sm*/, SharedContext& ctx) {
+    ui_manager_.emplace(*ctx.text_generator);
+    ui_manager_->load_screen(ui_data_logo::SCREEN);
     // 最初のフェーズへ（画面はload済みなのでload不要）
     phase_        = TitlePhase::EPID_LOGO_DISP;
     step_         = PhaseStep::OPENING;
@@ -45,13 +44,13 @@ void TitleState::go_to_phase(TitlePhase next) {
 
     switch (next) {
         case TitlePhase::DOUJIN_NOTICE_DISP:
-            ui_manager_.load_screen(ui_data_attention::SCREEN);
+            ui_manager_->load_screen(ui_data_attention::SCREEN);
             break;
         case TitlePhase::AUTOSAVE_WARN_DISP:
-            ui_manager_.load_screen(ui_data_autosave_attension::SCREEN);
+            ui_manager_->load_screen(ui_data_autosave_attension::SCREEN);
             break;
         case TitlePhase::TITLE_DISP:
-            ui_manager_.load_screen(ui_data_title::SCREEN);
+            ui_manager_->load_screen(ui_data_title::SCREEN);
             blink_counter_ = 0;
             break;
         default:
@@ -63,7 +62,7 @@ void TitleState::go_to_phase(TitlePhase next) {
 // 各フェーズの update
 // ==========================================
 
-void TitleState::update_epid_logo(StateManager& /*manager*/) {
+void TitleState::update_epid_logo(StateManager& /*sm*/, SharedContext& /*ctx*/) {
     switch (step_) {
         case PhaseStep::OPENING:
             if (!fade_.is_active()) {
@@ -96,7 +95,7 @@ void TitleState::update_epid_logo(StateManager& /*manager*/) {
     }
 }
 
-void TitleState::update_doujin_notice(StateManager& /*manager*/) {
+void TitleState::update_doujin_notice(StateManager& /*sm*/, SharedContext& /*ctx*/) {
     switch (step_) {
         case PhaseStep::OPENING:
             if (!fade_.is_active()) {
@@ -126,7 +125,7 @@ void TitleState::update_doujin_notice(StateManager& /*manager*/) {
     }
 }
 
-void TitleState::update_autosave_warn(StateManager& /*manager*/) {
+void TitleState::update_autosave_warn(StateManager& /*sm*/, SharedContext& /*ctx*/) {
     switch (step_) {
         case PhaseStep::OPENING:
             if (!fade_.is_active()) {
@@ -156,7 +155,7 @@ void TitleState::update_autosave_warn(StateManager& /*manager*/) {
     }
 }
 
-void TitleState::update_title(StateManager& manager) {
+void TitleState::update_title(StateManager& sm, SharedContext& /*ctx*/) {
     switch (step_) {
         case PhaseStep::OPENING:
             if (!fade_.is_active()) {
@@ -180,7 +179,7 @@ void TitleState::update_title(StateManager& manager) {
                 fade_.start_fade_out(FADE_FRAMES);
             }
             if (!fade_.update()) {
-                manager.pop();  // → SaveSelectState へ遷移
+                sm.change_state(StateID::SAVE_SELECT);
             }
             break;
     }
@@ -190,28 +189,33 @@ void TitleState::update_title(StateManager& manager) {
 // メインアップデート
 // ==========================================
 
-void TitleState::update(StateManager& manager) {
+void TitleState::update(StateManager& sm, SharedContext& ctx) {
     frame_counter_++;
 
     switch (phase_) {
         case TitlePhase::EPID_LOGO_DISP:
-            update_epid_logo(manager);
+            update_epid_logo(sm, ctx);
             break;
         case TitlePhase::DOUJIN_NOTICE_DISP:
-            update_doujin_notice(manager);
+            update_doujin_notice(sm, ctx);
             break;
         case TitlePhase::AUTOSAVE_WARN_DISP:
-            update_autosave_warn(manager);
+            update_autosave_warn(sm, ctx);
             break;
         case TitlePhase::TITLE_DISP:
-            update_title(manager);
+            update_title(sm, ctx);
             break;
     }
 
-    ui_manager_.update();
+    if (ui_manager_) {
+        ui_manager_->update();
+    }
 }
 
-void TitleState::shutdown() {
+void TitleState::exit(StateManager& /*sm*/, SharedContext& /*ctx*/) {
     FadeEffect::reset_palette();
-    ui_manager_.clear_all();
+    if (ui_manager_) {
+        ui_manager_->clear_all();
+        ui_manager_.reset();
+    }
 }
