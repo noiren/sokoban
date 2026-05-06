@@ -20,10 +20,11 @@ private:
     UIManager& ui_;
 };
 
-// セーブスロット選択画面
-// ・スロット1〜3を上下で選択
-// ・A: 選択（新規 or ロード）
-// ・B: タイトルに戻る（TODO: 今後検討）
+enum class SaveSelectPhase {
+    SELECT_SLOT, // スロット選択
+    COUNT
+};
+
 class SaveSelectState : public State {
 public:
     SaveSelectState();
@@ -35,14 +36,31 @@ public:
     void resume(StateManager& sm, SharedContext& ctx) override {}
 
 private:
+    void change_phase(SaveSelectPhase next);
+
+    void enter_select();
     void update_select(StateManager& sm, SharedContext& ctx);
+    void exit_select();
+
     void update_slots_ui(SharedContext& ctx);
+
+    using EnterExitFunc = void (SaveSelectState::*)();
+    using UpdateFunc = void (SaveSelectState::*)(StateManager&, SharedContext&);
+
+    struct PhaseHandlers {
+        EnterExitFunc enter;
+        UpdateFunc    update;
+        EnterExitFunc exit;
+    };
+
+    static const PhaseHandlers phase_table_[];
 
     int cursor_;
     int selected_slot_;
     FadeEffect fade_;
     bn::optional<UIManager> ui_manager_;
     bn::optional<SaveSelectUI> ui_;
+    SaveSelectPhase phase_;
     PhaseStep step_;
 
     static constexpr int FADE_FRAMES = 30;

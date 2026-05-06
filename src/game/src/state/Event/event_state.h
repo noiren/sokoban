@@ -45,7 +45,6 @@ public:
     
     void set_cg(int image_no) {
         (void)image_no;
-        // CG would be set dynamically here
         // ui_.set_sprite_image("event_cg", "stills", image_no);
         ui_.set_sprite_visible("event_cg", true);
     }
@@ -54,11 +53,11 @@ private:
     UIManager& ui_;
 };
 
-// イベント処理の内部フェーズ（EventStateのフェーズ単位ではなくスクリプト実行状態）
 enum class EventPhase {
-    EXECUTING,       // コマンド実行中
-    WAITING_INPUT,   // Aボタン待ち
-    FINISHED,        // スクリプト終了
+    EXECUTING,
+    WAITING_INPUT,
+    FINISHED,
+    COUNT
 };
 
 class EventState : public State {
@@ -72,10 +71,34 @@ public:
     void resume(StateManager& sm, SharedContext& ctx) override {}
 
 private:
-    void update_event(StateManager& sm, SharedContext& ctx);
+    void change_phase(EventPhase next);
+
+    void enter_executing();
+    void update_executing(StateManager& sm, SharedContext& ctx);
+    void exit_executing();
+
+    void enter_waiting();
+    void update_waiting(StateManager& sm, SharedContext& ctx);
+    void exit_waiting();
+
+    void enter_finished();
+    void update_finished(StateManager& sm, SharedContext& ctx);
+    void exit_finished();
+
     void execute_next(SharedContext& ctx);
     void update_dialog_text(SharedContext& ctx);
     void clear_all();
+
+    using EnterExitFunc = void (EventState::*)();
+    using UpdateFunc = void (EventState::*)(StateManager&, SharedContext&);
+
+    struct PhaseHandlers {
+        EnterExitFunc enter;
+        UpdateFunc    update;
+        EnterExitFunc exit;
+    };
+
+    static const PhaseHandlers phase_table_[];
 
     const EventScript* script_;
     int pc_;

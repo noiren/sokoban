@@ -2,30 +2,31 @@
 #include "state/Manager/state_manager.h"
 #include "bn_keypad.h"
 #include "bn_string.h"
-#include "ui_data_mainmenu.h"
+#include "ui_data_menu.h"
+
+const MenuState::PhaseHandlers MenuState::phase_table_[] = {
+    // MAIN
+    { &MenuState::enter_main, &MenuState::update_main, &MenuState::exit_main }
+};
 
 MenuState::MenuState()
-    : cursor_(0), step_(PhaseStep::OPENING) {
+    : cursor_(0), last_selected_(MenuItem::STORY),
+      phase_(MenuPhase::MAIN), step_(PhaseStep::OPENING) {
 }
 
 void MenuState::enter(StateManager& /*sm*/, SharedContext& ctx) {
     ui_manager_.emplace(*ctx.text_generator);
-    ui_manager_->load_screen(ui_data_mainmenu::SCREEN);
-    step_ = PhaseStep::RUNNING;
+    ui_.emplace(*ui_manager_);
+
+    phase_ = MenuPhase::MAIN;
+    if (phase_table_[(int)phase_].enter) {
+        (this->*phase_table_[(int)phase_].enter)();
+    }
 }
 
 void MenuState::update(StateManager& sm, SharedContext& ctx) {
-    switch (step_) {
-        case PhaseStep::OPENING:
-            step_ = PhaseStep::RUNNING;
-            break;
-
-        case PhaseStep::RUNNING:
-            update_menu(sm, ctx);
-            break;
-
-        case PhaseStep::CLOSING:
-            break;
+    if (phase_table_[(int)phase_].update) {
+        (this->*phase_table_[(int)phase_].update)(sm, ctx);
     }
 
     if (ui_manager_) {
@@ -33,55 +34,104 @@ void MenuState::update(StateManager& sm, SharedContext& ctx) {
     }
 }
 
-void MenuState::update_menu(StateManager& sm, SharedContext& ctx) {
+void MenuState::exit(StateManager& /*sm*/, SharedContext& /*ctx*/) {
+    if (phase_table_[(int)phase_].exit) {
+        (this->*phase_table_[(int)phase_].exit)();
+    }
+
+    ui_.reset();
+    if (ui_manager_) {
+        ui_manager_->clear_all();
+        ui_manager_.reset();
+    }
+}
+
+void MenuState::change_phase(MenuPhase next) {
+    if (phase_table_[(int)phase_].exit) {
+        (this->*phase_table_[(int)phase_].exit)();
+    }
+
+    phase_ = next;
+
+    if (phase_table_[(int)phase_].enter) {
+        (this->*phase_table_[(int)phase_].enter)();
+    }
+}
+
+void MenuState::enter_main() {
+    ui_manager_->load_screen(ui_data_menu::SCREEN);
+    cursor_ = (int)last_selected_;
+    if (cursor_ >= VISIBLE_MENU_COUNT) cursor_ = 0;
+    update_menu_ui();
+    step_ = PhaseStep::RUNNING;
+}
+
+void MenuState::update_main(StateManager& sm, SharedContext& /*ctx*/) {
     if (bn::keypad::up_pressed()) {
         cursor_--;
         if (cursor_ < 0) cursor_ = VISIBLE_MENU_COUNT - 1;
-        if (ctx.sound) ctx.sound->play_move();
+        update_menu_ui();
     }
 
     if (bn::keypad::down_pressed()) {
         cursor_++;
         if (cursor_ >= VISIBLE_MENU_COUNT) cursor_ = 0;
-        if (ctx.sound) ctx.sound->play_move();
+        update_menu_ui();
+    }
+
+    // DEBUG用隠しコマンド（SELECT）
+    if (bn::keypad::select_pressed()) {
+        last_selected_ = MenuItem::DEBUG;
+        sm.change_state(StateID::DEBUG_MENU);
+        return;
     }
 
     if (bn::keypad::a_pressed()) {
-        last_selected_ = static_cast<MenuItem>(cursor_);
-        // ここで各ステートへ遷移
-        switch(last_selected_) {
-            case MenuItem::STORY: sm.change_state(StateID::EVENT); break;
-            case MenuItem::PRACTICE: sm.change_state(StateID::PRACTICE); break;
-            case MenuItem::ENDLESS: sm.change_state(StateID::ENDLESS); break;
-            case MenuItem::GALLERY: sm.change_state(StateID::GALLERY); break;
-            case MenuItem::SETTINGS: sm.change_state(StateID::SETTINGS); break;
-            default: break;
+        MenuItem selected = static_cast<MenuItem>(cursor_);
+        last_selected_ = selected;
+        switch (selected) {
+            case MenuItem::STORY:
+                sm.change_state(StateID::EVENT); // 最初はイベントから
+                break;
+            case MenuItem::PRACTICE:
+                sm.change_state(StateID::PRACTICE);
+                break;
+            case MenuItem::ENDLESS:
+                sm.change_state(StateID::ENDLESS);
+                break;
+            case MenuItem::GALLERY:
+                sm.change_state(StateID::GALLERY);
+                break;
+            case MenuItem::SETTINGS:
+                sm.change_state(StateID::SETTINGS);
+                break;
+            default:
+                break;
         }
     }
 
-    if (bn::keypad::select_pressed()) {
-        sm.change_state(StateID::DEBUG_MENU);
+    if (bn::keypad::b_pressed()) {
+        sm.change_state(StateID::TITLE);
     }
-
-    update_menu_ui();
 }
 
+void MenuState::exit_main() {}
+
 void MenuState::update_menu_ui() {
-    if (!ui_manager_) return;
-    const char* labels[] = { "STORY", "PRACTICE", "ENDLESS", "GALLERY", "SETTINGS" };
-    const char* ids[] = { "menu_0", "menu_1", "menu_2", "menu_3", "menu_4" };
+    if (!ui_.has_value()) return;
 
     for (int i = 0; i < VISIBLE_MENU_COUNT; i++) {
         bn::string<32> text;
         if (i == cursor_) text.append("> ");
-        text.append(labels[i]);
-        ui_manager_->set_text(ids[i], text);
-    }
-}
 
-void MenuState::exit(StateManager& /*sm*/, SharedContext& /*ctx*/) {
-    if (ui_manager_) {
-        ui_manager_->clear_all();
-        ui_manager_.reset();
+        switch (static_cast<MenuItem>(i)) {
+            case MenuItem::STORY:    text.append("STORY MODE"); break;
+            case MenuItem::PRACTICE: text.append("PRACTICE"); break;
+            case MenuItem::ENDLESS:  text.append("ENDLESS"); break;
+            case MenuItem::GALLERY:  text.append("GALLERY"); break;
+            case MenuItem::SETTINGS: text.append("SETTINGS"); break;
+            default: break;
+        }
+        ui_.value().set_menu_item(i, text);
     }
 }

@@ -6,6 +6,11 @@
 #include "bn_optional.h"
 #include "gfx/ui_manager.h"
 
+enum class PracticeMenuPhase {
+    SELECT_LEVEL,
+    COUNT
+};
+
 // プラクティスモード: ステージ選択画面 (TODO: 実装予定)
 class PracticeMenuState : public State {
 public:
@@ -17,11 +22,27 @@ public:
     void resume(StateManager& sm, SharedContext& ctx) override {}
 
 private:
-    void update_menu(StateManager& sm, SharedContext& ctx);
+    void change_phase(PracticeMenuPhase next);
+
+    void enter_select();
+    void update_select(StateManager& sm, SharedContext& ctx);
+    void exit_select();
+
+    using EnterExitFunc = void (PracticeMenuState::*)();
+    using UpdateFunc = void (PracticeMenuState::*)(StateManager&, SharedContext&);
+
+    struct PhaseHandlers {
+        EnterExitFunc enter;
+        UpdateFunc    update;
+        EnterExitFunc exit;
+    };
+
+    static const PhaseHandlers phase_table_[];
 
     bn::optional<UIManager> ui_manager_;
     int cursor_;
     int selected_level_;
+    PracticeMenuPhase phase_;
     PhaseStep step_;
 };
 

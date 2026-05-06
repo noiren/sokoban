@@ -5,28 +5,27 @@
 #include "ui_data_practice_stageSelect.h"
 #include "game/sokoban.h"
 
+const PracticeMenuState::PhaseHandlers PracticeMenuState::phase_table_[] = {
+    // SELECT_LEVEL
+    { &PracticeMenuState::enter_select, &PracticeMenuState::update_select, &PracticeMenuState::exit_select }
+};
+
 PracticeMenuState::PracticeMenuState()
-    : cursor_(0), step_(PhaseStep::OPENING) {
+    : cursor_(0), phase_(PracticeMenuPhase::SELECT_LEVEL), step_(PhaseStep::OPENING) {
 }
 
 void PracticeMenuState::enter(StateManager& /*sm*/, SharedContext& ctx) {
     ui_manager_.emplace(*ctx.text_generator);
-    ui_manager_->load_screen(ui_data_practice_stageSelect::SCREEN);
-    step_ = PhaseStep::RUNNING;
+    
+    phase_ = PracticeMenuPhase::SELECT_LEVEL;
+    if (phase_table_[(int)phase_].enter) {
+        (this->*phase_table_[(int)phase_].enter)();
+    }
 }
 
 void PracticeMenuState::update(StateManager& sm, SharedContext& ctx) {
-    switch (step_) {
-        case PhaseStep::OPENING:
-            step_ = PhaseStep::RUNNING;
-            break;
-
-        case PhaseStep::RUNNING:
-            update_menu(sm, ctx);
-            break;
-
-        case PhaseStep::CLOSING:
-            break;
+    if (phase_table_[(int)phase_].update) {
+        (this->*phase_table_[(int)phase_].update)(sm, ctx);
     }
 
     if (ui_manager_) {
@@ -34,7 +33,35 @@ void PracticeMenuState::update(StateManager& sm, SharedContext& ctx) {
     }
 }
 
-void PracticeMenuState::update_menu(StateManager& sm, SharedContext& /*ctx*/) {
+void PracticeMenuState::exit(StateManager& /*sm*/, SharedContext& /*ctx*/) {
+    if (phase_table_[(int)phase_].exit) {
+        (this->*phase_table_[(int)phase_].exit)();
+    }
+
+    if (ui_manager_) {
+        ui_manager_->clear_all();
+        ui_manager_.reset();
+    }
+}
+
+void PracticeMenuState::change_phase(PracticeMenuPhase next) {
+    if (phase_table_[(int)phase_].exit) {
+        (this->*phase_table_[(int)phase_].exit)();
+    }
+
+    phase_ = next;
+
+    if (phase_table_[(int)phase_].enter) {
+        (this->*phase_table_[(int)phase_].enter)();
+    }
+}
+
+void PracticeMenuState::enter_select() {
+    ui_manager_->load_screen(ui_data_practice_stageSelect::SCREEN);
+    step_ = PhaseStep::RUNNING;
+}
+
+void PracticeMenuState::update_select(StateManager& sm, SharedContext& /*ctx*/) {
     if (bn::keypad::up_pressed()) {
         cursor_--;
         if (cursor_ < 0) cursor_ = 0;
@@ -56,9 +83,4 @@ void PracticeMenuState::update_menu(StateManager& sm, SharedContext& /*ctx*/) {
     }
 }
 
-void PracticeMenuState::exit(StateManager& /*sm*/, SharedContext& /*ctx*/) {
-    if (ui_manager_) {
-        ui_manager_->clear_all();
-        ui_manager_.reset();
-    }
-}
+void PracticeMenuState::exit_select() {}

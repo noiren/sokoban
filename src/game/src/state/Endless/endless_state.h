@@ -22,6 +22,7 @@
 enum class EndlessPhase {
     PLAYING,    // プレイ中
     RESULT,     // スコア表示中
+    COUNT
 };
 
 class EndlessState : public State {
@@ -34,10 +35,29 @@ public:
     void resume(StateManager& sm, SharedContext& ctx) override {}
 
 private:
+    void change_phase(EndlessPhase next);
+
+    void enter_playing();
     void update_playing(StateManager& sm, SharedContext& ctx);
+    void exit_playing();
+
+    void enter_result();
     void update_result(StateManager& sm, SharedContext& ctx);
+    void exit_result();
+
     void generate_next();
     void draw_result(SharedContext& ctx);
+
+    using EnterExitFunc = void (EndlessState::*)();
+    using UpdateFunc = void (EndlessState::*)(StateManager&, SharedContext&);
+
+    struct PhaseHandlers {
+        EnterExitFunc enter;
+        UpdateFunc    update;
+        EnterExitFunc exit;
+    };
+
+    static const PhaseHandlers phase_table_[];
 
     Hud hud_;
     GameState gs_;

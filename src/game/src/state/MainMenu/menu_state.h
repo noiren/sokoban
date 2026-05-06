@@ -21,9 +21,6 @@ private:
     UIManager& ui_;
 };
 
-// メインメニューの選択肢
-// 設計書に合わせてプラクティスとギャラリーを追加
-// DEBUG は非表示（SELECTボタンで隠しアクセス）
 enum class MenuItem {
     STORY,
     PRACTICE,
@@ -34,8 +31,12 @@ enum class MenuItem {
     COUNT
 };
 
-// 表示する項目数（DEBUGを除く）
 constexpr int VISIBLE_MENU_COUNT = 5;
+
+enum class MenuPhase {
+    MAIN,
+    COUNT
+};
 
 class MenuState : public State {
 public:
@@ -47,13 +48,30 @@ public:
     void resume(StateManager& sm, SharedContext& ctx) override {}
 
 private:
-    void update_menu(StateManager& sm, SharedContext& ctx);
+    void change_phase(MenuPhase next);
+
+    void enter_main();
+    void update_main(StateManager& sm, SharedContext& ctx);
+    void exit_main();
+
     void update_menu_ui();
+
+    using EnterExitFunc = void (MenuState::*)();
+    using UpdateFunc = void (MenuState::*)(StateManager&, SharedContext&);
+
+    struct PhaseHandlers {
+        EnterExitFunc enter;
+        UpdateFunc    update;
+        EnterExitFunc exit;
+    };
+
+    static const PhaseHandlers phase_table_[];
 
     int cursor_;
     MenuItem last_selected_;
     bn::optional<UIManager> ui_manager_;
     bn::optional<MenuUI> ui_;
+    MenuPhase phase_;
     PhaseStep step_;
 };
 

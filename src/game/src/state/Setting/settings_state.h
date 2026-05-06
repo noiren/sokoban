@@ -26,6 +26,11 @@ enum class SettingsItem {
     COUNT
 };
 
+enum class SettingsPhase {
+    MAIN,
+    COUNT
+};
+
 class SettingsState : public State {
 public:
     SettingsState();
@@ -36,8 +41,24 @@ public:
     void resume(StateManager& sm, SharedContext& ctx) override {}
 
 private:
-    void update_menu(StateManager& sm, SharedContext& ctx);
+    void change_phase(SettingsPhase next);
+
+    void enter_main();
+    void update_main(StateManager& sm, SharedContext& ctx);
+    void exit_main();
+
     void update_display(SharedContext& ctx);
+
+    using EnterExitFunc = void (SettingsState::*)();
+    using UpdateFunc = void (SettingsState::*)(StateManager&, SharedContext&);
+
+    struct PhaseHandlers {
+        EnterExitFunc enter;
+        UpdateFunc    update;
+        EnterExitFunc exit;
+    };
+
+    static const PhaseHandlers phase_table_[];
 
     int cursor_;
     bool bgm_enabled_;
@@ -45,6 +66,7 @@ private:
     int text_speed_;
     bn::optional<UIManager> ui_manager_;
     bn::optional<SettingsUI> ui_;
+    SettingsPhase phase_;
     PhaseStep step_;
 };
 

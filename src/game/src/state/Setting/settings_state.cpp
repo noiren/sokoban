@@ -4,36 +4,34 @@
 #include "bn_string.h"
 #include "ui_data_settings.h"
 
+const SettingsState::PhaseHandlers SettingsState::phase_table_[] = {
+    // MAIN
+    { &SettingsState::enter_main, &SettingsState::update_main, &SettingsState::exit_main }
+};
+
 SettingsState::SettingsState()
-    : cursor_(0), step_(PhaseStep::OPENING) {
+    : cursor_(0), bgm_enabled_(true), se_enabled_(true), text_speed_(1),
+      phase_(SettingsPhase::MAIN), step_(PhaseStep::OPENING) {
 }
 
 void SettingsState::enter(StateManager& /*sm*/, SharedContext& ctx) {
-    SaveSlot& save = ctx.save->slots[ctx.active_slot];
-    bgm_enabled_ = save.bgm_enabled;
-    se_enabled_  = save.se_enabled;
-    text_speed_  = save.text_speed;
-    cursor_      = 0;
-
     ui_manager_.emplace(*ctx.text_generator);
-    ui_manager_->load_screen(ui_data_settings::SCREEN);
-    if (ctx.sound) ctx.sound->set_se_enabled(se_enabled_);
-    update_display(ctx);
-    step_ = PhaseStep::RUNNING;
+    ui_.emplace(*ui_manager_);
+    
+    // 設定値の読み込み (ダミー)
+    bgm_enabled_ = true;
+    se_enabled_ = true;
+    text_speed_ = 1;
+
+    phase_ = SettingsPhase::MAIN;
+    if (phase_table_[(int)phase_].enter) {
+        (this->*phase_table_[(int)phase_].enter)();
+    }
 }
 
 void SettingsState::update(StateManager& sm, SharedContext& ctx) {
-    switch (step_) {
-        case PhaseStep::OPENING:
-            step_ = PhaseStep::RUNNING;
-            break;
-
-        case PhaseStep::RUNNING:
-            update_menu(sm, ctx);
-            break;
-
-        case PhaseStep::CLOSING:
-            break;
+    if (phase_table_[(int)phase_].update) {
+        (this->*phase_table_[(int)phase_].update)(sm, ctx);
     }
 
     if (ui_manager_) {
@@ -41,82 +39,82 @@ void SettingsState::update(StateManager& sm, SharedContext& ctx) {
     }
 }
 
-void SettingsState::update_menu(StateManager& sm, SharedContext& ctx) {
-    constexpr int NUM_ITEMS = 3;
+void SettingsState::exit(StateManager& /*sm*/, SharedContext& /*ctx*/) {
+    if (phase_table_[(int)phase_].exit) {
+        (this->*phase_table_[(int)phase_].exit)();
+    }
+
+    ui_.reset();
+    if (ui_manager_) {
+        ui_manager_->clear_all();
+        ui_manager_.reset();
+    }
+}
+
+void SettingsState::change_phase(SettingsPhase next) {
+    if (phase_table_[(int)phase_].exit) {
+        (this->*phase_table_[(int)phase_].exit)();
+    }
+
+    phase_ = next;
+
+    if (phase_table_[(int)phase_].enter) {
+        (this->*phase_table_[(int)phase_].enter)();
+    }
+}
+
+void SettingsState::enter_main() {
+    ui_manager_->load_screen(ui_data_settings::SCREEN);
+    step_ = PhaseStep::RUNNING;
+}
+
+void SettingsState::update_main(StateManager& sm, SharedContext& ctx) {
+    update_display(ctx);
 
     if (bn::keypad::up_pressed()) {
         cursor_--;
-        if (cursor_ < 0) cursor_ = NUM_ITEMS - 1;
-        if (ctx.sound) ctx.sound->play_move();
+        if (cursor_ < 0) cursor_ = (int)SettingsItem::COUNT - 1;
     }
-
     if (bn::keypad::down_pressed()) {
         cursor_++;
-        if (cursor_ >= NUM_ITEMS) cursor_ = 0;
-        if (ctx.sound) ctx.sound->play_move();
+        if (cursor_ >= (int)SettingsItem::COUNT) cursor_ = 0;
     }
 
-    // 左右で値変更
     if (bn::keypad::left_pressed() || bn::keypad::right_pressed()) {
-        int dir = bn::keypad::right_pressed() ? 1 : -1;
-        switch (cursor_) {
-            case 0:  // BGM
-                bgm_enabled_ = !bgm_enabled_;
-                break;
-            case 1:  // SE
-                se_enabled_ = !se_enabled_;
-                if (ctx.sound) {
-                    ctx.sound->set_se_enabled(se_enabled_);
-                    ctx.sound->play_move();
-                }
-                break;
-            case 2:  // テキスト速度
-                text_speed_ += dir;
-                if (text_speed_ < 0) text_speed_ = 0;
-                if (text_speed_ > 2) text_speed_ = 2;
-                break;
+        bool is_right = bn::keypad::right_pressed();
+        SettingsItem item = static_cast<SettingsItem>(cursor_);
+        if (item == SettingsItem::BGM) {
+            bgm_enabled_ = !bgm_enabled_;
+        } else if (item == SettingsItem::SE) {
+            se_enabled_ = !se_enabled_;
+        } else if (item == SettingsItem::TEXT_SPEED) {
+            if (is_right) text_speed_ = (text_speed_ + 1) % 3;
+            else text_speed_ = (text_speed_ + 2) % 3;
         }
-        update_display(ctx);
     }
 
-    // A: 変更を保存して戻る
-    if (bn::keypad::a_pressed()) {
-        SaveSlot& save = ctx.save->slots[ctx.active_slot];
-        save.bgm_enabled = bgm_enabled_;
-        save.se_enabled  = se_enabled_;
-        save.text_speed  = static_cast<uint8_t>(text_speed_);
-        sm.change_state(StateID::MENU);
-    }
-
-    // B: 戻る
     if (bn::keypad::b_pressed()) {
         sm.change_state(StateID::MENU);
     }
 }
 
+void SettingsState::exit_main() {}
+
 void SettingsState::update_display(SharedContext& /*ctx*/) {
-    if (!ui_manager_) return;
-    bn::string<32> bgm_str = "BGM: ";
+    if (!ui_.has_value()) return;
+
+    bn::string<32> bgm_str = (cursor_ == (int)SettingsItem::BGM ? "> " : "  ");
+    bgm_str.append("BGM: ");
     bgm_str.append(bgm_enabled_ ? "ON" : "OFF");
-    ui_manager_->set_text("bgm_toggle", bgm_str);
+    ui_.value().set_setting_item(0, bgm_str);
 
-    bn::string<32> se_str = "SE: ";
+    bn::string<32> se_str = (cursor_ == (int)SettingsItem::SE ? "> " : "  ");
+    se_str.append("SE: ");
     se_str.append(se_enabled_ ? "ON" : "OFF");
-    ui_manager_->set_text("se_toggle", se_str);
+    ui_.value().set_setting_item(1, se_str);
 
-    bn::string<32> speed_str = "TEXT: ";
-    switch (text_speed_) {
-        case 0:  speed_str.append("SLOW");  break;
-        case 1:  speed_str.append("NORMAL"); break;
-        case 2:  speed_str.append("FAST");   break;
-        default: speed_str.append("NORMAL"); break;
-    }
-    ui_manager_->set_text("text_speed", speed_str);
-}
-
-void SettingsState::exit(StateManager& /*sm*/, SharedContext& /*ctx*/) {
-    if (ui_manager_) {
-        ui_manager_->clear_all();
-        ui_manager_.reset();
-    }
+    bn::string<32> spd_str = (cursor_ == (int)SettingsItem::TEXT_SPEED ? "> " : "  ");
+    spd_str.append("TEXT SPD: ");
+    spd_str.append(bn::to_string<4>(text_speed_));
+    ui_.value().set_setting_item(2, spd_str);
 }

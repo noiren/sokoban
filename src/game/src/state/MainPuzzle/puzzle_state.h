@@ -15,10 +15,10 @@
 #include "bn_optional.h"
 #include "gfx/ui_manager.h"
 
-// パズル画面のフェーズ
 enum class PuzzlePhase {
-    PLAYING,    // プレイ中
-    CLEARED,    // クリア表示中
+    PLAYING,
+    CLEARED,
+    COUNT
 };
 
 class PuzzleState : public State {
@@ -33,11 +33,30 @@ public:
     GameState& game_state() { return gs_; }
 
 private:
+    void change_phase(PuzzlePhase next);
+
+    void enter_playing();
     void update_playing(StateManager& sm, SharedContext& ctx);
+    void exit_playing();
+
+    void enter_cleared();
     void update_cleared(StateManager& sm, SharedContext& ctx);
+    void exit_cleared();
+
     void level_init();
     void update_hud();
     void draw_clear_text(SharedContext& ctx);
+
+    using EnterExitFunc = void (PuzzleState::*)();
+    using UpdateFunc = void (PuzzleState::*)(StateManager&, SharedContext&);
+
+    struct PhaseHandlers {
+        EnterExitFunc enter;
+        UpdateFunc    update;
+        EnterExitFunc exit;
+    };
+
+    static const PhaseHandlers phase_table_[];
 
     Hud hud_;
     GameState gs_;
