@@ -6,7 +6,6 @@
 #include "state/Manager/state_manager.h"
 #include "state/shared_context.h"
 #include "state/Title/title_state.h"
-#include "state/save_select_state.h"
 #include "state/MainMenu/menu_state.h"
 #include "state/MainPuzzle/puzzle_state.h"
 #include "state/Setting/settings_state.h"
@@ -25,7 +24,6 @@
 // MENU から各モードへ分岐
 enum class GameFlow {
     TITLE,
-    SAVE_SELECT,
     MENU,
     STORY_EVENT,
     PUZZLE,
@@ -50,20 +48,18 @@ int main()
     save_data_load(save);
 
     // 全 State を確保
-    TitleState         title_state;
-    SaveSelectState    save_select_state;
-    MenuState          menu_state;
-    PuzzleState        puzzle_state;
-    SettingsState      settings_state;
-    EventState         event_state;
-    EndlessState       endless_state;
-    PracticeMenuState  practice_menu_state;
-    GalleryState       gallery_state;
-    DebugState         debug_state;
+    BN_DATA_EWRAM static TitleState         title_state;
+    BN_DATA_EWRAM static MenuState          menu_state;
+    BN_DATA_EWRAM static PuzzleState        puzzle_state;
+    BN_DATA_EWRAM static SettingsState      settings_state;
+    BN_DATA_EWRAM static EventState         event_state;
+    BN_DATA_EWRAM static EndlessState       endless_state;
+    BN_DATA_EWRAM static PracticeMenuState  practice_menu_state;
+    BN_DATA_EWRAM static GalleryState       gallery_state;
+    BN_DATA_EWRAM static DebugState         debug_state;
 
     // State の登録
     state_manager.register_state(StateID::TITLE, &title_state);
-    state_manager.register_state(StateID::SAVE_SELECT, &save_select_state);
     state_manager.register_state(StateID::MENU, &menu_state);
     state_manager.register_state(StateID::PUZZLE, &puzzle_state);
     state_manager.register_state(StateID::SETTINGS, &settings_state);

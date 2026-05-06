@@ -21,10 +21,19 @@ namespace ui_data_gallery_viewstill {
     constexpr int TEXT_COUNT = 0;
     constexpr ui_types::TextEntry* TEXTS = nullptr;
 
+    // Animations
+    constexpr int ANIM_PRESET_COUNT = 0;
+    constexpr ui_types::AnimPreset* ANIM_PRESETS = nullptr;
+
+    constexpr int ANIM_ENTRY_COUNT = 0;
+    constexpr ui_types::AnimEntry* ANIM_ENTRIES = nullptr;
+
     constexpr ui_types::ScreenData SCREEN = {
         BG_IMAGE_ID, BG_SCROLL_X, BG_SCROLL_Y,
         SPRITE_COUNT, SPRITES,
-        TEXT_COUNT, TEXTS
+        TEXT_COUNT, TEXTS,
+        ANIM_PRESET_COUNT, ANIM_PRESETS,
+        ANIM_ENTRY_COUNT, ANIM_ENTRIES
     };
 
 } // namespace ui_data_gallery_viewstill

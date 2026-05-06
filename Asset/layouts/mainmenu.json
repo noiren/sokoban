@@ -12,52 +12,110 @@
         "image_id": "still_mainmenu"
       },
       {
-        "type": "text",
-        "id": "menu_0",
+        "type": "anim",
+        "id": "new_anim",
         "x": 0,
-        "y": -32,
-        "text": "",
-        "visible": true
+        "y": 0,
+        "visible": true,
+        "viewer_visible": true,
+        "preset_id": "pop_in",
+        "children": [
+          {
+            "type": "sprite",
+            "id": "storymode_paper",
+            "x": -48,
+            "y": -36,
+            "image_set": "ui_paper",
+            "image_no": "0",
+            "visible": true,
+            "children": [
+              {
+                "type": "text",
+                "id": "storymode_text",
+                "x": 0,
+                "y": 0,
+                "text": "\u30b9\u30c8\u30fc\u30ea\u30fc\u30e2\u30fc\u30c9",
+                "visible": true
+              }
+            ]
+          }
+        ]
       },
       {
-        "type": "text",
-        "id": "menu_1",
-        "x": 0,
-        "y": -14,
-        "text": "",
-        "visible": true
+        "type": "sprite",
+        "id": "settingmode_paper_copy",
+        "x": 84,
+        "y": 32,
+        "image_set": "ui_paper",
+        "image_no": "0",
+        "visible": true,
+        "children": [
+          {
+            "type": "text",
+            "id": "settingmode_text",
+            "x": 0,
+            "y": 0,
+            "text": "\u8a2d\u5b9a",
+            "visible": true
+          }
+        ]
       },
       {
-        "type": "text",
-        "id": "menu_2",
-        "x": 0,
-        "y": 4,
-        "text": "",
-        "visible": true
+        "type": "sprite",
+        "id": "gallerymode_paper_copy",
+        "x": 8,
+        "y": 32,
+        "image_set": "ui_paper",
+        "image_no": "0",
+        "visible": true,
+        "children": [
+          {
+            "type": "text",
+            "id": "gallerymode_text",
+            "x": 0,
+            "y": 0,
+            "text": "\u30ae\u30e3\u30e9\u30ea\u30fc",
+            "visible": true
+          }
+        ]
       },
       {
-        "type": "text",
-        "id": "menu_3",
-        "x": 0,
-        "y": 22,
-        "text": "",
-        "visible": true
+        "type": "sprite",
+        "id": "endlessmode_paper_copy",
+        "x": -72,
+        "y": 32,
+        "image_set": "ui_paper",
+        "image_no": "0",
+        "visible": true,
+        "children": [
+          {
+            "type": "text",
+            "id": "endlessmode_text",
+            "x": 0,
+            "y": 0,
+            "text": "\u30a8\u30f3\u30c9\u30ec\u30b9",
+            "visible": true
+          }
+        ]
       },
       {
-        "type": "text",
-        "id": "menu_4",
-        "x": 0,
-        "y": 40,
-        "text": "",
-        "visible": true
-      },
-      {
-        "type": "text",
-        "id": "title_text",
-        "x": 0,
-        "y": -56,
-        "text": "\uff7d\uff8b\uff9f\uff77\u3068\u30de\u30e8\u306e\u5009\u5eab\u756a",
-        "visible": true
+        "type": "sprite",
+        "id": "practicemode_paper",
+        "x": 40,
+        "y": -36,
+        "image_set": "ui_paper",
+        "image_no": "0",
+        "visible": true,
+        "children": [
+          {
+            "type": "text",
+            "id": "practicemode_text",
+            "x": 0,
+            "y": 0,
+            "text": "\u30d7\u30e9\u30af\u30c6\u30a3\u30b9",
+            "visible": true
+          }
+        ]
       }
     ]
   }

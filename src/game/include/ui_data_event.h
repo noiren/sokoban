@@ -16,23 +16,32 @@ namespace ui_data_event {
     // Sprites
     constexpr int SPRITE_COUNT = 4;
     constexpr ui_types::SpriteEntry SPRITES[SPRITE_COUNT] = {
-        { "event_cg", "dummy", 0, 0.0f, -20.0f, true },
-        { "char_left", "chara_portraits", 0, -60.0f, 0.0f, true },
-        { "char_right", "chara_portraits", 3, 60.0f, 0.0f, true },
-        { "msg_window", "ui_paper", 0, 0.0f, 50.0f, true },
+        { "event_cg", "dummy", 0, 0.0f, -20.0f, 0.0f, false },
+        { "char_left", "chara_portraits", 0, -60.0f, 0.0f, 0.0f, false },
+        { "char_right", "chara_portraits", 3, 60.0f, 0.0f, 0.0f, false },
+        { "msg_window", "ui_paper", 0, 0.0f, 50.0f, 0.0f, true },
     };
 
     // Texts
     constexpr int TEXT_COUNT = 2;
     constexpr ui_types::TextEntry TEXTS[TEXT_COUNT] = {
-        { "name_box", "", -100.0f, 20.0f, true, false, 30, true },
-        { "message_text", "", -110.0f, 40.0f, true, false, 30, true },
+        { "name_box", "", -100.0f, 20.0f, ui_types::TextAlign::CENTER, 1.0f, false, 30, true },
+        { "message_text", "", -110.0f, 40.0f, ui_types::TextAlign::CENTER, 1.0f, false, 30, true },
     };
+
+    // Animations
+    constexpr int ANIM_PRESET_COUNT = 0;
+    constexpr ui_types::AnimPreset* ANIM_PRESETS = nullptr;
+
+    constexpr int ANIM_ENTRY_COUNT = 0;
+    constexpr ui_types::AnimEntry* ANIM_ENTRIES = nullptr;
 
     constexpr ui_types::ScreenData SCREEN = {
         BG_IMAGE_ID, BG_SCROLL_X, BG_SCROLL_Y,
         SPRITE_COUNT, SPRITES,
-        TEXT_COUNT, TEXTS
+        TEXT_COUNT, TEXTS,
+        ANIM_PRESET_COUNT, ANIM_PRESETS,
+        ANIM_ENTRY_COUNT, ANIM_ENTRIES
     };
 
 } // namespace ui_data_event

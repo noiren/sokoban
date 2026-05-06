@@ -15,7 +15,7 @@ MANIFEST_PATH = os.path.join(PROJECT_ROOT, "Asset", "tools", "ui_editor", "image
 class GBAUIEditor(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("GBA Sokoban UI Editor (Python)")
+        self.title("GBA UI Editor")
         
         self.load_editor_config()
         self.geometry(self.editor_config.get("geometry", "1100x650"))
@@ -36,12 +36,25 @@ class GBAUIEditor(tk.Tk):
         # Global key bindings
         self.bind('<Control-s>', lambda e: self.save_json())
         self.bind('<Control-S>', lambda e: self.save_json())
-        self.bind('<Delete>',    lambda e: self.delete_node())
-        self.bind('<BackSpace>', lambda e: self.delete_node())
+        self.bind('<Delete>',    self._on_delete_key)
+        self.bind('<BackSpace>', self._on_delete_key)
         self.bind('<Control-c>', lambda e: self.copy_node())
         self.bind('<Control-C>', lambda e: self.copy_node())
         self.bind('<Control-v>', lambda e: self.paste_node())
         self.bind('<Control-V>', lambda e: self.paste_node())
+        self.bind('<Control-Up>',   self.move_node_up)
+        self.bind('<Control-Down>', self.move_node_down)
+        self.bind('<Control-Left>',  self.outdent_node)
+        self.bind('<Control-Right>', self.indent_node)
+        self.bind('<Control-z>', self.undo)
+        self.bind('<Control-Z>', self.undo)
+        self.bind('<Control-y>', self.redo)
+        self.bind('<Control-Y>', self.redo)
+        self.bind('<Up>',   self._on_global_up)
+        self.bind('<Down>', self._on_global_down)
+        
+        self.undo_stack = []
+        self.redo_stack = []
         
         self.clipboard_node = None
         self.drag_data = None        # canvas sprite drag
@@ -51,6 +64,11 @@ class GBAUIEditor(tk.Tk):
         self._hier_nodes = []        # [(depth, node_dict), ...]
         self._drag_src_idx = None
         self._drag_press_y = None
+
+        # UI Animation playback state
+        self.playing_ui_anim_node = None
+        self.ui_anim_frame = 0
+        self.ui_anim_preset_data = None
         
         self.load_manifest()
         self.bg_list = self.get_bg_list()
@@ -58,13 +76,34 @@ class GBAUIEditor(tk.Tk):
         self.create_ui()
         self.refresh_tree()
         self.render_canvas()
+        self.saved_scene = copy.deepcopy(self.scene)
         
         # Apply saved sash positions after UI is drawn
         self.after(100, self.apply_sashes)
 
     def on_close(self):
-        self.save_editor_config()
-        self.destroy()
+        if self.confirm_discard_changes():
+            self.save_editor_config()
+            self.destroy()
+
+    def confirm_discard_changes(self):
+        if self.scene == self.saved_scene:
+            return True # No unsaved changes
+            
+        ans = messagebox.askyesnocancel(
+            "保存されていない変更",
+            "変更内容が保存されていません。保存しますか？\n\n"
+            "【はい】 保存して進む\n"
+            "【いいえ】 保存せずに進む（変更は破棄されます）\n"
+            "【キャンセル】 編集に戻る"
+        )
+        if ans is True:
+            self.save_json()
+            return True
+        elif ans is False:
+            return True # Proceed without saving
+        else:
+            return False # Cancel action and return to editor
 
     def load_editor_config(self):
         self.editor_config_path = os.path.join(SCRIPT_DIR, "editor_config.json")
@@ -125,6 +164,7 @@ class GBAUIEditor(tk.Tk):
         tk.Button(toolbar, text="New JSON",          command=self.new_json).pack(side=tk.LEFT, padx=5)
         tk.Button(toolbar, text="Load JSON",         command=self.load_json).pack(side=tk.LEFT, padx=5)
         tk.Button(toolbar, text="Save JSON (Ctrl+S)",command=self.save_json).pack(side=tk.LEFT, padx=5)
+        tk.Button(toolbar, text="Show in Explorer",  command=self.show_in_explorer).pack(side=tk.LEFT, padx=5)
         
         self.status_var = tk.StringVar(value="Status: Ready")
         tk.Label(toolbar, textvariable=self.status_var, fg="#00b894").pack(side=tk.RIGHT, padx=10)
@@ -171,6 +211,7 @@ class GBAUIEditor(tk.Tk):
         self.context_menu.add_command(label="+ Group",  command=lambda: self.add_node("group"))
         self.context_menu.add_command(label="+ Sprite", command=lambda: self.add_node("sprite"))
         self.context_menu.add_command(label="+ Text",   command=lambda: self.add_node("text"))
+        self.context_menu.add_command(label="+ UIAnim", command=lambda: self.add_node("anim"))
         self.context_menu.add_separator()
         self.context_menu.add_command(label="Copy (Ctrl+C)", command=self.copy_node)
         self.context_menu.add_command(label="Paste (Ctrl+V)",command=self.paste_node)
@@ -217,23 +258,259 @@ class GBAUIEditor(tk.Tk):
     # Node operations
     # ------------------------------------------------------------------
     def add_node(self, ntype):
+        self.push_undo()
         parent = (self.selected_node
-                  if self.selected_node and self.selected_node.get("type") in ("group", "root")
+                  if self.selected_node and self.selected_node.get("type") in ("group", "root", "anim")
                   else self.scene["root"])
         parent.setdefault("children", [])
         
-        node = {"type": ntype, "id": f"new_{ntype}", "x": 0, "y": 0}
+        node = {"type": ntype, "id": f"new_{ntype}", "x": 0, "y": 0, "visible": True, "viewer_visible": True}
         if ntype == "group":
             node["children"] = []
         elif ntype == "sprite":
             node["image_set"] = list(self.manifest.keys())[0] if self.manifest else ""
             node["image_no"] = "0"
-            node["visible"] = True
+            node["rotation"] = 0.0
         elif ntype == "text":
             node["text"] = "Text"
-            node["visible"] = True
+            node["align"] = "center"
+            node["font_size"] = 1.0
+        elif ntype == "anim":
+            node["preset_id"] = ""
+            node["children"] = []
             
         parent["children"].append(node)
+        self.refresh_tree()
+        self.render_canvas()
+
+    def _on_delete_key(self, event):
+        """Delete/BackSpace: only delete node if no input widget has focus."""
+        focused = self.focus_get()
+        if isinstance(focused, (tk.Entry, tk.Spinbox, ttk.Combobox)):
+            return  # テキスト入力中や値の調整中は何もしない
+        self.delete_node()
+
+    def _on_global_up(self, event):
+        focused = self.focus_get()
+        if isinstance(focused, (tk.Entry, tk.Spinbox, ttk.Combobox)):
+            return  # テキスト入力中やスピンボックス調整中などはデフォルト動作を優先
+            
+        sel = self.lb.curselection()
+        if not sel:
+            idx = 0
+        else:
+            idx = max(0, sel[0] - 1)
+            
+        self.lb.selection_clear(0, tk.END)
+        self.lb.selection_set(idx)
+        self.lb.see(idx)
+        self.on_lb_select(None)
+        return "break"
+
+    def _on_global_down(self, event):
+        focused = self.focus_get()
+        if isinstance(focused, (tk.Entry, tk.Spinbox, ttk.Combobox)):
+            return  # テキスト入力中やスピンボックス調整中などはデフォルト動作を優先
+            
+        sel = self.lb.curselection()
+        if not sel:
+            idx = 0
+        else:
+            idx = min(self.lb.size() - 1, sel[0] + 1)
+            
+        self.lb.selection_clear(0, tk.END)
+        self.lb.selection_set(idx)
+        self.lb.see(idx)
+        self.on_lb_select(None)
+        return "break"
+
+    # ------------------------------------------------------------------
+    # Undo / Redo System
+    # ------------------------------------------------------------------
+    def push_undo(self):
+        # Create a snapshot state
+        state = {
+            "scene": copy.deepcopy(self.scene),
+            "selected_id": self.selected_node["id"] if self.selected_node else None
+        }
+        # Prevent pushing identical states sequentially
+        if self.undo_stack:
+            last_state = self.undo_stack[-1]
+            if last_state["scene"] == state["scene"] and last_state["selected_id"] == state["selected_id"]:
+                return
+                
+        self.undo_stack.append(state)
+        if len(self.undo_stack) > 30:
+            self.undo_stack.pop(0)
+        self.redo_stack.clear()
+
+    def undo(self, event=None):
+        if not self.undo_stack:
+            self.status_var.set("Status: Nothing to undo")
+            return
+            
+        current_state = {
+            "scene": copy.deepcopy(self.scene),
+            "selected_id": self.selected_node["id"] if self.selected_node else None
+        }
+        self.redo_stack.append(current_state)
+        if len(self.redo_stack) > 30:
+            self.redo_stack.pop(0)
+            
+        prev_state = self.undo_stack.pop()
+        self.scene = prev_state["scene"]
+        self.restore_selection_by_id(prev_state["selected_id"])
+        
+        self.refresh_tree()
+        self.render_canvas()
+        self.render_inspector()
+        self.status_var.set("Status: Undo action")
+
+    def redo(self, event=None):
+        if not self.redo_stack:
+            self.status_var.set("Status: Nothing to redo")
+            return
+            
+        current_state = {
+            "scene": copy.deepcopy(self.scene),
+            "selected_id": self.selected_node["id"] if self.selected_node else None
+        }
+        self.undo_stack.append(current_state)
+        if len(self.undo_stack) > 30:
+            self.undo_stack.pop(0)
+            
+        next_state = self.redo_stack.pop()
+        self.scene = next_state["scene"]
+        self.restore_selection_by_id(next_state["selected_id"])
+        
+        self.refresh_tree()
+        self.render_canvas()
+        self.render_inspector()
+        self.status_var.set("Status: Redo action")
+
+    def restore_selection_by_id(self, node_id):
+        if not node_id:
+            self.selected_node = None
+            return
+            
+        def find_by_id(node):
+            if node.get("id") == node_id:
+                return node
+            for c in node.get("children", []):
+                res = find_by_id(c)
+                if res:
+                    return res
+            return None
+            
+        self.selected_node = find_by_id(self.scene["root"])
+
+    def bind_undo(self, widget):
+        widget.bind("<FocusIn>", lambda e: self.push_undo(), add="+")
+        widget.bind("<ButtonPress-1>", lambda e: self.push_undo(), add="+")
+
+    def find_parent(self, parent, target):
+        ch = parent.get("children", [])
+        if target in ch:
+            return parent
+        for c in ch:
+            res = self.find_parent(c, target)
+            if res:
+                return res
+        return None
+
+    def move_node_up(self, event=None):
+        if not self.selected_node:
+            return
+        if self.selected_node["id"] == "root" or self.selected_node.get("type") == "bg":
+            return
+        
+        parent = self.find_parent(self.scene["root"], self.selected_node)
+        if not parent:
+            return
+        
+        children = parent.get("children", [])
+        idx = children.index(self.selected_node)
+        if idx > 0:
+            # 背景(bg)ノードよりも上に持っていくことはできないように制限（描画が背景の後ろに隠れてしまうのを防ぐため）
+            if idx == 1 and children[0].get("type") == "bg":
+                return
+            self.push_undo()
+            children[idx], children[idx-1] = children[idx-1], children[idx]
+            self.refresh_tree()
+            self.render_canvas()
+
+    def move_node_down(self, event=None):
+        if not self.selected_node:
+            return
+        if self.selected_node["id"] == "root" or self.selected_node.get("type") == "bg":
+            return
+        
+        parent = self.find_parent(self.scene["root"], self.selected_node)
+        if not parent:
+            return
+        
+        children = parent.get("children", [])
+        idx = children.index(self.selected_node)
+        if idx < len(children) - 1:
+            self.push_undo()
+            children[idx], children[idx+1] = children[idx+1], children[idx]
+            self.refresh_tree()
+            self.render_canvas()
+
+    def outdent_node(self, event=None):
+        if not self.selected_node:
+            return
+        if self.selected_node["id"] == "root" or self.selected_node.get("type") == "bg":
+            return
+            
+        parent = self.find_parent(self.scene["root"], self.selected_node)
+        if not parent or parent["id"] == "root":
+            return # Already at the root level, cannot outdent further!
+            
+        grandparent = self.find_parent(self.scene["root"], parent)
+        if not grandparent:
+            return
+            
+        self.push_undo()
+        
+        # Remove selected_node from parent
+        parent.setdefault("children", []).remove(self.selected_node)
+        
+        # Insert into grandparent right after former parent
+        g_children = grandparent.setdefault("children", [])
+        p_idx = g_children.index(parent)
+        g_children.insert(p_idx + 1, self.selected_node)
+        
+        self.refresh_tree()
+        self.render_canvas()
+
+    def indent_node(self, event=None):
+        if not self.selected_node:
+            return
+        if self.selected_node["id"] == "root" or self.selected_node.get("type") == "bg":
+            return
+            
+        parent = self.find_parent(self.scene["root"], self.selected_node)
+        if not parent:
+            return
+            
+        siblings = parent.setdefault("children", [])
+        idx = siblings.index(self.selected_node)
+        if idx <= 0:
+            return # No sibling above it to indent into!
+            
+        target_parent = siblings[idx - 1]
+        if target_parent.get("type") == "bg":
+            return # Cannot indent into bg node!
+            
+        self.push_undo()
+        
+        # Remove from current parent's children
+        siblings.remove(self.selected_node)
+        
+        # Append to target sibling's children
+        target_parent.setdefault("children", []).append(self.selected_node)
+        
         self.refresh_tree()
         self.render_canvas()
 
@@ -242,6 +519,8 @@ class GBAUIEditor(tk.Tk):
             return
         if self.selected_node["id"] == "root" or self.selected_node.get("type") == "bg":
             return
+            
+        self.push_undo()
             
         def remove(parent):
             ch = parent.get("children", [])
@@ -265,6 +544,8 @@ class GBAUIEditor(tk.Tk):
     def paste_node(self):
         if not self.clipboard_node:
             return
+            
+        self.push_undo()
             
         new_node = copy.deepcopy(self.clipboard_node)
         
@@ -319,7 +600,7 @@ class GBAUIEditor(tk.Tk):
         walk(self.scene["root"], 0)
 
         self.lb.delete(0, tk.END)
-        icons = {"group": "▶", "bg": "▣", "sprite": "★", "text": "T", "root": "⊞"}
+        icons = {"group": "▶", "bg": "▣", "sprite": "★", "text": "T", "anim": "⧖", "root": "⊞"}
         for depth, node in self._hier_nodes:
             icon = icons.get(node.get("type"), "•")
             label = f"{'  ' * depth}{icon} {node.get('id', '')}"
@@ -406,8 +687,65 @@ class GBAUIEditor(tk.Tk):
             if node is target: return True
             return any(is_ancestor(c, target) for c in node.get("children", []))
 
+        # Reversal Logic (descendant dragged onto ancestor)
+        if is_ancestor(tgt_node, src_node):
+            if tgt_node.get("id") == "root":
+                return
+            self.push_undo()
+            
+            # Find path from tgt_node to src_node
+            path = []
+            def find_path_to_node(current, target, path_list):
+                path_list.append(current)
+                if current is target:
+                    return True
+                for c in current.get("children", []):
+                    if find_path_to_node(c, target, path_list):
+                        return True
+                path_list.pop()
+                return False
+                
+            find_path_to_node(tgt_node, src_node, path)
+            
+            p0 = self.find_parent(self.scene["root"], tgt_node)
+            if p0:
+                p0_children = p0.get("children", [])
+                idx_in_p0 = p0_children.index(tgt_node)
+                
+                # Collect original children of all nodes in path
+                orig_children = {id(n): list(n.get("children", [])) for n in path}
+                
+                # Perform the inversion
+                # N_k's children become [N_{k-1}]
+                path[-1]["children"] = [path[-2]]
+                
+                # N_i's children (for i from 1 to k-1) become [N_{i-1}] + (orig_children[N_i] without N_{i+1})
+                for i in range(1, len(path) - 1):
+                    ni = path[i]
+                    ni_next = path[i+1]
+                    ni_prev = path[i-1]
+                    other_children = [c for c in orig_children[id(ni)] if c is not ni_next]
+                    ni["children"] = [ni_prev] + other_children
+                    
+                # N_0's children become (orig_children[N_k]) + (orig_children[N_0] without N_1)
+                n0 = path[0]
+                n1 = path[1]
+                nk = path[-1]
+                other_n0_children = [c for c in orig_children[id(n0)] if c is not n1]
+                n0["children"] = orig_children[id(nk)] + other_n0_children
+                
+                # Replace N_0 with N_k in p0's children
+                p0_children[idx_in_p0] = nk
+                
+                self.selected_node = nk
+                self.refresh_tree()
+                self.render_canvas()
+                return
+
         if is_ancestor(src_node, tgt_node):
             return
+
+        self.push_undo()
 
         # Remove from current parent
         def remove_node(parent):
@@ -419,17 +757,8 @@ class GBAUIEditor(tk.Tk):
 
         remove_node(self.scene["root"])
 
-        # Insert: group/root → append as child; else → insert after
-        if tgt_node.get("type") in ("group", "root"):
-            tgt_node.setdefault("children", []).append(src_node)
-        else:
-            def insert_after(parent):
-                ch = parent.get("children", [])
-                if tgt_node in ch:
-                    ch.insert(ch.index(tgt_node) + 1, src_node)
-                    return True
-                return any(insert_after(c) for c in ch)
-            insert_after(self.scene["root"])
+        # Always append as child of tgt_node (Allows nesting under Sprite/Text/Group/Root)
+        tgt_node.setdefault("children", []).append(src_node)
 
         self.selected_node = src_node
         self.refresh_tree()
@@ -450,7 +779,9 @@ class GBAUIEditor(tk.Tk):
             frame.pack(fill=tk.X, pady=2)
             tk.Label(frame, text=label, width=10, anchor="w").pack(side=tk.LEFT)
             var = tk.StringVar(value=str(node.get(key, "")))
-            tk.Entry(frame, textvariable=var).pack(side=tk.LEFT, fill=tk.X, expand=True)
+            entry = tk.Entry(frame, textvariable=var)
+            entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
+            self.bind_undo(entry)
             
             def on_change(*args):
                 val = var.get()
@@ -464,6 +795,39 @@ class GBAUIEditor(tk.Tk):
             
         make_entry("ID", "id")
         
+        if node.get("id") != "root":
+            vis_frame = tk.Frame(self.inspector_content)
+            vis_frame.pack(fill=tk.X, pady=4)
+            tk.Label(vis_frame, text="Visibility", width=10, anchor="w").pack(side=tk.LEFT)
+            
+            vis_var = tk.BooleanVar(value=bool(node.get("visible", True)))
+            vvis_var = tk.BooleanVar(value=bool(node.get("viewer_visible", True)))
+            
+            def on_vis_change(*args):
+                node["visible"] = vis_var.get()
+                if vis_var.get():
+                    vvis_var.set(True)
+                    node["viewer_visible"] = True
+                else:
+                    vvis_var.set(False)
+                    node["viewer_visible"] = False
+                self.render_canvas()
+                
+            def on_vvis_change(*args):
+                node["viewer_visible"] = vvis_var.get()
+                self.render_canvas()
+                
+            vis_cb = tk.Checkbutton(vis_frame, text="Game", variable=vis_var)
+            vis_cb.pack(side=tk.LEFT, padx=5)
+            self.bind_undo(vis_cb)
+            
+            vvis_cb = tk.Checkbutton(vis_frame, text="Editor", variable=vvis_var)
+            vvis_cb.pack(side=tk.LEFT, padx=5)
+            self.bind_undo(vvis_cb)
+            
+            vis_var.trace("w", on_vis_change)
+            vvis_var.trace("w", on_vvis_change)
+        
         if node.get("type") not in ("bg", "root") and node.get("id") != "root":
             make_entry("X", "x", True)
             make_entry("Y", "y", True)
@@ -475,6 +839,7 @@ class GBAUIEditor(tk.Tk):
             var = tk.StringVar(value=node.get("image_id", ""))
             cb = ttk.Combobox(frame, textvariable=var, values=self.bg_list)
             cb.pack(side=tk.LEFT, fill=tk.X, expand=True)
+            self.bind_undo(cb)
             def on_bg(*args):
                 node["image_id"] = var.get()
                 self.image_cache.pop(var.get(), None)
@@ -488,6 +853,7 @@ class GBAUIEditor(tk.Tk):
             set_var = tk.StringVar(value=node.get("image_set", ""))
             set_cb = ttk.Combobox(frame, textvariable=set_var, values=list(self.manifest.keys()))
             set_cb.pack(side=tk.LEFT, fill=tk.X, expand=True)
+            self.bind_undo(set_cb)
             
             frame2 = tk.Frame(self.inspector_content)
             frame2.pack(fill=tk.X, pady=2)
@@ -495,6 +861,7 @@ class GBAUIEditor(tk.Tk):
             no_var = tk.StringVar(value=str(node.get("image_no", "0")))
             no_cb = ttk.Combobox(frame2, textvariable=no_var)
             no_cb.pack(side=tk.LEFT, fill=tk.X, expand=True)
+            self.bind_undo(no_cb)
             
             def update_opts(*args):
                 node["image_set"] = set_var.get()
@@ -509,16 +876,131 @@ class GBAUIEditor(tk.Tk):
             set_var.trace("w", update_opts)
             no_var.trace("w", on_no)
             update_opts()
+            
+            # Rotation
+            rot_frame = tk.Frame(self.inspector_content)
+            rot_frame.pack(fill=tk.X, pady=2)
+            tk.Label(rot_frame, text="Rotation (Z)", width=10, anchor="w").pack(side=tk.LEFT)
+            rot_var = tk.DoubleVar(value=float(node.get("rotation", 0.0)))
+            
+            # Slider (for mouse dragging)
+            rot_scale = tk.Scale(rot_frame, from_=-180, to=180, resolution=1, orient=tk.HORIZONTAL, variable=rot_var, showvalue=False)
+            rot_scale.pack(side=tk.LEFT, fill=tk.X, expand=True)
+            self.bind_undo(rot_scale)
+            
+            # Spinbox (for precise typing/fine tuning)
+            rot_spin = tk.Spinbox(rot_frame, from_=-180.0, to=180.0, increment=1.0, textvariable=rot_var, width=5)
+            rot_spin.pack(side=tk.RIGHT)
+            self.bind_undo(rot_spin)
+            
+            def on_rot(*args):
+                try:
+                    node["rotation"] = rot_var.get()
+                    self.render_canvas()
+                except:
+                    pass
+            rot_var.trace("w", on_rot)
 
         elif node.get("type") == "text":
             make_entry("Text", "text")
 
+            # Alignment
+            align_frame = tk.Frame(self.inspector_content)
+            align_frame.pack(fill=tk.X, pady=2)
+            tk.Label(align_frame, text="Align", width=10, anchor="w").pack(side=tk.LEFT)
+            align_var = tk.StringVar(value=node.get("align", "center"))
+            align_cb = ttk.Combobox(align_frame, textvariable=align_var,
+                                    values=["left", "center", "right"], state="readonly", width=10)
+            align_cb.pack(side=tk.LEFT)
+            self.bind_undo(align_cb)
+            def on_align(*args):
+                node["align"] = align_var.get()
+                self.render_canvas()
+            align_var.trace("w", on_align)
+
+            # Font size
+            fs_frame = tk.Frame(self.inspector_content)
+            fs_frame.pack(fill=tk.X, pady=2)
+            tk.Label(fs_frame, text="Font Scale", width=10, anchor="w").pack(side=tk.LEFT)
+            fs_var = tk.DoubleVar(value=float(node.get("font_size", 1.0)))
+            fs_spin = tk.Spinbox(fs_frame, from_=0.1, to=10.0, increment=0.1, textvariable=fs_var, width=5)
+            fs_spin.pack(side=tk.LEFT)
+            self.bind_undo(fs_spin)
+            def on_fs(*args):
+                try:
+                    node["font_size"] = fs_var.get()
+                    self.render_canvas()
+                except:
+                    pass
+            fs_var.trace("w", on_fs)
+
+        elif node.get("type") == "anim":
+            frame = tk.Frame(self.inspector_content)
+            frame.pack(fill=tk.X, pady=2)
+            tk.Label(frame, text="Preset File", width=10, anchor="w").pack(side=tk.LEFT)
+            
+            preset_files = []
+            try:
+                for f in os.listdir(os.path.join(PROJECT_ROOT, "Asset", "animations")):
+                    if f.endswith(".anim.json"):
+                        preset_files.append(f[:-10])
+            except:
+                pass
+                
+            preset_var = tk.StringVar(value=node.get("preset_id", ""))
+            preset_cb = ttk.Combobox(frame, textvariable=preset_var, values=preset_files)
+            preset_cb.pack(side=tk.LEFT, fill=tk.X, expand=True)
+            self.bind_undo(preset_cb)
+            
+            def on_preset(*args):
+                node["preset_id"] = preset_var.get()
+                self.render_canvas()
+            preset_var.trace("w", on_preset)
+
+            # Playback Controls in Inspector
+            ctrl_frame = tk.Frame(self.inspector_content)
+            ctrl_frame.pack(fill=tk.X, pady=10)
+            
+            def start_play():
+                preset_id = node.get("preset_id", "")
+                preset_path = os.path.join(PROJECT_ROOT, "Asset", "animations", f"{preset_id}.anim.json")
+                if not os.path.exists(preset_path):
+                    messagebox.showwarning("Warning", f"Preset file {preset_id}.anim.json not found!")
+                    return
+                    
+                with open(preset_path, 'r', encoding='utf-8') as f:
+                    preset_data = json.load(f)
+                    
+                if "keyframes" not in preset_data:
+                    global_ease = preset_data.get("ease_type", "LINEAR")
+                    preset_data["keyframes"] = [
+                        {"frame": 0, "x": float(preset_data.get("start_x", 0.0)), "y": float(preset_data.get("start_y", 0.0)), "rot": float(preset_data.get("start_rot", 0.0)), "scale": float(preset_data.get("start_scale", 1.0)), "ease_type": global_ease},
+                        {"frame": int(preset_data.get("duration_frames", 60)), "x": float(preset_data.get("end_x", 0.0)), "y": float(preset_data.get("end_y", 0.0)), "rot": float(preset_data.get("end_rot", 0.0)), "scale": float(preset_data.get("end_scale", 1.0)), "ease_type": "LINEAR"}
+                    ]
+                else:
+                    for k in preset_data["keyframes"]:
+                        if "ease_type" not in k:
+                            k["ease_type"] = "LINEAR"
+                            
+                self.playing_ui_anim_node = node
+                self.ui_anim_frame = 0
+                self.ui_anim_preset_data = preset_data
+                self.step_ui_anim()
+                
+            def stop_play():
+                self.playing_ui_anim_node = None
+                self.render_canvas()
+                
+            tk.Button(ctrl_frame, text="▶ Play Preview", command=start_play, bg="#00b894", fg="white", font=("Helvetica", 9, "bold")).pack(side=tk.LEFT, fill=tk.X, expand=True, padx=2)
+            tk.Button(ctrl_frame, text="■ Stop", command=stop_play, bg="#d63031", fg="white", font=("Helvetica", 9, "bold")).pack(side=tk.LEFT, fill=tk.X, expand=True, padx=2)
+
     # ------------------------------------------------------------------
     # Image loading
     # ------------------------------------------------------------------
-    def get_image(self, path):
+    def get_image(self, path, rotation=0.0, scale=1.0):
         if not path: return None
-        if path in self.image_cache: return self.image_cache[path]
+        cache_key = (path, rotation, scale)
+        if cache_key in self.image_cache: return self.image_cache[cache_key]
         
         found = None
         name = path.split("/")[-1] + ".bmp"
@@ -533,10 +1015,22 @@ class GBAUIEditor(tk.Tk):
             # For backgrounds show only 240x160 area
             if img.width > 240 or img.height > 160:
                 img = img.crop((0, 0, 240, 160))
-            img = img.resize((img.width * self.scale, img.height * self.scale),
-                              Image.Resampling.NEAREST)
+            
+            # Ensure the image is in RGBA mode to preserve transparency and make rotated margins transparent
+            img = img.convert("RGBA")
+            
+            # GBA rotates clockwise, PIL rotates counter-clockwise, so we use -rotation.
+            # We do this before resize for quality, and expand=True ensures the full rotated texture is preserved.
+            if rotation != 0.0:
+                img = img.rotate(-rotation, resample=Image.Resampling.NEAREST, expand=True)
+                
+            target_w = int(img.width * self.scale * scale)
+            target_h = int(img.height * self.scale * scale)
+            if target_w < 1: target_w = 1
+            if target_h < 1: target_h = 1
+            img = img.resize((target_w, target_h), Image.Resampling.NEAREST)
             photo = ImageTk.PhotoImage(img)
-            self.image_cache[path] = photo
+            self.image_cache[cache_key] = photo
             return photo
         except Exception as e:
             print(f"Error loading {found}: {e}")
@@ -555,36 +1049,179 @@ class GBAUIEditor(tk.Tk):
             for y in range(0, 160 * self.scale, g):
                 self.canvas.create_line(0, y, 240 * self.scale, y, fill="#333")
                 
-        def draw_node(node, px, py):
+        def draw_node(node, px, py, parent_visible=True, anim_x=0.0, anim_y=0.0, anim_rot=0.0, anim_scale=1.0, in_anim=False):
+            current_visible = parent_visible and bool(node.get("viewer_visible", True))
+            
+            # If this is the active playing anim node, compute/override animation parameters
+            is_active_anim = (self.playing_ui_anim_node is node)
+            if is_active_anim:
+                ax, ay, a_rot, a_scale = self.get_ui_anim_interpolated(self.ui_anim_frame, self.ui_anim_preset_data)
+                anim_x, anim_y, anim_rot, anim_scale = ax, ay, a_rot, a_scale
+                in_anim = True
+                
             gx = px + float(node.get("x", 0))
             gy = py + float(node.get("y", 0))
-            cx = (gx + 120) * self.scale
-            cy = (gy + 80) * self.scale
+            
+            if in_anim and (self.playing_ui_anim_node is not node):
+                cx = (gx + anim_x + 120) * self.scale
+                cy = (gy + anim_y + 80) * self.scale
+                rot = anim_rot
+                scale_factor = anim_scale
+            else:
+                cx = (gx + 120) * self.scale
+                cy = (gy + 80) * self.scale
+                rot = float(node.get("rotation", 0.0)) if "rotation" in node else 0.0
+                scale_factor = float(node.get("font_size", 1.0)) if node.get("type") == "text" else 1.0
             
             t = node.get("type")
-            if t == "bg":
-                img = self.get_image(node.get("image_id", ""))
-                if img:
-                    self.canvas.create_image(0, 0, anchor=tk.NW, image=img)
-            elif t == "sprite":
-                s, n = node.get("image_set", ""), str(node.get("image_no", "0"))
-                if s in self.manifest and n in self.manifest[s]:
-                    img = self.get_image(self.manifest[s][n])
+            if current_visible:
+                if t == "bg":
+                    img = self.get_image(node.get("image_id", ""))
                     if img:
-                        self.canvas.create_image(cx, cy, image=img,
-                                                 tags=("draggable", str(id(node))))
-                        if node is self.selected_node:
-                            w, h = img.width(), img.height()
-                            self.canvas.create_rectangle(cx-w/2, cy-h/2, cx+w/2, cy+h/2,
-                                                         outline="yellow", width=2)
-            elif t == "text":
-                self.canvas.create_text(cx, cy, text=node.get("text", "Text"),
-                                        fill="white", font=("Courier", 10))
+                        self.canvas.create_image(0, 0, anchor=tk.NW, image=img)
+                elif t == "sprite":
+                    s, n = node.get("image_set", ""), str(node.get("image_no", "0"))
+                    if s in self.manifest and n in self.manifest[s]:
+                        img = self.get_image(self.manifest[s][n], rot, scale_factor)
+                        if img:
+                            self.canvas.create_image(cx, cy, image=img,
+                                                     tags=("draggable", str(id(node))))
+                            if node is self.selected_node:
+                                w, h = img.width(), img.height()
+                                self.canvas.create_rectangle(cx-w/2, cy-h/2, cx+w/2, cy+h/2,
+                                                             outline="yellow", width=2)
+                elif t == "text":
+                    align = node.get("align", "center")
+                    anchor_map = {"left": tk.W, "center": tk.CENTER, "right": tk.E}
+                    anchor = anchor_map.get(align, tk.CENTER)
+                    font_size = max(0.1, scale_factor)
+                    font = ("Courier", max(1, int(8 * font_size)))
+                    txt_id = self.canvas.create_text(
+                        cx, cy, text=node.get("text", "Text"),
+                        fill="white", font=font, anchor=anchor,
+                        tags=("draggable_text", str(id(node)))
+                    )
+                    if node is self.selected_node:
+                        bbox = self.canvas.bbox(txt_id)
+                        if bbox:
+                            self.canvas.create_rectangle(
+                                bbox[0]-2, bbox[1]-2, bbox[2]+2, bbox[3]+2,
+                                outline="yellow", width=2
+                            )
+                elif t == "anim":
+                    # Draw a nice dashed representation of the abstract anim node
+                    if node is self.selected_node:
+                        self.canvas.create_oval(cx-6, cy-6, cx+6, cy+6,
+                                                outline="cyan", dash=(2, 2), width=2,
+                                                tags=("draggable_text", str(id(node))))
+            else:
+                # If hidden but currently selected, draw a dotted bounding box so the user can see/drag it!
+                if node is self.selected_node:
+                    if t == "sprite":
+                        s, n = node.get("image_set", ""), str(node.get("image_no", "0"))
+                        if s in self.manifest and n in self.manifest[s]:
+                            img = self.get_image(self.manifest[s][n], rot, scale_factor)
+                            if img:
+                                w, h = img.width(), img.height()
+                                self.canvas.create_rectangle(cx-w/2, cy-h/2, cx+w/2, cy+h/2,
+                                                             outline="yellow", dash=(2, 2), width=2,
+                                                             tags=("draggable", str(id(node))))
+                    elif t == "text":
+                        self.canvas.create_rectangle(cx-15, cy-6, cx+15, cy+6,
+                                                     outline="yellow", dash=(2, 2), width=2,
+                                                     tags=("draggable_text", str(id(node))))
+                    elif t in ("group", "anim"):
+                        self.canvas.create_oval(cx-4, cy-4, cx+4, cy+4,
+                                                outline="yellow", dash=(2, 2), width=2,
+                                                tags=("draggable_text", str(id(node))))
                 
             for c in node.get("children", []):
-                draw_node(c, gx, gy)
+                draw_node(c, gx, gy, current_visible, anim_x, anim_y, anim_rot, anim_scale, in_anim)
                 
-        draw_node(self.scene["root"], 0, 0)
+        draw_node(self.scene["root"], 0, 0, True)
+
+    def step_ui_anim(self):
+        if not self.playing_ui_anim_node:
+            return
+        duration = max(1, self.ui_anim_preset_data.get("duration_frames", 60))
+        if self.ui_anim_frame <= duration:
+            self.render_canvas()
+            self.ui_anim_frame += 1
+            self.after(16, self.step_ui_anim)
+        else:
+            self.playing_ui_anim_node = None
+            self.render_canvas()
+
+    def get_ui_anim_interpolated(self, frame, preset_data):
+        kfs = sorted(preset_data.get("keyframes", []), key=lambda k: k["frame"])
+        if not kfs:
+            return 0.0, 0.0, 0.0, 1.0
+            
+        duration = max(1, preset_data.get("duration_frames", 60))
+        frame = max(0, min(duration, frame))
+        
+        if frame <= kfs[0]["frame"]:
+            k = kfs[0]
+            return k.get("x", 0.0), k.get("y", 0.0), k.get("rot", 0.0), k.get("scale", 1.0)
+        if frame >= kfs[-1]["frame"]:
+            k = kfs[-1]
+            return k.get("x", 0.0), k.get("y", 0.0), k.get("rot", 0.0), k.get("scale", 1.0)
+            
+        for i in range(len(kfs) - 1):
+            kf_prev = kfs[i]
+            kf_next = kfs[i+1]
+            if kf_prev["frame"] <= frame <= kf_next["frame"]:
+                f_range = kf_next["frame"] - kf_prev["frame"]
+                t = 0.0 if f_range == 0 else (frame - kf_prev["frame"]) / f_range
+                eased_t = self.ease_ui_curve(t, kf_prev.get("ease_type", "LINEAR"))
+                
+                x = kf_prev.get("x", 0.0) + (kf_next.get("x", 0.0) - kf_prev.get("x", 0.0)) * eased_t
+                y = kf_prev.get("y", 0.0) + (kf_next.get("y", 0.0) - kf_prev.get("y", 0.0)) * eased_t
+                rot = kf_prev.get("rot", 0.0) + (kf_next.get("rot", 0.0) - kf_prev.get("rot", 0.0)) * eased_t
+                scale = kf_prev.get("scale", 1.0) + (kf_next.get("scale", 1.0) - kf_prev.get("scale", 1.0)) * eased_t
+                return x, y, rot, scale
+                
+        return 0.0, 0.0, 0.0, 1.0
+
+    def ease_ui_curve(self, t, type_str):
+        if type_str == "EASE_IN":
+            return t * t
+        elif type_str == "EASE_OUT":
+            return t * (2 - t)
+        elif type_str == "EASE_IN_OUT":
+            if t < 0.5:
+                return 2 * t * t
+            return -1 + (4 - 2 * t) * t
+        elif type_str == "CUBIC_IN":
+            return t * t * t
+        elif type_str == "CUBIC_OUT":
+            t -= 1
+            return 1 + t * t * t
+        elif type_str == "CUBIC_IN_OUT":
+            if t < 0.5:
+                return 4 * t * t * t
+            t -= 1
+            return 1 + 4 * t * t * t
+        elif type_str == "BACK_IN":
+            s = 1.70158
+            return t * t * ((s + 1) * t - s)
+        elif type_str == "BACK_OUT":
+            s = 1.70158
+            t -= 1
+            return 1 + t * t * ((s + 1) * t + s)
+        elif type_str == "BOUNCE_OUT":
+            if t < 1 / 2.75:
+                return 7.5625 * t * t
+            elif t < 2 / 2.75:
+                t -= 1.5 / 2.75
+                return 7.5625 * t * t + 0.75
+            elif t < 2.5 / 2.75:
+                t -= 2.25 / 2.75
+                return 7.5625 * t * t + 0.9375
+            else:
+                t -= 2.625 / 2.75
+                return 7.5625 * t * t + 0.984375
+        return t # LINEAR
 
     # ------------------------------------------------------------------
     # Canvas D&D (sprite positioning)
@@ -593,8 +1230,14 @@ class GBAUIEditor(tk.Tk):
         items = self.canvas.find_withtag("current")
         if not items: return
         tags = self.canvas.gettags(items[0])
-        if "draggable" not in tags: return
-        node = self._find_by_ptr(self.scene["root"], tags[1])
+        # "draggable" (sprite) または "draggable_text" (text) どちらも処理する
+        if "draggable" in tags:
+            node_ptr = tags[1]
+        elif "draggable_text" in tags:
+            node_ptr = tags[1]
+        else:
+            return
+        node = self._find_by_ptr(self.scene["root"], node_ptr)
         if not node: return
         self.selected_node = node
         self.render_inspector()
@@ -607,7 +1250,8 @@ class GBAUIEditor(tk.Tk):
                 break
         self.drag_data = {"x": event.x, "y": event.y,
                           "start_x": node.get("x", 0),
-                          "start_y": node.get("y", 0)}
+                          "start_y": node.get("y", 0),
+                          "undone": False}
 
     def _find_by_ptr(self, parent, ptr):
         if str(id(parent)) == ptr: return parent
@@ -618,6 +1262,12 @@ class GBAUIEditor(tk.Tk):
 
     def on_canvas_drag(self, event):
         if not self.drag_data or not self.selected_node: return
+        
+        # Save state once when the drag actually begins moving
+        if not self.drag_data.get("undone"):
+            self.push_undo()
+            self.drag_data["undone"] = True
+            
         dx = (event.x - self.drag_data["x"]) / self.scale
         dy = (event.y - self.drag_data["y"]) / self.scale
         nx = self.drag_data["start_x"] + dx
@@ -638,21 +1288,29 @@ class GBAUIEditor(tk.Tk):
     # File I/O
     # ------------------------------------------------------------------
     def new_json(self):
-        if messagebox.askyesno("Confirm", "Are you sure you want to create a new layout? Unsaved changes will be lost."):
-            self.scene = {
-                "screen": "new_screen",
-                "root": {"type": "group", "id": "root", "x": 0, "y": 0, "children": []}
-            }
-            self.current_filepath = None
-            self.screen_name_var.set("new_screen")
-            self.title("GBA Sokoban UI Editor (Python)")
-            self.status_var.set("Status: New layout created")
-            self.selected_node = None
-            self.image_cache.clear()
-            self.refresh_tree()
-            self.render_canvas()
+        if not self.confirm_discard_changes():
+            return
+            
+        self.scene = {
+            "screen": "new_screen",
+            "root": {"type": "group", "id": "root", "x": 0, "y": 0, "children": []}
+        }
+        self.current_filepath = None
+        self.screen_name_var.set("new_screen")
+        self.title("GBA UI Editor")
+        self.status_var.set("Status: New layout created")
+        self.selected_node = None
+        self.image_cache.clear()
+        self.undo_stack.clear()
+        self.redo_stack.clear()
+        self.saved_scene = copy.deepcopy(self.scene)
+        self.refresh_tree()
+        self.render_canvas()
 
     def load_json(self):
+        if not self.confirm_discard_changes():
+            return
+            
         path = filedialog.askopenfilename(initialdir=SCREENS_DIR,
                                           filetypes=[("JSON files", "*.json")])
         if not path: return
@@ -660,10 +1318,13 @@ class GBAUIEditor(tk.Tk):
             self.scene = json.load(f)
         self.current_filepath = path
         self.screen_name_var.set(self.scene.get("screen", "new"))
-        self.title(f"GBA Sokoban UI Editor - {os.path.basename(path)}")
+        self.title(f"GBA UI Editor - {os.path.basename(path)}")
         self.status_var.set(f"Status: Loaded {os.path.basename(path)}")
         self.selected_node = None
         self.image_cache.clear()
+        self.undo_stack.clear()
+        self.redo_stack.clear()
+        self.saved_scene = copy.deepcopy(self.scene)
         self.refresh_tree()
         self.render_canvas()
         
@@ -678,8 +1339,22 @@ class GBAUIEditor(tk.Tk):
         with open(path, 'w', encoding='utf-8') as f:
             json.dump(self.scene, f, indent=2)
             
-        self.title(f"GBA Sokoban UI Editor - {os.path.basename(path)}")
+        self.saved_scene = copy.deepcopy(self.scene)
+        self.title(f"GBA UI Editor - {os.path.basename(path)}")
         self.status_var.set(f"Status: Saved at {time.strftime('%H:%M:%S')}")
+
+    def show_in_explorer(self):
+        import subprocess
+        path = self.current_filepath
+        if path and os.path.exists(path):
+            norm_path = os.path.normpath(path)
+            subprocess.Popen(f'explorer /select,"{norm_path}"')
+            self.status_var.set(f"Status: Revealed in Explorer")
+        else:
+            norm_path = os.path.normpath(SCREENS_DIR)
+            if os.path.exists(norm_path):
+                subprocess.Popen(f'explorer "{norm_path}"')
+                self.status_var.set("Status: Opened layouts folder")
 
 if __name__ == "__main__":
     app = GBAUIEditor()

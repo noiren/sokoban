@@ -13,29 +13,41 @@ public:
     EventUI(UIManager& ui) : ui_(ui) {}
 
     void set_name(const bn::string_view& name) {
-        ui_.set_text("name_box", name);
+        if (auto* text_node = ui_.get_text("name_box")) {
+            text_node->set_text(name);
+        }
     }
     
     void set_message(const bn::string_view& msg) {
-        ui_.set_text("message_text", msg);
+        if (auto* text_node = ui_.get_text("message_text")) {
+            text_node->set_text(msg);
+        }
     }
     
     void set_left_char(int image_no) {
-        ui_.set_sprite_image("char_left", "chara_portraits", image_no);
-        ui_.set_sprite_visible("char_left", true);
+        if (auto* img_node = ui_.get_image("char_left")) {
+            ui_.change_sprite_image(img_node, "chara_portraits", image_no);
+            img_node->set_visible(true);
+        }
     }
     
     void set_right_char(int image_no) {
-        ui_.set_sprite_image("char_right", "chara_portraits", image_no);
-        ui_.set_sprite_visible("char_right", true);
+        if (auto* img_node = ui_.get_image("char_right")) {
+            ui_.change_sprite_image(img_node, "chara_portraits", image_no);
+            img_node->set_visible(true);
+        }
     }
 
     void clear_left_char() {
-        ui_.set_sprite_visible("char_left", false);
+        if (auto* img_node = ui_.get_image("char_left")) {
+            img_node->set_visible(false);
+        }
     }
 
     void clear_right_char() {
-        ui_.set_sprite_visible("char_right", false);
+        if (auto* img_node = ui_.get_image("char_right")) {
+            img_node->set_visible(false);
+        }
     }
 
     void clear_chars() {
@@ -45,8 +57,9 @@ public:
     
     void set_cg(int image_no) {
         (void)image_no;
-        // ui_.set_sprite_image("event_cg", "stills", image_no);
-        ui_.set_sprite_visible("event_cg", true);
+        if (auto* img_node = ui_.get_image("event_cg")) {
+            img_node->set_visible(true);
+        }
     }
 
 private:

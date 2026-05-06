@@ -4,7 +4,6 @@
 enum class StateID {
     NONE = -1,
     TITLE = 0,
-    SAVE_SELECT,
     MENU,
     EVENT,
     PUZZLE,

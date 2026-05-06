@@ -20,17 +20,26 @@ namespace ui_data_save_select {
     // Texts
     constexpr int TEXT_COUNT = 5;
     constexpr ui_types::TextEntry TEXTS[TEXT_COUNT] = {
-        { "title_text", "SAVE SELECT", 0.0f, -40.0f, true, false, 30, true },
-        { "slot_0", "", 0.0f, -16.0f, true, false, 30, true },
-        { "slot_1", "", 0.0f, 12.0f, true, false, 30, true },
-        { "slot_2", "", 0.0f, 40.0f, true, false, 30, true },
-        { "nav_text", "A: Select  B: Title", 0.0f, 60.0f, true, false, 30, true },
+        { "title_text", "SAVE SELECT", 0.0f, -40.0f, ui_types::TextAlign::CENTER, 1.0f, false, 30, true },
+        { "slot_0", "", 0.0f, -16.0f, ui_types::TextAlign::CENTER, 1.0f, false, 30, true },
+        { "slot_1", "", 0.0f, 12.0f, ui_types::TextAlign::CENTER, 1.0f, false, 30, true },
+        { "slot_2", "", 0.0f, 40.0f, ui_types::TextAlign::CENTER, 1.0f, false, 30, true },
+        { "nav_text", "A: Select  B: Title", 0.0f, 60.0f, ui_types::TextAlign::CENTER, 1.0f, false, 30, true },
     };
+
+    // Animations
+    constexpr int ANIM_PRESET_COUNT = 0;
+    constexpr ui_types::AnimPreset* ANIM_PRESETS = nullptr;
+
+    constexpr int ANIM_ENTRY_COUNT = 0;
+    constexpr ui_types::AnimEntry* ANIM_ENTRIES = nullptr;
 
     constexpr ui_types::ScreenData SCREEN = {
         BG_IMAGE_ID, BG_SCROLL_X, BG_SCROLL_Y,
         SPRITE_COUNT, SPRITES,
-        TEXT_COUNT, TEXTS
+        TEXT_COUNT, TEXTS,
+        ANIM_PRESET_COUNT, ANIM_PRESETS,
+        ANIM_ENTRY_COUNT, ANIM_ENTRIES
     };
 
 } // namespace ui_data_save_select

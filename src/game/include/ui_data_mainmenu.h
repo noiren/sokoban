@@ -14,24 +14,48 @@ namespace ui_data_mainmenu {
     constexpr int BG_SCROLL_Y = 0;
 
     // Sprites
-    constexpr int SPRITE_COUNT = 0;
-    constexpr ui_types::SpriteEntry* SPRITES = nullptr;
+    constexpr int SPRITE_COUNT = 5;
+    constexpr ui_types::SpriteEntry SPRITES[SPRITE_COUNT] = {
+        { "storymode_paper", "ui_paper", 0, -48.0f, -36.0f, 0.0f, true },
+        { "settingmode_paper_copy", "ui_paper", 0, 84.0f, 32.0f, 0.0f, true },
+        { "gallerymode_paper_copy", "ui_paper", 0, 8.0f, 32.0f, 0.0f, true },
+        { "endlessmode_paper_copy", "ui_paper", 0, -72.0f, 32.0f, 0.0f, true },
+        { "practicemode_paper", "ui_paper", 0, 40.0f, -36.0f, 0.0f, true },
+    };
 
     // Texts
-    constexpr int TEXT_COUNT = 6;
+    constexpr int TEXT_COUNT = 5;
     constexpr ui_types::TextEntry TEXTS[TEXT_COUNT] = {
-        { "menu_0", "", 0.0f, -32.0f, true, false, 30, true },
-        { "menu_1", "", 0.0f, -14.0f, true, false, 30, true },
-        { "menu_2", "", 0.0f, 4.0f, true, false, 30, true },
-        { "menu_3", "", 0.0f, 22.0f, true, false, 30, true },
-        { "menu_4", "", 0.0f, 40.0f, true, false, 30, true },
-        { "title_text", "ｽﾋﾟｷとマヨの倉庫番", 0.0f, -56.0f, true, false, 30, true },
+        { "storymode_text", "ストーリーモード", -48.0f, -36.0f, ui_types::TextAlign::CENTER, 1.0f, false, 30, true },
+        { "settingmode_text", "設定", 84.0f, 32.0f, ui_types::TextAlign::CENTER, 1.0f, false, 30, true },
+        { "gallerymode_text", "ギャラリー", 8.0f, 32.0f, ui_types::TextAlign::CENTER, 1.0f, false, 30, true },
+        { "endlessmode_text", "エンドレス", -72.0f, 32.0f, ui_types::TextAlign::CENTER, 1.0f, false, 30, true },
+        { "practicemode_text", "プラクティス", 40.0f, -36.0f, ui_types::TextAlign::CENTER, 1.0f, false, 30, true },
+    };
+
+    // Animations
+    constexpr int ANIM_PRESET_COUNT = 1;
+    constexpr ui_types::AnimKeyframe KEYFRAMES_pop_in[] = {
+        { 0, 0.0f, 0.0f, 0.0f, 0.0f, ui_types::EaseType::BACK_OUT },
+        { 25, 0.0f, 0.0f, 0.0f, 1.0f, ui_types::EaseType::LINEAR },
+    };
+
+    constexpr ui_types::AnimPreset ANIM_PRESETS[ANIM_PRESET_COUNT] = {
+        { "pop_in", 25, ui_types::EaseType::LINEAR, 2, KEYFRAMES_pop_in },
+    };
+
+    constexpr const char* TARGETS_FOR_ANIM_0[] = { "storymode_paper" };
+    constexpr int ANIM_ENTRY_COUNT = 1;
+    constexpr ui_types::AnimEntry ANIM_ENTRIES[ANIM_ENTRY_COUNT] = {
+        { "new_anim", "pop_in", 1, TARGETS_FOR_ANIM_0 },
     };
 
     constexpr ui_types::ScreenData SCREEN = {
         BG_IMAGE_ID, BG_SCROLL_X, BG_SCROLL_Y,
         SPRITE_COUNT, SPRITES,
-        TEXT_COUNT, TEXTS
+        TEXT_COUNT, TEXTS,
+        ANIM_PRESET_COUNT, ANIM_PRESETS,
+        ANIM_ENTRY_COUNT, ANIM_ENTRIES
     };
 
 } // namespace ui_data_mainmenu

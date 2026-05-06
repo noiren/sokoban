@@ -224,7 +224,7 @@ void TitleState::update_title(StateManager& sm, SharedContext& /*ctx*/) {
         case PhaseStep::CLOSING:
             if (!fade_.update()) {
                 // 画面遷移
-                sm.change_state(StateID::SAVE_SELECT);
+                sm.change_state(StateID::MENU);
             }
             break;
     }

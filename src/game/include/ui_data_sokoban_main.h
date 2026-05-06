@@ -20,20 +20,29 @@ namespace ui_data_sokoban_main {
     // Texts
     constexpr int TEXT_COUNT = 8;
     constexpr ui_types::TextEntry TEXTS[TEXT_COUNT] = {
-        { "moves_text", "", -80.0f, 68.0f, true, false, 30, true },
-        { "stage_text", "", 80.0f, 68.0f, true, false, 30, true },
-        { "clear_text", "", 0.0f, -16.0f, true, false, 30, true },
-        { "start_text", "", 0.0f, 0.0f, true, false, 30, true },
-        { "endless_score_label", "", 0.0f, -24.0f, true, false, 30, true },
-        { "endless_best_label", "", 0.0f, -4.0f, true, false, 30, true },
-        { "endless_new_record", "", 0.0f, 16.0f, true, false, 30, true },
-        { "endless_press_a", "", 0.0f, 40.0f, true, false, 30, true },
+        { "moves_text", "", -80.0f, 68.0f, ui_types::TextAlign::CENTER, 1.0f, false, 30, true },
+        { "stage_text", "", 80.0f, 68.0f, ui_types::TextAlign::CENTER, 1.0f, false, 30, true },
+        { "clear_text", "", 0.0f, -16.0f, ui_types::TextAlign::CENTER, 1.0f, false, 30, false },
+        { "start_text", "", 0.0f, 0.0f, ui_types::TextAlign::CENTER, 1.0f, false, 30, false },
+        { "endless_score_label", "", 0.0f, -24.0f, ui_types::TextAlign::CENTER, 1.0f, false, 30, false },
+        { "endless_best_label", "", 0.0f, -4.0f, ui_types::TextAlign::CENTER, 1.0f, false, 30, false },
+        { "endless_new_record", "", 0.0f, 16.0f, ui_types::TextAlign::CENTER, 1.0f, false, 30, false },
+        { "endless_press_a", "", 0.0f, 40.0f, ui_types::TextAlign::CENTER, 1.0f, false, 30, false },
     };
+
+    // Animations
+    constexpr int ANIM_PRESET_COUNT = 0;
+    constexpr ui_types::AnimPreset* ANIM_PRESETS = nullptr;
+
+    constexpr int ANIM_ENTRY_COUNT = 0;
+    constexpr ui_types::AnimEntry* ANIM_ENTRIES = nullptr;
 
     constexpr ui_types::ScreenData SCREEN = {
         BG_IMAGE_ID, BG_SCROLL_X, BG_SCROLL_Y,
         SPRITE_COUNT, SPRITES,
-        TEXT_COUNT, TEXTS
+        TEXT_COUNT, TEXTS,
+        ANIM_PRESET_COUNT, ANIM_PRESETS,
+        ANIM_ENTRY_COUNT, ANIM_ENTRIES
     };
 
 } // namespace ui_data_sokoban_main

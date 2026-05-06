@@ -25,6 +25,7 @@ def compile_screen(json_path: str) -> str:
     bg_id = ""
     sprites = []
     texts = []
+    anims = []
 
     # Flatten the tree
     def traverse(node, current_x, current_y):
@@ -43,21 +44,51 @@ def compile_screen(json_path: str) -> str:
                 "id": node.get("id", "spr"),
                 "image_set": node.get("image_set", ""),
                 "image_no": int(node.get("image_no", 0)),
-                "x": nx, "y": ny, "visible": True
+                "x": nx, "y": ny,
+                "rotation": float(node.get("rotation", 0.0)),
+                "visible": bool(node.get("visible", True))
             })
         elif ntype == "text":
+            # align: "left" | "center" | "right"  (default: "center")
+            align_raw = node.get("align", "center").lower()
+            if align_raw == "left":
+                align_val = "ui_types::TextAlign::LEFT"
+            elif align_raw == "right":
+                align_val = "ui_types::TextAlign::RIGHT"
+            else:
+                align_val = "ui_types::TextAlign::CENTER"
             texts.append({
                 "id": node.get("id", "txt"),
                 "text": node.get("text", ""),
                 "x": nx, "y": ny,
+                "align": align_val,
+                "font_size": float(node.get("font_size", 1.0)),
                 "blink": node.get("blink", False),
-                "visible": True
+                "visible": bool(node.get("visible", True))
+            })
+        elif ntype == "anim":
+            anims.append({
+                "id": node.get("id", f"anim_{len(anims)}"),
+                "preset_id": node.get("preset_id", ""),
+                "target_ids": [child.get("id", "") for child in node.get("children", []) if child.get("id")]
             })
             
         for child in node.get("children", []):
             traverse(child, nx, ny)
 
     traverse(data.get("root"), 0.0, 0.0)
+    
+    used_presets = {}
+    ANIMS_DIR = os.path.join(PROJECT_ROOT, "Asset", "animations")
+    for a in anims:
+        pid = a["preset_id"]
+        if pid and pid not in used_presets:
+            preset_path = os.path.join(ANIMS_DIR, f"{pid}.anim.json")
+            if os.path.exists(preset_path):
+                with open(preset_path, "r", encoding="utf-8") as f:
+                    used_presets[pid] = json.load(f)
+            else:
+                print(f"[ui_compiler] Warning: preset {pid} not found at {preset_path}")
 
     lines = []
     lines.append(f"// ============================================================")
@@ -87,6 +118,7 @@ def compile_screen(json_path: str) -> str:
                 f"{cpp_string(spr.get('image_set',''))}, "
                 f"{spr['image_no']}, "
                 f"{spr['x']}f, {spr['y']}f, "
+                f"{spr.get('rotation', 0.0)}f, "
                 f"{'true' if spr.get('visible', True) else 'false'} }},"
             )
         lines.append(f"    }};")
@@ -103,9 +135,10 @@ def compile_screen(json_path: str) -> str:
                 f"        {{ {cpp_string(t.get('id',''))}, "
                 f"{cpp_string(t.get('text',''))}, "
                 f"{t['x']}f, {t['y']}f, "
-                f"true, "  # center align defaults to true for now
+                f"{t['align']}, "
+                f"{t['font_size']}f, "
                 f"{'true' if t.get('blink', False) else 'false'}, "
-                f"30, " # blink interval
+                f"30, "  # blink interval
                 f"{'true' if t.get('visible', True) else 'false'} }},"
             )
         lines.append(f"    }};")
@@ -113,10 +146,73 @@ def compile_screen(json_path: str) -> str:
         lines.append(f"    constexpr ui_types::TextEntry* TEXTS = nullptr;")
     lines.append(f"")
 
+    lines.append(f"    // Animations")
+    preset_keys = list(used_presets.keys())
+    lines.append(f"    constexpr int ANIM_PRESET_COUNT = {len(preset_keys)};")
+    if preset_keys:
+        for pk in preset_keys:
+            p = used_presets[pk]
+            kfs = p.get("keyframes")
+            global_ease = p.get("ease_type", "LINEAR")
+            if not kfs:
+                kfs = [
+                    {"frame": 0, "x": float(p.get("start_x", 0.0)), "y": float(p.get("start_y", 0.0)), "rot": float(p.get("start_rot", 0.0)), "scale": float(p.get("start_scale", 1.0)), "ease_type": global_ease},
+                    {"frame": int(p.get("duration_frames", 60)), "x": float(p.get("end_x", 0.0)), "y": float(p.get("end_y", 0.0)), "rot": float(p.get("end_rot", 0.0)), "scale": float(p.get("end_scale", 1.0)), "ease_type": "LINEAR"}
+                ]
+            lines.append(f"    constexpr ui_types::AnimKeyframe KEYFRAMES_{pk}[] = {{")
+            for k in kfs:
+                lines.append(
+                    f"        {{ {int(k['frame'])}, {float(k.get('x', 0.0))}f, {float(k.get('y', 0.0))}f, "
+                    f"{float(k.get('rot', 0.0))}f, {float(k.get('scale', 1.0))}f, "
+                    f"ui_types::EaseType::{k.get('ease_type', global_ease)} }},"
+                )
+            lines.append(f"    }};")
+        lines.append(f"")
+        
+        lines.append(f"    constexpr ui_types::AnimPreset ANIM_PRESETS[ANIM_PRESET_COUNT] = {{")
+        for pk in preset_keys:
+            p = used_presets[pk]
+            kfs = p.get("keyframes")
+            kf_count = len(kfs) if kfs else 2
+            lines.append(
+                f"        {{ {cpp_string(pk)}, "
+                f"{int(p.get('duration_frames', 60))}, "
+                f"ui_types::EaseType::{p.get('ease_type', 'LINEAR')}, "
+                f"{kf_count}, "
+                f"KEYFRAMES_{pk} }},"
+            )
+        lines.append(f"    }};")
+    else:
+        lines.append(f"    constexpr ui_types::AnimPreset* ANIM_PRESETS = nullptr;")
+    lines.append(f"")
+
+    if anims:
+        for i, a in enumerate(anims):
+            t_ids = a["target_ids"]
+            if t_ids:
+                lines.append(f"    constexpr const char* TARGETS_FOR_ANIM_{i}[] = {{ " + ", ".join(cpp_string(t) for t in t_ids) + " };")
+            else:
+                lines.append(f"    constexpr const char** TARGETS_FOR_ANIM_{i} = nullptr;")
+        
+        lines.append(f"    constexpr int ANIM_ENTRY_COUNT = {len(anims)};")
+        lines.append(f"    constexpr ui_types::AnimEntry ANIM_ENTRIES[ANIM_ENTRY_COUNT] = {{")
+        for i, a in enumerate(anims):
+            tc = len(a["target_ids"])
+            lines.append(
+                f"        {{ {cpp_string(a['id'])}, {cpp_string(a['preset_id'])}, {tc}, TARGETS_FOR_ANIM_{i} }},"
+            )
+        lines.append(f"    }};")
+    else:
+        lines.append(f"    constexpr int ANIM_ENTRY_COUNT = 0;")
+        lines.append(f"    constexpr ui_types::AnimEntry* ANIM_ENTRIES = nullptr;")
+    lines.append(f"")
+
     lines.append(f"    constexpr ui_types::ScreenData SCREEN = {{")
     lines.append(f"        BG_IMAGE_ID, BG_SCROLL_X, BG_SCROLL_Y,")
     lines.append(f"        SPRITE_COUNT, SPRITES,")
-    lines.append(f"        TEXT_COUNT, TEXTS")
+    lines.append(f"        TEXT_COUNT, TEXTS,")
+    lines.append(f"        ANIM_PRESET_COUNT, ANIM_PRESETS,")
+    lines.append(f"        ANIM_ENTRY_COUNT, ANIM_ENTRIES")
     lines.append(f"    }};")
     lines.append(f"")
     lines.append(f"}} // namespace {ns}")

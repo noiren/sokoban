@@ -1,0 +1,23 @@
+{
+  "id": "pop_in",
+  "duration_frames": 25,
+  "ease_type": "LINEAR",
+  "keyframes": [
+    {
+      "frame": 0,
+      "x": 0.0,
+      "y": 0.0,
+      "rot": 0.0,
+      "scale": 0.0,
+      "ease_type": "BACK_OUT"
+    },
+    {
+      "frame": 25,
+      "x": 0.0,
+      "y": 0.0,
+      "rot": 0.0,
+      "scale": 1.0,
+      "ease_type": "LINEAR"
+    }
+  ]
+}

@@ -54,93 +54,119 @@
 UIManager::UIManager(bn::sprite_text_generator& text_gen) : text_gen_(text_gen) {
 }
 
-void UIManager::set_bg(BgImageID id) {
-    clear_bg(); // Currently unused explicitly, logic moved to JSON
-}
-
 void UIManager::clear_bg() {
     bg_.reset();
 }
 
 void UIManager::clear_all() {
     clear_bg();
-    sprites_.clear();
+    
+    for (UIImage* img : images_) image_pool_.destroy(*img);
+    for (UIText* txt : texts_) text_pool_.destroy(*txt);
+    for (UIAnim* anim : anims_) anim_pool_.destroy(*anim);
+    
+    images_.clear();
     texts_.clear();
+    anims_.clear();
+    nodes_.clear();
 }
 
-void UIManager::_set_bg_from_string(bn::string_view bg_id) {
-    if (bg_id == "stl_logo") {
-        bg_ = bn::regular_bg_items::stl_logo.create_bg(8, 48);
-    } else if (bg_id == "stl_title") {
-        bg_ = bn::regular_bg_items::stl_title.create_bg(8, 48);
-    } else if (bg_id == "stl_attention") {
-        bg_ = bn::regular_bg_items::stl_attention.create_bg(8, 48);
-    } else if (bg_id == "still_mainmenu") {
-        bg_ = bn::regular_bg_items::still_mainmenu.create_bg(8, 48);
-    } else if (bg_id == "still_practice") {
-        bg_ = bn::regular_bg_items::still_practice.create_bg(8, 48);
-    } else if (bg_id == "still_sokoban_main") {
-        bg_ = bn::regular_bg_items::still_sokoban_main.create_bg(8, 48);
-    } else if (bg_id == "still_event") {
-        bg_ = bn::regular_bg_items::still_event.create_bg(8, 48);
-    } else if (bg_id == "gba_event") {
-        bg_ = bn::regular_bg_items::gba_event.create_bg(8, 48);
-    } else if (bg_id == "still_gallerymenu") {
-        bg_ = bn::regular_bg_items::still_gallerymenu.create_bg(8, 48);
-    } else if (bg_id == "still_bgm") {
-        bg_ = bn::regular_bg_items::still_bgm.create_bg(8, 48);
-    } else if (bg_id == "still_se") {
-        bg_ = bn::regular_bg_items::still_se.create_bg(8, 48);
-    } else if (bg_id == "still_viewbustup") {
-        bg_ = bn::regular_bg_items::still_viewbustup.create_bg(8, 48);
-    } else if (bg_id == "still_viewstill") {
-        bg_ = bn::regular_bg_items::still_viewstill.create_bg(8, 48);
-    } else if (bg_id == "still_saveattention") {
-        bg_ = bn::regular_bg_items::still_saveattention.create_bg(8, 48);
-    } else {
-        clear_bg();
+void UIManager::load_screen(const ui_types::ScreenData& screen_data) {
+    clear_all();
+
+    _set_bg_from_string(screen_data.bg_image_id);
+
+    // 画像ノード生成
+    for(int i = 0; i < screen_data.sprite_count; ++i) {
+        const auto& s = screen_data.sprites[i];
+        UIImage& img = image_pool_.create(s.id, bn::fixed(s.x), bn::fixed(s.y), bn::fixed(s.rotation), s.visible);
+        if (s.visible) {
+            img.set_sprite(_create_sprite_from_set(s.image_set, s.image_no, img.get_x(), img.get_y()));
+        }
+        nodes_.push_back(&img);
+        images_.push_back(&img);
+    }
+
+    // テキストノード生成
+    for(int i = 0; i < screen_data.text_count; ++i) {
+        const auto& t = screen_data.texts[i];
+        UIText& txt = text_pool_.create(t.id, bn::fixed(t.x), bn::fixed(t.y), t.visible,
+                                        t.align, t.font_size,
+                                        t.blink, t.blink_interval, text_gen_);
+        txt.set_text(t.text);
+        nodes_.push_back(&txt);
+        texts_.push_back(&txt);
+    }
+
+    // ★アニメーションノード生成
+    for(int i = 0; i < screen_data.anim_entry_count; ++i) {
+        const auto& entry = screen_data.anim_entries[i];
+        UIAnim& anim = anim_pool_.create(entry.id);
+
+        // プリセット紐付け
+        for(int p = 0; p < screen_data.anim_preset_count; ++p) {
+            if (bn::string_view(screen_data.anim_presets[p].id) == entry.preset_id) {
+                anim.set_preset(&screen_data.anim_presets[p]);
+                break;
+            }
+        }
+
+        // ターゲット紐付け
+        for(int t = 0; t < entry.target_count; ++t) {
+            bn::string_view target_id = entry.target_ids[t];
+            if (UIImage* img = get_image(target_id)) anim.add_target(img);
+            else if (UIText* txt = get_text(target_id)) anim.add_target(txt);
+        }
+
+        nodes_.push_back(&anim);
+        anims_.push_back(&anim);
+        
+        anim.play(); // ロード直後に自動再生を開始する
     }
 }
 
 void UIManager::update() {
-    tick_counter_++;
-
-    // テキストの点滅や再描画制御
-    for (auto& t : texts_) {
-        if (!t.visible) {
-            t.sprites.clear();
-            t.dirty = false;
-            continue;
-        }
-
-        // blink制御: 点滅期間中はスプライトを消すだけでdirtyは触らない
-        bool draw_now = true;
-        if (t.blink && t.blink_interval > 0) {
-            if ((tick_counter_ / t.blink_interval) % 2 == 1) {
-                draw_now = false;
-            }
-        }
-
-        if (draw_now) {
-            // dirty のときのみ再生成（毎フレームgenerateを防止）
-            if (t.dirty && !t.text.empty()) {
-                t.sprites.clear();
-                text_gen_.set_center_alignment();
-                text_gen_.generate(t.x, t.y, t.text, t.sprites);
-                t.dirty = false;
-            } else if (t.dirty) {
-                // textが空: spritesだけクリア
-                t.sprites.clear();
-                t.dirty = false;
-            }
-        } else {
-            // blink点滅オフ期間: spritesを消し、dirty=trueにしておく(点滅後再描画)
-            if (!t.sprites.empty()) {
-                t.sprites.clear();
-                t.dirty = true;
-            }
-        }
+    for (UINode* node : nodes_) {
+        node->update();
     }
+}
+
+UIImage* UIManager::get_image(const bn::string_view& id) {
+    for(UIImage* img : images_) { if (img->get_id() == id) return img; }
+    return nullptr;
+}
+
+UIText* UIManager::get_text(const bn::string_view& id) {
+    for(UIText* txt : texts_) { if (txt->get_id() == id) return txt; }
+    return nullptr;
+}
+
+UIAnim* UIManager::get_anim(const bn::string_view& id) {
+    for(UIAnim* anim : anims_) { if (anim->get_id() == id) return anim; }
+    return nullptr;
+}
+
+void UIManager::change_sprite_image(UIImage* node, const bn::string_view& image_set, int image_no) {
+    if (!node) return;
+    node->set_sprite(_create_sprite_from_set(image_set, image_no, node->get_x(), node->get_y()));
+}
+
+void UIManager::_set_bg_from_string(bn::string_view bg_id) {
+    if (bg_id == "stl_logo") bg_ = bn::regular_bg_items::stl_logo.create_bg(8, 48);
+    else if (bg_id == "stl_title") bg_ = bn::regular_bg_items::stl_title.create_bg(8, 48);
+    else if (bg_id == "stl_attention") bg_ = bn::regular_bg_items::stl_attention.create_bg(8, 48);
+    else if (bg_id == "still_mainmenu") bg_ = bn::regular_bg_items::still_mainmenu.create_bg(8, 48);
+    else if (bg_id == "still_practice") bg_ = bn::regular_bg_items::still_practice.create_bg(8, 48);
+    else if (bg_id == "still_sokoban_main") bg_ = bn::regular_bg_items::still_sokoban_main.create_bg(8, 48);
+    else if (bg_id == "still_event") bg_ = bn::regular_bg_items::still_event.create_bg(8, 48);
+    else if (bg_id == "gba_event") bg_ = bn::regular_bg_items::gba_event.create_bg(8, 48);
+    else if (bg_id == "still_gallerymenu") bg_ = bn::regular_bg_items::still_gallerymenu.create_bg(8, 48);
+    else if (bg_id == "still_bgm") bg_ = bn::regular_bg_items::still_bgm.create_bg(8, 48);
+    else if (bg_id == "still_se") bg_ = bn::regular_bg_items::still_se.create_bg(8, 48);
+    else if (bg_id == "still_viewbustup") bg_ = bn::regular_bg_items::still_viewbustup.create_bg(8, 48);
+    else if (bg_id == "still_viewstill") bg_ = bn::regular_bg_items::still_viewstill.create_bg(8, 48);
+    else if (bg_id == "still_saveattention") bg_ = bn::regular_bg_items::still_saveattention.create_bg(8, 48);
+    else clear_bg();
 }
 
 bn::optional<bn::sprite_ptr> UIManager::_create_sprite_from_set(const bn::string_view& img_set, int img_no, bn::fixed x, bn::fixed y) {
@@ -199,114 +225,4 @@ bn::optional<bn::sprite_ptr> UIManager::_create_sprite_from_set(const bn::string
     }
     
     return bn::optional<bn::sprite_ptr>();
-}
-
-void UIManager::load_screen(const ui_types::ScreenData& screen_data) {
-    clear_all();
-
-    // 背景のセット
-    _set_bg_from_string(screen_data.bg_image_id);
-
-    // スプライトのセット
-    for(int i = 0; i < screen_data.sprite_count; ++i) {
-        const auto& s = screen_data.sprites[i];
-        RuntimeUISprite rs;
-        rs.id = s.id;
-        rs.x = bn::fixed(s.x);
-        rs.y = bn::fixed(s.y);
-        rs.visible = s.visible;
-        
-        if (rs.visible) {
-            rs.sprite = _create_sprite_from_set(s.image_set, s.image_no, rs.x, rs.y);
-        }
-        sprites_.push_back(rs);
-    }
-
-    // テキスト要素のセット
-    for(int i = 0; i < screen_data.text_count; ++i) {
-        const auto& t = screen_data.texts[i];
-        RuntimeUIText rt;
-        rt.id = t.id;
-        rt.x = bn::fixed(t.x);
-        rt.y = bn::fixed(t.y);
-        rt.blink = t.blink;
-        rt.blink_interval = t.blink_interval;
-        rt.visible = t.visible;
-        rt.text = t.text;
-        
-        texts_.push_back(rt);
-    }
-}
-
-// ==========================================
-// 動的UI操作用API
-// ==========================================
-
-void UIManager::set_sprite_visible(const bn::string_view& id, bool visible) {
-    for (auto& s : sprites_) {
-        if (s.id == id) {
-            s.visible = visible;
-            if (s.visible && s.sprite) {
-                s.sprite->set_visible(true);
-            } else if (!s.visible && s.sprite) {
-                s.sprite->set_visible(false);
-            }
-            break;
-        }
-    }
-}
-
-void UIManager::set_sprite_position(const bn::string_view& id, bn::fixed x, bn::fixed y) {
-    for (auto& s : sprites_) {
-        if (s.id == id) {
-            s.x = x;
-            s.y = y;
-            if (s.sprite) {
-                s.sprite->set_position(x, y);
-            }
-            break;
-        }
-    }
-}
-
-void UIManager::set_sprite_image(const bn::string_view& id, const bn::string_view& image_set, int image_no) {
-    for (auto& s : sprites_) {
-        if (s.id == id) {
-            s.sprite.reset();
-            s.sprite = _create_sprite_from_set(image_set, image_no, s.x, s.y);
-            if (s.sprite && !s.visible) {
-                s.sprite->set_visible(false);
-            }
-            break;
-        }
-    }
-}
-
-void UIManager::set_text(const bn::string_view& id, const bn::string_view& text) {
-    for (auto& t : texts_) {
-        if (t.id == id) {
-            if (t.text != text) {
-                t.text = text;
-                t.sprites.clear();
-                t.dirty = true; // 変更時のみ再生成をトリガー
-            }
-            break;
-        }
-    }
-}
-
-void UIManager::set_text_visible(const bn::string_view& id, bool visible) {
-    for (auto& t : texts_) {
-        if (t.id == id) {
-            if (t.visible != visible) {
-                t.visible = visible;
-                if (!t.visible) {
-                    t.sprites.clear();
-                } else {
-                    t.dirty = true; // 表示に戻ったときは再生成が必要
-                }
-            }
-            break;
-        }
-    }
 }

@@ -20,14 +20,23 @@ namespace ui_data_practice_stageSelect {
     // Texts
     constexpr int TEXT_COUNT = 2;
     constexpr ui_types::TextEntry TEXTS[TEXT_COUNT] = {
-        { "title", "PRACTICE MODE", 0.0f, -8.0f, true, false, 30, true },
-        { "subtitle", "Coming Soon...", 0.0f, 8.0f, true, false, 30, true },
+        { "title", "PRACTICE MODE", 0.0f, -8.0f, ui_types::TextAlign::CENTER, 1.0f, false, 30, true },
+        { "subtitle", "Coming Soon...", 0.0f, 8.0f, ui_types::TextAlign::CENTER, 1.0f, false, 30, true },
     };
+
+    // Animations
+    constexpr int ANIM_PRESET_COUNT = 0;
+    constexpr ui_types::AnimPreset* ANIM_PRESETS = nullptr;
+
+    constexpr int ANIM_ENTRY_COUNT = 0;
+    constexpr ui_types::AnimEntry* ANIM_ENTRIES = nullptr;
 
     constexpr ui_types::ScreenData SCREEN = {
         BG_IMAGE_ID, BG_SCROLL_X, BG_SCROLL_Y,
         SPRITE_COUNT, SPRITES,
-        TEXT_COUNT, TEXTS
+        TEXT_COUNT, TEXTS,
+        ANIM_PRESET_COUNT, ANIM_PRESETS,
+        ANIM_ENTRY_COUNT, ANIM_ENTRIES
     };
 
 } // namespace ui_data_practice_stageSelect

@@ -11,11 +11,17 @@ class MenuUI {
 public:
     MenuUI(UIManager& ui) : ui_(ui) {}
     void set_menu_item(int index, const bn::string_view& text) {
-        if (index == 0) ui_.set_text("menu_0", text);
-        else if (index == 1) ui_.set_text("menu_1", text);
-        else if (index == 2) ui_.set_text("menu_2", text);
-        else if (index == 3) ui_.set_text("menu_3", text);
-        else if (index == 4) ui_.set_text("menu_4", text);
+        if (index == 0) {
+            if (auto* text_node = ui_.get_text("menu_0")) text_node->set_text(text);
+        } else if (index == 1) {
+            if (auto* text_node = ui_.get_text("menu_1")) text_node->set_text(text);
+        } else if (index == 2) {
+            if (auto* text_node = ui_.get_text("menu_2")) text_node->set_text(text);
+        } else if (index == 3) {
+            if (auto* text_node = ui_.get_text("menu_3")) text_node->set_text(text);
+        } else if (index == 4) {
+            if (auto* text_node = ui_.get_text("menu_4")) text_node->set_text(text);
+        }
     }
 private:
     UIManager& ui_;
