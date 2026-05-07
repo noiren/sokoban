@@ -3,8 +3,8 @@
 
 #include "state/state.h"
 #include "game/sokoban.h"
-#include "gfx/renderer.h"
-#include "gfx/hud.h"
+#include "graphics/renderer.h"
+#include "ui/HUD/hud.h"
 #include "audio/sound_manager.h"
 #include "save/save_data.h"
 
@@ -16,7 +16,7 @@
 #include "bn_array.h"
 #include "bn_optional.h"
 #include "bn_vector.h"
-#include "gfx/ui_manager.h"
+#include "ui/Core/Manager/ui_manager.h"
 
 // エンドレスモードのフェーズ
 enum class EndlessPhase {

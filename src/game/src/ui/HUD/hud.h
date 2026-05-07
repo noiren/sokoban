@@ -2,7 +2,7 @@
 #define HUD_H
 
 #include "bn_string.h"
-#include "ui_manager.h"
+#include "ui/Core/Manager/ui_manager.h"
 
 class Hud {
 public:

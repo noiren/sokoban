@@ -4,7 +4,7 @@
 #include "state/state.h"
 #include "bn_sprite_text_generator.h"
 #include "bn_optional.h"
-#include "gfx/ui_manager.h"
+#include "ui/Core/Manager/ui_manager.h"
 
 enum class PracticeMenuPhase {
     SELECT_LEVEL,

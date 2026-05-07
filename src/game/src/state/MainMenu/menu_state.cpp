@@ -1,23 +1,35 @@
-#include "menu_state.h"
+#include "state/MainMenu/menu_state.h"
 #include "state/Manager/state_manager.h"
 #include "bn_keypad.h"
-#include "bn_string.h"
-#include "ui_data_menu.h"
 
+// ==========================================
+// フェーズハンドラテーブルの定義
+// （enumの順番通りに関数をマッピング）
+// ==========================================
 const MenuState::PhaseHandlers MenuState::phase_table_[] = {
     // MAIN
     { &MenuState::enter_main, &MenuState::update_main, &MenuState::exit_main }
 };
 
+// ==========================================
+// 大枠の State ライフサイクル
+// ==========================================
 MenuState::MenuState()
-    : cursor_(0), last_selected_(MenuItem::STORY),
-      phase_(MenuPhase::MAIN), step_(PhaseStep::OPENING) {
+    : phase_(MenuPhase::MAIN),
+      step_(PhaseStep::OPENING),
+      cursor_(0),
+      last_selected_(MenuItem::STORY),
+      wait_timer_(0) {
+    for (int i = 0; i < VISIBLE_MENU_COUNT; ++i) {
+        unlocked_flags_[i] = true;
+    }
 }
 
 void MenuState::enter(StateManager& /*sm*/, SharedContext& ctx) {
     ui_manager_.emplace(*ctx.text_generator);
-    ui_.emplace(*ui_manager_);
+    view_.emplace(*ui_manager_); // Viewの生成
 
+    // 最初のフェーズを設定して Enter 関数を呼び出す
     phase_ = MenuPhase::MAIN;
     if (phase_table_[(int)phase_].enter) {
         (this->*phase_table_[(int)phase_].enter)();
@@ -25,113 +37,152 @@ void MenuState::enter(StateManager& /*sm*/, SharedContext& ctx) {
 }
 
 void MenuState::update(StateManager& sm, SharedContext& ctx) {
+    // 現在のフェーズの Update 関数を関数ポインタ経由で呼び出す
     if (phase_table_[(int)phase_].update) {
         (this->*phase_table_[(int)phase_].update)(sm, ctx);
     }
 
-    if (ui_manager_) {
-        ui_manager_->update();
+    // View（UI）の更新は毎フレーム回す
+    if (view_) {
+        view_->update();
     }
 }
 
 void MenuState::exit(StateManager& /*sm*/, SharedContext& /*ctx*/) {
+    // 最後のフェーズの Exit 関数を呼ぶ
     if (phase_table_[(int)phase_].exit) {
         (this->*phase_table_[(int)phase_].exit)();
     }
 
-    ui_.reset();
+    view_.reset(); // Viewを先に破棄
     if (ui_manager_) {
         ui_manager_->clear_all();
         ui_manager_.reset();
     }
 }
 
+// ==========================================
+// フェーズ遷移
+// ==========================================
 void MenuState::change_phase(MenuPhase next) {
+    // 1. 現在のフェーズの Exit を呼ぶ
     if (phase_table_[(int)phase_].exit) {
         (this->*phase_table_[(int)phase_].exit)();
     }
 
+    // 2. フェーズ切り替え
     phase_ = next;
 
+    // 3. 新しいフェーズの Enter を呼ぶ
     if (phase_table_[(int)phase_].enter) {
         (this->*phase_table_[(int)phase_].enter)();
     }
 }
 
+// ==========================================
+// メインメニュー フェーズ
+// ==========================================
 void MenuState::enter_main() {
-    ui_manager_->load_screen(ui_data_menu::SCREEN);
+    // 本来はセーブデータ等から取得して設定する（ここでは仮としてENDLESS(2)のみ未解禁とする）
+    unlocked_flags_[0] = true;  // STORY
+    unlocked_flags_[1] = true;  // PRACTICE
+    unlocked_flags_[2] = false; // ENDLESS (未解禁)
+    unlocked_flags_[3] = true;  // GALLERY
+    unlocked_flags_[4] = true;  // SETTINGS
+
     cursor_ = (int)last_selected_;
     if (cursor_ >= VISIBLE_MENU_COUNT) cursor_ = 0;
-    update_menu_ui();
-    step_ = PhaseStep::RUNNING;
+    
+    // Stateはロジックで判定した「解禁状況配列」と「初期カーソル」をViewに渡すだけ
+    view_->init(unlocked_flags_, cursor_);
+    
+    step_ = PhaseStep::OPENING;
+    wait_timer_ = 0;
 }
 
 void MenuState::update_main(StateManager& sm, SharedContext& /*ctx*/) {
-    if (bn::keypad::up_pressed()) {
-        cursor_--;
-        if (cursor_ < 0) cursor_ = VISIBLE_MENU_COUNT - 1;
-        update_menu_ui();
-    }
+    // TitleStateの方式に則り、PhaseStepによる状態遷移を行う
+    switch (step_) {
+        case PhaseStep::OPENING:
+            // メニューが開いた直後の処理（UIの登場演出待ちなどがあればここで待機）
+            // 現状は待機なしですぐにRUNNINGへ移行
+            step_ = PhaseStep::RUNNING;
+            break;
 
-    if (bn::keypad::down_pressed()) {
-        cursor_++;
-        if (cursor_ >= VISIBLE_MENU_COUNT) cursor_ = 0;
-        update_menu_ui();
-    }
+        case PhaseStep::RUNNING: {
+            bool cursor_changed = false;
 
-    // DEBUG用隠しコマンド（SELECT）
-    if (bn::keypad::select_pressed()) {
-        last_selected_ = MenuItem::DEBUG;
-        sm.change_state(StateID::DEBUG_MENU);
-        return;
-    }
+            // 入力処理
+            if (bn::keypad::up_pressed()) {
+                cursor_--;
+                if (cursor_ < 0) cursor_ = VISIBLE_MENU_COUNT - 1;
+                cursor_changed = true;
+            }
 
-    if (bn::keypad::a_pressed()) {
-        MenuItem selected = static_cast<MenuItem>(cursor_);
-        last_selected_ = selected;
-        switch (selected) {
-            case MenuItem::STORY:
-                sm.change_state(StateID::EVENT); // 最初はイベントから
-                break;
-            case MenuItem::PRACTICE:
-                sm.change_state(StateID::PRACTICE);
-                break;
-            case MenuItem::ENDLESS:
-                sm.change_state(StateID::ENDLESS);
-                break;
-            case MenuItem::GALLERY:
-                sm.change_state(StateID::GALLERY);
-                break;
-            case MenuItem::SETTINGS:
-                sm.change_state(StateID::SETTINGS);
-                break;
-            default:
-                break;
+            if (bn::keypad::down_pressed()) {
+                cursor_++;
+                if (cursor_ >= VISIBLE_MENU_COUNT) cursor_ = 0;
+                cursor_changed = true;
+            }
+
+            // カーソルが変更された時だけViewへ反映を指示
+            if (cursor_changed) {
+                view_->update_selection(cursor_);
+            }
+
+            // DEBUG用隠しコマンド（SELECT）
+            if (bn::keypad::select_pressed()) {
+                last_selected_ = MenuItem::DEBUG;
+                sm.change_state(StateID::DEBUG_MENU);
+                return;
+            }
+
+            // Bボタンでタイトルへ戻る
+            if (bn::keypad::b_pressed()) {
+                sm.change_state(StateID::TITLE);
+                return;
+            }
+
+            // Aボタンで決定処理
+            if (bn::keypad::a_pressed()) {
+                // 未解禁の項目が選ばれた場合は進行させない（ブザー音を鳴らす等）
+                if (!unlocked_flags_[cursor_]) {
+                    // 例: ctx.sound_manager->play_sfx("buzzer");
+                    break;
+                }
+
+                // 解禁済みの場合は遷移処理を開始する
+                last_selected_ = static_cast<MenuItem>(cursor_);
+                
+                // View側に遷移時のハケるアニメーションを再生させる
+                view_->play_exit_animation();
+                
+                // アニメーションの完了を待つ時間を設定し、CLOSINGフェーズへ移行
+                wait_timer_ = 30; // 30フレーム待機
+                step_ = PhaseStep::CLOSING;
+            }
+            break;
         }
-    }
 
-    if (bn::keypad::b_pressed()) {
-        sm.change_state(StateID::TITLE);
+        case PhaseStep::CLOSING:
+            // アニメーションの終了を待機
+            if (wait_timer_ > 0) {
+                wait_timer_--;
+            } else {
+                // 待機が完了したら実際のState遷移を実行
+                switch (last_selected_) {
+                    case MenuItem::STORY:    sm.change_state(StateID::EVENT); break;
+                    case MenuItem::PRACTICE: sm.change_state(StateID::PRACTICE); break;
+                    case MenuItem::ENDLESS:  sm.change_state(StateID::ENDLESS); break;
+                    case MenuItem::GALLERY:  sm.change_state(StateID::GALLERY); break;
+                    case MenuItem::SETTINGS: sm.change_state(StateID::SETTINGS); break;
+                    default: break;
+                }
+            }
+            break;
     }
 }
 
-void MenuState::exit_main() {}
-
-void MenuState::update_menu_ui() {
-    if (!ui_.has_value()) return;
-
-    for (int i = 0; i < VISIBLE_MENU_COUNT; i++) {
-        bn::string<32> text;
-        if (i == cursor_) text.append("> ");
-
-        switch (static_cast<MenuItem>(i)) {
-            case MenuItem::STORY:    text.append("STORY MODE"); break;
-            case MenuItem::PRACTICE: text.append("PRACTICE"); break;
-            case MenuItem::ENDLESS:  text.append("ENDLESS"); break;
-            case MenuItem::GALLERY:  text.append("GALLERY"); break;
-            case MenuItem::SETTINGS: text.append("SETTINGS"); break;
-            default: break;
-        }
-        ui_.value().set_menu_item(i, text);
-    }
+void MenuState::exit_main() {
+    // MAINフェーズ終了時の処理があれば記述
 }

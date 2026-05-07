@@ -4,8 +4,8 @@
 #include "bn_sprite_text_generator.h"
 #include "bn_optional.h"
 #include "state/state.h"
-#include "gfx/ui_manager.h"
-#include "gfx/fade_effect.h"
+#include "ui/Core/Manager/ui_manager.h"
+#include "ui/Core/Effects/fade_effect.h"
 
 // タイトル画面の内部フェーズ
 enum class TitlePhase {

@@ -5,7 +5,7 @@
 #include "save/save_data.h"
 #include "audio/sound_manager.h"
 #include "bn_optional.h"
-#include "gfx/ui_manager.h"
+#include "ui/Core/Manager/ui_manager.h"
 
 class SettingsUI {
 public:

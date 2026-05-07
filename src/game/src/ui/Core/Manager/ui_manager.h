@@ -10,10 +10,10 @@
 #include "bn_fixed.h"
 
 #include "ui_types.h"
-#include "ui_node.h"
-#include "ui_image.h"
-#include "ui_text.h"
-#include "ui_anim.h"
+#include "ui/Core/Components/ui_node.h"
+#include "ui/Core/Components/ui_image.h"
+#include "ui/Core/Components/ui_text.h"
+#include "ui/Core/Components/ui_anim.h"
 
 class UIManager {
 public:
