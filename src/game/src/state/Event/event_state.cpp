@@ -1,6 +1,6 @@
 #include "event_state.h"
 #include "state/Manager/state_manager.h"
-#include "bn_keypad.h"
+#include "input/input_manager.h"
 
 const EventState::PhaseHandlers EventState::phase_table_[] = {
     // EXECUTING
@@ -84,7 +84,7 @@ void EventState::enter_waiting() {
 
 void EventState::update_waiting(StateManager& /*sm*/, SharedContext& ctx) {
     update_dialog_text(ctx);
-    if (bn::keypad::a_pressed()) {
+    if (InputManager::instance().is_triggered(Action::Decide)) {
         change_phase(EventPhase::EXECUTING);
     }
 }

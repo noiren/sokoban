@@ -1,6 +1,6 @@
 #include "practice_menu_state.h"
 #include "state/Manager/state_manager.h"
-#include "bn_keypad.h"
+#include "input/input_manager.h"
 #include "bn_string.h"
 #include "ui_data_practice_stageSelect.h"
 #include "game/sokoban.h"
@@ -62,23 +62,24 @@ void PracticeMenuState::enter_select() {
 }
 
 void PracticeMenuState::update_select(StateManager& sm, SharedContext& /*ctx*/) {
-    if (bn::keypad::up_pressed()) {
+    auto& inp = InputManager::instance();
+    if (inp.is_repeat(Action::MoveUp)) {
         cursor_--;
         if (cursor_ < 0) cursor_ = 0;
     }
 
-    if (bn::keypad::down_pressed()) {
+    if (inp.is_repeat(Action::MoveDown)) {
         int max_levels = get_num_levels();
         cursor_++;
         if (cursor_ >= max_levels) cursor_ = max_levels - 1;
     }
 
-    if (bn::keypad::a_pressed()) {
+    if (inp.is_triggered(Action::Decide)) {
         selected_level_ = cursor_;
         sm.change_state(StateID::MENU); // TODO: 本来はパズル画面へ
     }
 
-    if (bn::keypad::b_pressed()) {
+    if (inp.is_triggered(Action::Cancel)) {
         sm.change_state(StateID::MENU);
     }
 }

@@ -1,6 +1,6 @@
 #include "gallery_state.h"
 #include "state/Manager/state_manager.h"
-#include "bn_keypad.h"
+#include "input/input_manager.h"
 #include "ui_data_gallerymenu.h"
 
 GalleryState::GalleryState()
@@ -33,7 +33,8 @@ void GalleryState::update(StateManager& sm, SharedContext& ctx) {
 }
 
 void GalleryState::update_browse(StateManager& sm, SharedContext& /*ctx*/) {
-    if (bn::keypad::b_pressed() || bn::keypad::a_pressed()) {
+    auto& inp = InputManager::instance();
+    if (inp.is_triggered(Action::Cancel) || inp.is_triggered(Action::Decide)) {
         sm.change_state(StateID::MENU);
     }
 }

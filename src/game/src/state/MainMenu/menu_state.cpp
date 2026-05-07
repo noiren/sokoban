@@ -1,6 +1,6 @@
 #include "state/MainMenu/menu_state.h"
 #include "state/Manager/state_manager.h"
-#include "bn_keypad.h"
+#include "input/input_manager.h"
 
 // ==========================================
 // フェーズハンドラテーブルの定義
@@ -112,14 +112,16 @@ void MenuState::update_main(StateManager& sm, SharedContext& /*ctx*/) {
         case PhaseStep::RUNNING: {
             bool cursor_changed = false;
 
+            auto& inp = InputManager::instance();
+
             // 入力処理
-            if (bn::keypad::up_pressed()) {
+            if (inp.is_repeat(Action::MoveUp)) {
                 cursor_--;
                 if (cursor_ < 0) cursor_ = VISIBLE_MENU_COUNT - 1;
                 cursor_changed = true;
             }
 
-            if (bn::keypad::down_pressed()) {
+            if (inp.is_repeat(Action::MoveDown)) {
                 cursor_++;
                 if (cursor_ >= VISIBLE_MENU_COUNT) cursor_ = 0;
                 cursor_changed = true;
@@ -131,20 +133,20 @@ void MenuState::update_main(StateManager& sm, SharedContext& /*ctx*/) {
             }
 
             // DEBUG用隠しコマンド（SELECT）
-            if (bn::keypad::select_pressed()) {
+            if (inp.is_triggered(Action::OpenMenu)) {
                 last_selected_ = MenuItem::DEBUG;
                 sm.change_state(StateID::DEBUG_MENU);
                 return;
             }
 
             // Bボタンでタイトルへ戻る
-            if (bn::keypad::b_pressed()) {
+            if (inp.is_triggered(Action::Cancel)) {
                 sm.change_state(StateID::TITLE);
                 return;
             }
 
             // Aボタンで決定処理
-            if (bn::keypad::a_pressed()) {
+            if (inp.is_triggered(Action::Decide)) {
                 // 未解禁の項目が選ばれた場合は進行させない（ブザー音を鳴らす等）
                 if (!unlocked_flags_[cursor_]) {
                     // 例: ctx.sound_manager->play_sfx("buzzer");

@@ -17,6 +17,7 @@
 #include "audio/sound_manager.h"
 #include "save/save_data.h"
 #include "game/story_data.h"
+#include "input/input_manager.h"
 
 // ゲームフロー列挙子
 // TitleState が pop したら SAVE_SELECT へ
@@ -82,6 +83,7 @@ int main()
 
     while(true)
     {
+        InputManager::instance().update();
         state_manager.update(ctx);
         bn::core::update();
     }

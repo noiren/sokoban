@@ -1,6 +1,6 @@
 #include "debug_state.h"
 #include "state/Manager/state_manager.h"
-#include "bn_keypad.h"
+#include "input/input_manager.h"
 #include "bn_string.h"
 #include "game/sokoban.h"
 #include "game/story_data.h"
@@ -45,13 +45,15 @@ void DebugState::update_menu(StateManager& sm, SharedContext& ctx) {
     bool changed = false;
     SaveSlot& save = ctx.save->slots[ctx.active_slot];
 
-    if (bn::keypad::up_pressed()) {
+    auto& inp = InputManager::instance();
+
+    if (inp.is_repeat(Action::MoveUp)) {
         cursor_--;
         if (cursor_ < 0) cursor_ = MENU_COUNT - 1;
         changed = true;
         if (ctx.sound) ctx.sound->play_move();
     }
-    if (bn::keypad::down_pressed()) {
+    if (inp.is_repeat(Action::MoveDown)) {
         cursor_++;
         if (cursor_ >= MENU_COUNT) cursor_ = 0;
         changed = true;
@@ -59,8 +61,8 @@ void DebugState::update_menu(StateManager& sm, SharedContext& ctx) {
     }
 
     // 左右で値を調整
-    if (bn::keypad::left_pressed() || bn::keypad::right_pressed()) {
-        int dir = bn::keypad::right_pressed() ? 1 : -1;
+    if (inp.is_triggered(Action::MoveLeft) || inp.is_triggered(Action::MoveRight)) {
+        int dir = inp.is_triggered(Action::MoveRight) ? 1 : -1;
         DebugItem item = static_cast<DebugItem>(cursor_);
         switch (item) {
             case DebugItem::STORY_CHAPTER:
@@ -85,7 +87,7 @@ void DebugState::update_menu(StateManager& sm, SharedContext& ctx) {
     }
 
     // A: 実行
-    if (bn::keypad::a_pressed()) {
+    if (inp.is_triggered(Action::Decide)) {
         DebugItem item = static_cast<DebugItem>(cursor_);
         switch (item) {
             case DebugItem::STORY_CHAPTER:
@@ -118,7 +120,7 @@ void DebugState::update_menu(StateManager& sm, SharedContext& ctx) {
         draw_menu(ctx);
     }
 
-    if (bn::keypad::b_pressed()) {
+    if (inp.is_triggered(Action::Cancel)) {
         sm.change_state(StateID::MENU);
     }
 }

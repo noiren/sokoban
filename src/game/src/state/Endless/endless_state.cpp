@@ -1,6 +1,6 @@
 #include "endless_state.h"
 #include "state/Manager/state_manager.h"
-#include "bn_keypad.h"
+#include "input/input_manager.h"
 #include "bn_string.h"
 
 const EndlessState::PhaseHandlers EndlessState::phase_table_[] = {
@@ -70,7 +70,7 @@ void EndlessState::enter_playing() {
 }
 
 void EndlessState::update_playing(StateManager& sm, SharedContext& /*ctx*/) {
-    if (bn::keypad::b_pressed()) {
+    if (InputManager::instance().is_triggered(Action::Cancel)) {
         sm.change_state(StateID::MENU);
     }
     // TODO: 実際のパズル処理を呼び出し、クリアしたら次のレベル生成またはリザルトへ
@@ -86,7 +86,7 @@ void EndlessState::enter_result() {
 }
 
 void EndlessState::update_result(StateManager& sm, SharedContext& /*ctx*/) {
-    if (bn::keypad::a_pressed() || bn::keypad::b_pressed()) {
+    if (InputManager::instance().is_triggered(Action::Decide) || InputManager::instance().is_triggered(Action::Cancel)) {
         sm.change_state(StateID::MENU);
     }
 }

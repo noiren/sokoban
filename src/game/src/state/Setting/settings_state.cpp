@@ -1,6 +1,6 @@
 #include "settings_state.h"
 #include "state/Manager/state_manager.h"
-#include "bn_keypad.h"
+#include "input/input_manager.h"
 #include "bn_string.h"
 #include "ui_data_settings.h"
 
@@ -71,17 +71,18 @@ void SettingsState::enter_main() {
 void SettingsState::update_main(StateManager& sm, SharedContext& ctx) {
     update_display(ctx);
 
-    if (bn::keypad::up_pressed()) {
+    auto& inp = InputManager::instance();
+    if (inp.is_repeat(Action::MoveUp)) {
         cursor_--;
         if (cursor_ < 0) cursor_ = (int)SettingsItem::COUNT - 1;
     }
-    if (bn::keypad::down_pressed()) {
+    if (inp.is_repeat(Action::MoveDown)) {
         cursor_++;
         if (cursor_ >= (int)SettingsItem::COUNT) cursor_ = 0;
     }
 
-    if (bn::keypad::left_pressed() || bn::keypad::right_pressed()) {
-        bool is_right = bn::keypad::right_pressed();
+    if (inp.is_triggered(Action::MoveLeft) || inp.is_triggered(Action::MoveRight)) {
+        bool is_right = inp.is_triggered(Action::MoveRight);
         SettingsItem item = static_cast<SettingsItem>(cursor_);
         if (item == SettingsItem::BGM) {
             bgm_enabled_ = !bgm_enabled_;
@@ -93,7 +94,7 @@ void SettingsState::update_main(StateManager& sm, SharedContext& ctx) {
         }
     }
 
-    if (bn::keypad::b_pressed()) {
+    if (inp.is_triggered(Action::Cancel)) {
         sm.change_state(StateID::MENU);
     }
 }

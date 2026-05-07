@@ -1,6 +1,6 @@
 #include "puzzle_state.h"
 #include "state/Manager/state_manager.h"
-#include "bn_keypad.h"
+#include "input/input_manager.h"
 
 const PuzzleState::PhaseHandlers PuzzleState::phase_table_[] = {
     // PLAYING
@@ -64,7 +64,7 @@ void PuzzleState::enter_playing() {
 }
 
 void PuzzleState::update_playing(StateManager& sm, SharedContext& /*ctx*/) {
-    if (bn::keypad::b_pressed()) {
+    if (InputManager::instance().is_triggered(Action::Cancel)) {
         sm.change_state(StateID::MENU);
     }
 
@@ -79,7 +79,7 @@ void PuzzleState::enter_cleared() {
 }
 
 void PuzzleState::update_cleared(StateManager& sm, SharedContext& /*ctx*/) {
-    if (bn::keypad::a_pressed() || bn::keypad::b_pressed()) {
+    if (InputManager::instance().is_triggered(Action::Decide) || InputManager::instance().is_triggered(Action::Cancel)) {
         sm.change_state(StateID::MENU);
     }
 }

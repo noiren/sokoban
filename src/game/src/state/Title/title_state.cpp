@@ -1,6 +1,6 @@
 #include "title_state.h"
 #include "state/Manager/state_manager.h"
-#include "bn_keypad.h"
+#include "input/input_manager.h"
 #include "bn_bg_palettes.h"
 #include "bn_sprite_palettes.h"
 #include "bn_string.h"
@@ -116,7 +116,7 @@ void TitleState::update_epid_logo(StateManager& /*sm*/, SharedContext& /*ctx*/) 
             }
             break;
         case PhaseStep::RUNNING:
-            if (bn::keypad::a_pressed() || frame_counter_ >= EPID_WAIT_FRAMES) {
+            if (InputManager::instance().is_triggered(Action::Decide) || frame_counter_ >= EPID_WAIT_FRAMES) {
                 step_ = PhaseStep::CLOSING;
                 fade_.start_fade_out(FADE_FRAMES); // 次のステップの準備
             }
@@ -149,7 +149,7 @@ void TitleState::update_doujin_notice(StateManager& /*sm*/, SharedContext& /*ctx
             }
             break;
         case PhaseStep::RUNNING:
-            if (bn::keypad::a_pressed() || frame_counter_ >= NOTICE_WAIT_FRAMES) {
+            if (InputManager::instance().is_triggered(Action::Decide) || frame_counter_ >= NOTICE_WAIT_FRAMES) {
                 step_ = PhaseStep::CLOSING;
                 fade_.start_fade_out(FADE_FRAMES);
             }
@@ -182,7 +182,7 @@ void TitleState::update_autosave_warn(StateManager& /*sm*/, SharedContext& /*ctx
             }
             break;
         case PhaseStep::RUNNING:
-            if (bn::keypad::a_pressed() || frame_counter_ >= AUTOSAVE_WAIT_FRAMES) {
+            if (InputManager::instance().is_triggered(Action::Decide) || frame_counter_ >= AUTOSAVE_WAIT_FRAMES) {
                 step_ = PhaseStep::CLOSING;
                 fade_.start_fade_out(FADE_FRAMES);
             }
@@ -216,7 +216,7 @@ void TitleState::update_title(StateManager& sm, SharedContext& /*ctx*/) {
             }
             break;
         case PhaseStep::RUNNING:
-            if (bn::keypad::start_pressed() || bn::keypad::a_pressed()) {
+            if (InputManager::instance().is_triggered(Action::Decide)) {
                 step_ = PhaseStep::CLOSING;
                 fade_.start_fade_out(FADE_FRAMES);
             }
