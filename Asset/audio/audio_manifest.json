@@ -1,0 +1,53 @@
+{
+  "version": 2,
+  "se_categories": [
+    "Default"
+  ],
+  "bgm": [
+    {
+      "id": "Afterburner",
+      "file": "bgm/afterburner.xm",
+      "display_name": "afterburner"
+    },
+    {
+      "id": "Flowerguy_s_pool_party",
+      "file": "bgm/flowerguy's pool party.it",
+      "display_name": "flowerguy's pool party"
+    },
+    {
+      "id": "Rollin_downthestreet",
+      "file": "bgm/rollin'downthestreet.xm",
+      "display_name": "rollin'downthestreet"
+    }
+  ],
+  "se": [
+    {
+      "category": "Default",
+      "number": 0,
+      "id": "Move",
+      "file": "supi.wav",
+      "display_name": "Move cursor"
+    },
+    {
+      "category": "Default",
+      "number": 1,
+      "id": "Push",
+      "file": "jowayo.wav",
+      "display_name": "Push block"
+    },
+    {
+      "category": "Default",
+      "number": 2,
+      "id": "Clear",
+      "file": "jowayo3.wav",
+      "display_name": "Stage clear"
+    },
+    {
+      "category": "Default",
+      "number": 3,
+      "id": "Reset",
+      "file": "uwa.wav",
+      "display_name": "Reset"
+    }
+  ]
+}

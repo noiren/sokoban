@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
+"""
+Codegen invoked before link: layouts JSON → ui_data_*.h, then audio_manifest.json → audio_ids.h / dispatch.
+Bundled so build / prebuild refreshes UI and audio headers in one step.
+"""
 import json
 import os
 import sys
 
-SCRIPT_DIR   = os.path.dirname(os.path.abspath(__file__))
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+if SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, SCRIPT_DIR)
+
 PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))
 SCREENS_DIR  = os.path.join(PROJECT_ROOT, "Asset", "layouts")
 INCLUDE_DIR  = os.path.join(PROJECT_ROOT, "src", "game", "include")
@@ -224,35 +231,40 @@ def compile_screen(json_path: str) -> str:
 def main():
     if not os.path.isdir(SCREENS_DIR):
         print(f"[ui_compiler] Warning: screens dir not found: {SCREENS_DIR}", file=sys.stderr)
-        return
+    else:
+        os.makedirs(INCLUDE_DIR, exist_ok=True)
 
-    os.makedirs(INCLUDE_DIR, exist_ok=True)
+        compiled = 0
+        for fname in os.listdir(SCREENS_DIR):
+            if not fname.endswith(".json"):
+                continue
+            json_path = os.path.join(SCREENS_DIR, fname)
+            screen_name = fname[:-5]
+            out_path = os.path.join(INCLUDE_DIR, f"ui_data_{screen_name}.h")
 
-    compiled = 0
-    for fname in os.listdir(SCREENS_DIR):
-        if not fname.endswith(".json"):
-            continue
-        json_path = os.path.join(SCREENS_DIR, fname)
-        screen_name = fname[:-5]
-        out_path = os.path.join(INCLUDE_DIR, f"ui_data_{screen_name}.h")
+            cpp_src = compile_screen(json_path)
 
-        cpp_src = compile_screen(json_path)
+            existing = ""
+            if os.path.exists(out_path):
+                with open(out_path, "r", encoding="utf-8") as f:
+                    existing = f.read()
 
-        existing = ""
-        if os.path.exists(out_path):
-            with open(out_path, "r", encoding="utf-8") as f:
-                existing = f.read()
+            if existing != cpp_src:
+                with open(out_path, "w", encoding="utf-8") as f:
+                    f.write(cpp_src)
+                print(f"[ui_compiler] Generated: {out_path}")
+            else:
+                print(f"[ui_compiler] Up-to-date: {out_path}")
 
-        if existing != cpp_src:
-            with open(out_path, "w", encoding="utf-8") as f:
-                f.write(cpp_src)
-            print(f"[ui_compiler] Generated: {out_path}")
-        else:
-            print(f"[ui_compiler] Up-to-date: {out_path}")
+            compiled += 1
 
-        compiled += 1
+        print(f"[ui_compiler] Done: {compiled} screen(s) processed.")
 
-    print(f"[ui_compiler] Done: {compiled} screen(s) processed.")
+    print("[ui_compiler] Audio manifest → generated headers (generate_audio_assets)...")
+    import generate_audio_assets
+
+    generate_audio_assets.main()
+
 
 if __name__ == "__main__":
     main()

@@ -5,7 +5,6 @@
 #include "game/sokoban.h"
 #include "graphics/renderer.h"
 #include "ui/HUD/hud.h"
-#include "audio/sound_manager.h"
 #include "save/save_data.h"
 
 #include "bn_regular_bg_ptr.h"

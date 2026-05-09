@@ -2,7 +2,6 @@
 #define MENU_STATE_H
 
 #include "state/state.h"
-#include "audio/sound_manager.h"
 #include "bn_sprite_text_generator.h"
 #include "bn_optional.h"
 #include "ui/Core/Manager/ui_manager.h"

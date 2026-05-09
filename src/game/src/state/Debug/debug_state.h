@@ -2,8 +2,6 @@
 #define DEBUG_STATE_H
 
 #include "state/state.h"
-#include "save/save_data.h"
-#include "audio/sound_manager.h"
 #include "bn_sprite_text_generator.h"
 #include "bn_sprite_ptr.h"
 #include "bn_vector.h"
@@ -14,6 +12,12 @@ enum class DebugItem {
     RESET_SAVE,
     GOTO_EVENT,
     GOTO_PUZZLE,
+    AUDIO_BGM_LOOP,
+    AUDIO_BGM_INDEX,
+    AUDIO_PLAY_BGM,
+    AUDIO_STOP_BGM,
+    AUDIO_SE_INDEX,
+    AUDIO_PLAY_SE,
     COUNT
 };
 
@@ -32,7 +36,7 @@ private:
     static constexpr int MENU_COUNT = static_cast<int>(DebugItem::COUNT);
 
     int cursor_;
-    bn::vector<bn::sprite_ptr, 48> sprites_;
+    bn::vector<bn::sprite_ptr, 64> sprites_;
 
     bool wants_event_;
     int event_index_;
@@ -43,7 +47,11 @@ private:
     int edit_event_;
     int edit_puzzle_;
 
+    bool edit_audio_bgm_loop_;
+    int edit_audio_bgm_index_;
+    int edit_audio_se_index_;
+
     PhaseStep step_;
 };
 
-#endif // DEBUG_STATE_H
+#endif

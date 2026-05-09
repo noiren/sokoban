@@ -79,9 +79,9 @@ def main():
     print("[prebuild] Preparing graphics assets...")
     prepare_graphics()
     
-    print("[prebuild] Running UI Compiler...")
+    print("[prebuild] Running UI Compiler (+ audio manifest codegen)...")
     ui_compiler.main()
-    
+
     print("[prebuild] Prebuild tasks complete.")
 
 if __name__ == "__main__":

@@ -41,7 +41,6 @@ int main()
 
     bn::sprite_text_generator text_generator(japanese_sprite_font);
 
-    SoundManager sound;
     SaveData save;
     StateManager state_manager;
 
@@ -70,21 +69,22 @@ int main()
     state_manager.register_state(StateID::GALLERY, &gallery_state);
     state_manager.register_state(StateID::DEBUG_MENU, &debug_state);
 
-    // 共有コンテキストの初期化
     SharedContext ctx;
     ctx.text_generator = &text_generator;
-    ctx.sound = &sound;
     ctx.save = &save;
     ctx.active_slot = 0;
     ctx.story_script_index = 0;
 
-    // 最初の状態をセット
+    SoundManager::instance().set_bgm_enabled(save.slots[ctx.active_slot].bgm_enabled);
+    SoundManager::instance().set_se_enabled(save.slots[ctx.active_slot].se_enabled);
+
     state_manager.change_state(StateID::TITLE);
 
     while(true)
     {
         InputManager::instance().update();
         state_manager.update(ctx);
+        SoundManager::instance().update();
         bn::core::update();
     }
 }

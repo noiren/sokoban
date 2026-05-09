@@ -12,6 +12,9 @@ UIデザイナーおよびアセット制作者の皆様へ。
     *   `sprites/`: UIパーツやキャラクターなどのスプライト素材（`.bmp`）を配置します。
     *   `csv/`: パーツの仕様書など（`assets_specification_list.csv`）が含まれています。
 *   **`Asset/audio/`**: BGMやSEの音声素材ファイル（`.wav`, `.mod`, `.it`など）を配置します。
+    *   マニフェスト **`audio_manifest.json`**（version 2）で ID とファイルを対応付けます。SE は **`se_categories`** と各行の **`category` / `number`**（カテゴリ内で一意）を設定します。
+    *   編集は `Asset/tools/audio_bgm_editor/run_audio_bgm_editor.bat` と `Asset/tools/audio_se_editor/run_audio_se_editor.bat`（要 Python）から行えます。行の **▶** でプレビュー、**■** で停止（別行の **▶** で再生切り替え時も前の再生は止まります）。PC では **ffmpeg の `ffplay` が PATH にあること**が必要。**保存**時に検証します。未保存で閉じるときは確認ダイアログが出ます。
+    *   ビルド前処理の **`src/tools/ui_compiler.py`** が、`Asset/layouts/*.json` から UI 用 `.h` を生成した直後に **`generate_audio_assets`** を実行し、`src/game/include/generated/audio_ids.h` と `audio_dispatch_*.gen.h` を更新します（`build.bat` / `make` 経由で自動）。単体だけ動かすときは `python src/tools/generate_audio_assets.py`。
 *   **`Asset/layouts/`**: UIエディタで作成した**画面の配置データ（`.json`）の最終的な保存・納品先**です。
 *   **`Asset/tools/ui_editor/`**: 画面レイアウトを作成するための「UIエディタ」が入っています。
 

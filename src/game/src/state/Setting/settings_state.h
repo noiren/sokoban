@@ -2,8 +2,6 @@
 #define SETTINGS_STATE_H
 
 #include "state/state.h"
-#include "save/save_data.h"
-#include "audio/sound_manager.h"
 #include "bn_optional.h"
 #include "ui/Core/Manager/ui_manager.h"
 

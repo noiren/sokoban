@@ -1,6 +1,8 @@
 #include "settings_state.h"
 #include "state/Manager/state_manager.h"
 #include "input/input_manager.h"
+#include "audio/sound_manager.h"
+#include "save/save_data.h"
 #include "bn_string.h"
 #include "ui_data_settings.h"
 
@@ -18,10 +20,12 @@ void SettingsState::enter(StateManager& /*sm*/, SharedContext& ctx) {
     ui_manager_.emplace(*ctx.text_generator);
     ui_.emplace(*ui_manager_);
     
-    // 設定値の読み込み (ダミー)
-    bgm_enabled_ = true;
-    se_enabled_ = true;
-    text_speed_ = 1;
+    SaveSlot& slot = ctx.save->slots[ctx.active_slot];
+    bgm_enabled_ = slot.bgm_enabled;
+    se_enabled_ = slot.se_enabled;
+    text_speed_ = slot.text_speed;
+    SoundManager::instance().set_bgm_enabled(bgm_enabled_);
+    SoundManager::instance().set_se_enabled(se_enabled_);
 
     phase_ = SettingsPhase::MAIN;
     if (phase_table_[(int)phase_].enter) {
@@ -39,10 +43,16 @@ void SettingsState::update(StateManager& sm, SharedContext& ctx) {
     }
 }
 
-void SettingsState::exit(StateManager& /*sm*/, SharedContext& /*ctx*/) {
+void SettingsState::exit(StateManager& /*sm*/, SharedContext& ctx) {
     if (phase_table_[(int)phase_].exit) {
         (this->*phase_table_[(int)phase_].exit)();
     }
+
+    SaveSlot& slot = ctx.save->slots[ctx.active_slot];
+    slot.bgm_enabled = bgm_enabled_;
+    slot.se_enabled = se_enabled_;
+    slot.text_speed = static_cast<uint8_t>(text_speed_);
+    save_data_save(*ctx.save);
 
     ui_.reset();
     if (ui_manager_) {
@@ -86,8 +96,10 @@ void SettingsState::update_main(StateManager& sm, SharedContext& ctx) {
         SettingsItem item = static_cast<SettingsItem>(cursor_);
         if (item == SettingsItem::BGM) {
             bgm_enabled_ = !bgm_enabled_;
+            SoundManager::instance().set_bgm_enabled(bgm_enabled_);
         } else if (item == SettingsItem::SE) {
             se_enabled_ = !se_enabled_;
+            SoundManager::instance().set_se_enabled(se_enabled_);
         } else if (item == SettingsItem::TEXT_SPEED) {
             if (is_right) text_speed_ = (text_speed_ + 1) % 3;
             else text_speed_ = (text_speed_ + 2) % 3;
