@@ -14,6 +14,16 @@
 - **State管理:** `StateManager` スタック (bn::vector<State*,8>) で制御。State基底は `init()`, `update()`, `shutdown()` を持つ。
 - **データセーブ:** SRAM（32KB）を使用。`SaveData` 構造体への書き込みは寿命を考慮し最小限に留めること。
 
+## 4. ビルド・開発コマンド
+- **標準ビルド:** `make` または `build.bat` (Windows環境用)
+  - `build.bat` は `make` を実行した後、ビルド成功時にROM（`gba-sokoban-bn.gba`）を `binary/` フォルダへコピーします。
+- **クリーン:** `make clean`
+- **リビルド:** `make clean && make`
+- **Cursor/VS Codeのタスク:** `.vscode/tasks.json` にて定義されています。
+  - `Ctrl+Shift+B` でデフォルトのビルドタスク（`build (make)`）が走ります。
+  - `build (ROM copy)` タスクを選ぶと `build.bat` が実行されます。
+
+
 # ゲーム状態管理（State Management）アーキテクチャ ガイド
 
 本ドキュメントは、当プロジェクトにおける**画面遷移（State）**と**画面内部の進行（Phase）**の設計思想および実装方法を解説したものです。

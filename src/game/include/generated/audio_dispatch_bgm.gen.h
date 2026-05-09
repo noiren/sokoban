@@ -2,7 +2,9 @@
 #pragma once
 
 #include "audio_ids.h"
+#include "bn_assert.h"
 #include "bn_music_item.h"
+#include "bn_music_items.h"
 
 namespace audio_dispatch {
 
@@ -11,10 +13,17 @@ namespace audio_dispatch {
     return static_cast<unsigned>(id) < static_cast<unsigned>(BgmId::COUNT);
 }
 
-// No BGM assets in manifest; play_bgm is a no-op at runtime.
-[[nodiscard]] inline bn::music_item bgm_item(BgmId)
+[[nodiscard]] inline bn::music_item bgm_item(BgmId id)
 {
-    return bn::music_item(0);
+    switch (id) {
+        case BgmId::Afterburner: return bn::music_items::afterburner;
+        case BgmId::RollinDownTheStreet: return bn::music_items::rollindownthestreet;
+        case BgmId::FlowerGuysPoolParty: return bn::music_items::flowerguyspoolparty;
+        default:
+            BN_ASSERT(false);
+            break;
+    }
+    return bn::music_items::afterburner;
 }
 
 } // namespace audio_dispatch

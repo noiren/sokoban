@@ -3,10 +3,13 @@
 
 #include <cstdint>
 
-constexpr unsigned BN_GENERATED_BGM_COUNT = 0;
+constexpr unsigned BN_GENERATED_BGM_COUNT = 3;
 constexpr unsigned BN_GENERATED_SE_COUNT = 4;
 
 enum class BgmId : uint8_t {
+    Afterburner,
+    RollinDownTheStreet,
+    FlowerGuysPoolParty,
     COUNT
 };
 

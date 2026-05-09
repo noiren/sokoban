@@ -10,14 +10,14 @@
       "display_name": "afterburner"
     },
     {
-      "id": "Flowerguy_s_pool_party",
-      "file": "bgm/flowerguy's pool party.it",
-      "display_name": "flowerguy's pool party"
+      "id": "RollinDownTheStreet",
+      "file": "bgm/rollindownthestreet.xm",
+      "display_name": "rollin down the street"
     },
     {
-      "id": "Rollin_downthestreet",
-      "file": "bgm/rollin'downthestreet.xm",
-      "display_name": "rollin'downthestreet"
+      "id": "FlowerGuysPoolParty",
+      "file": "bgm/flowerguyspoolparty.it",
+      "display_name": "flowerguy pool party"
     }
   ],
   "se": [

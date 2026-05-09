@@ -39,14 +39,15 @@ SOURCES     	:=  $(shell python -c "import os,glob; dirs=[d.replace(os.sep,'/') 
 INCLUDES    	:=  src/game/include src/game/src
 DATA        	:=
 GRAPHICS    	:=  build/asset_tmp/sprites/chara/chara build/asset_tmp/sprites/mini build/asset_tmp/sprites/ui build/asset_tmp/sprites/ui/common build/asset_tmp/sprites/ui/gallery build/asset_tmp/sprites/ui/icons build/asset_tmp/sprites/ui/menu build/asset_tmp/sprites/ui/paper build/asset_tmp/sprites/ui/practice build/asset_tmp/sprites/ui/title build/asset_tmp/stills build/asset_tmp/stills/event build/asset_tmp/stills/gallery build/asset_tmp/stills/gallery/bgm build/asset_tmp/stills/gallery/event_select build/asset_tmp/stills/gallery/view_bustup build/asset_tmp/stills/gallery/view_still build/asset_tmp/stills/mainmenu build/asset_tmp/stills/practice build/asset_tmp/stills/save_attention build/asset_tmp/stills/soukoban_gamentest build/asset_tmp/stills/title
-AUDIO       	:=  Asset/audio
+# Butano list_audio_files does not recurse; list each directory that contains audio files.
+AUDIO       	:=  Asset/audio Asset/audio/bgm
 AUDIOBACKEND	:=  maxmod
 AUDIOTOOL		:=  
 DMGAUDIO    	:=  dmg_audio
 DMGAUDIOBACKEND	:=  default
 ROMTITLE    	:=  SOKOBAN
 ROMCODE     	:=  SOKB
-USERFLAGS   	:=  
+USERFLAGS   	:=  -DBN_CFG_AUDIO_MAX_MUSIC_CHANNELS=24
 USERCXXFLAGS	:=  
 USERASFLAGS 	:=  
 USERLDFLAGS 	:=  
