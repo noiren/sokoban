@@ -15,6 +15,7 @@ enum class DebugScreen {
     BgmTest,
     SeList,
     SeTest,
+    EffectTest, // 追加
 };
 
 class DebugState : public State {
@@ -43,6 +44,9 @@ private:
 
     void update_se_test(StateManager& sm, SharedContext& ctx);
     void draw_se_test(SharedContext& ctx);
+
+    void update_effect_test(StateManager& sm, SharedContext& ctx);
+    void draw_effect_test(SharedContext& ctx);
 
     [[nodiscard]] bool _bgm_test_track_is_playing() const;
 

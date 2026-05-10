@@ -5,6 +5,8 @@
 #include "audio/sound_manager.h"
 #include "generated/audio_dispatch_bgm.gen.h"
 #include "ui/Core/Effects/fade_effect.h"
+#include "ui/Core/Components/effect_manager.h" // 追加
+#include "bn_sprite_items_spr_dummy.h" // テスト用ダミースプライト
 
 #include "bn_backdrop.h"
 #include "bn_color.h"
@@ -55,6 +57,19 @@ namespace {
             return "?";
     }
 }
+
+static constexpr ui_types::AnimKeyframe test_keyframes[] = {
+    { 0,   0.0f,  40.0f,   0.0f, 0.2f, ui_types::EaseType::BOUNCE_OUT },
+    { 30,  0.0f,  -20.0f,  180.0f, 1.8f, ui_types::EaseType::EASE_OUT },
+    { 60,  0.0f,   0.0f,  360.0f, 1.0f, ui_types::EaseType::LINEAR }
+};
+static constexpr ui_types::AnimPreset test_preset = {
+    "test_eff",
+    60,
+    ui_types::EaseType::LINEAR,
+    3,
+    test_keyframes
+};
 
 } // namespace
 
@@ -123,6 +138,9 @@ void DebugState::update(StateManager& sm, SharedContext& ctx) {
         case DebugScreen::SeTest:
             update_se_test(sm, ctx);
             break;
+        case DebugScreen::EffectTest:
+            update_effect_test(sm, ctx);
+            break;
         default:
             break;
     }
@@ -149,13 +167,16 @@ void DebugState::redraw(SharedContext& ctx) {
         case DebugScreen::SeTest:
             draw_se_test(ctx);
             break;
+        case DebugScreen::EffectTest:
+            draw_effect_test(ctx);
+            break;
         default:
             break;
     }
 }
 
 void DebugState::update_root(StateManager& sm, SharedContext& ctx) {
-    constexpr int lines = 3;
+    constexpr int lines = 4; // 3 から 4 に変更
     auto& inp = InputManager::instance();
     bool changed = false;
 
@@ -187,6 +208,10 @@ void DebugState::update_root(StateManager& sm, SharedContext& ctx) {
             screen_ = DebugScreen::SeList;
             cursor_ = 0;
             changed = true;
+        } else if (cursor_ == 3) {
+            screen_ = DebugScreen::EffectTest;
+            cursor_ = 0;
+            changed = true;
         }
     }
 
@@ -207,7 +232,7 @@ void DebugState::draw_root(SharedContext& ctx) {
     ctx.text_generator->set_left_alignment();
     const int spacing = 14;
     int y = -40;
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 4; ++i) { // 3 から 4 へ
         bn::string<32> line;
         if (cursor_ == i) {
             line.append(">");
@@ -221,8 +246,11 @@ void DebugState::draw_root(SharedContext& ctx) {
             case 1:
                 line.append("BGM Debug");
                 break;
-            default:
+            case 2:
                 line.append("SE Debug");
+                break;
+            default:
+                line.append("Effect Debug"); // 追加
                 break;
         }
         ctx.text_generator->generate(-112, y, line, sprites_);
@@ -472,6 +500,38 @@ void DebugState::draw_se_test(SharedContext& ctx) {
     ctx.text_generator->set_center_alignment();
     ctx.text_generator->generate(0, -40, "A=play sample", sprites_);
     ctx.text_generator->generate(0, 72, "B=list", sprites_);
+}
+
+void DebugState::update_effect_test(StateManager&, SharedContext& ctx) {
+    auto& inp = InputManager::instance();
+    bool changed = false;
+
+    if (inp.is_triggered(Action::Decide)) {
+        if (ctx.effect_manager) {
+            // Aボタンでテストエフェクト(spr_dummy、回転・拡縮・跳ねるイージング)を画面中央にスポーン
+            ctx.effect_manager->spawn(bn::sprite_items::spr_dummy, 0, 0, &test_preset);
+        }
+        changed = true;
+    }
+
+    if (inp.is_triggered(Action::Cancel)) {
+        screen_ = DebugScreen::Root;
+        cursor_ = 3;
+        changed = true;
+    }
+
+    if (changed) {
+        redraw(ctx);
+    }
+}
+
+void DebugState::draw_effect_test(SharedContext& ctx) {
+    ctx.text_generator->set_center_alignment();
+    ctx.text_generator->generate(0, -76, "EFFECT DEBUG", sprites_);
+
+    ctx.text_generator->generate(0, -40, "A = Spawn Test Effect", sprites_);
+    ctx.text_generator->generate(0, -20, "(using Bounce / Rotate / Scale)", sprites_);
+    ctx.text_generator->generate(0, 72, "B = back", sprites_);
 }
 
 void DebugState::exit(StateManager& /*sm*/, SharedContext& ctx) {

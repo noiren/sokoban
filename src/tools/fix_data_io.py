@@ -95,29 +95,16 @@ def save_json(path: str, data: dict) -> None:
         f.write("\n")
 
 # ---------------------------------------------------------
-# 各種リソース読み書き・探索
+# 各種リソース読み書き
 # ---------------------------------------------------------
 def find_chara_sprite_path(project_root: str, image_id: str) -> Optional[str]:
     if not image_id: return None
     base_dir = sprite_chara_dir(project_root)
     if not os.path.exists(base_dir): return None
-    
     candidates = [f"spr_ch_{image_id}.bmp", f"{image_id}.bmp"]
     for root, _, files in os.walk(base_dir):
         for f in files:
-            if f.lower() in candidates:
-                return os.path.join(root, f)
-    return None
-
-def find_still_image_path(project_root: str, resource_id: str) -> Optional[str]:
-    if not resource_id: return None
-    s_dir = still_dir(project_root)
-    if not os.path.exists(s_dir): return None
-    
-    candidate = f"{resource_id.lower()}.bmp"
-    for root, _, files in os.walk(s_dir):
-        for f in files:
-            if f.lower() == candidate:
+            if f in candidates:
                 return os.path.join(root, f)
     return None
 
@@ -137,9 +124,10 @@ def get_audio_ids(project_root: str) -> tuple[list[str], list[str]]:
     ses = [item.get("id", "") for item in data.get("se", [])]
     return sorted(bgms), sorted(ses)
 
-# --- Characters ---
+# キャラクター
 def load_characters(project_root: str) -> list[CharacterEntry]:
-    data = load_json(characters_path(project_root))
+    path = characters_path(project_root)
+    data = load_json(path)
     result = []
     for c in data.get("characters", []):
         faces_data = c.get("faces", {})
@@ -155,13 +143,14 @@ def load_characters(project_root: str) -> list[CharacterEntry]:
     return result
 
 def save_characters(project_root: str, characters: list[CharacterEntry]) -> None:
+    path = characters_path(project_root)
     data = {
         "version": 2,
         "characters": [{"id": c.id, "name_ja": c.name_ja, "faces": c.faces} for c in characters]
     }
-    save_json(characters_path(project_root), data)
+    save_json(path, data)
 
-# --- Events ---
+# イベント
 def load_all_events(project_root: str) -> list[EventEntry]:
     edir = events_dir(project_root)
     if not os.path.exists(edir): return []
@@ -188,6 +177,7 @@ def _parse_event_file(path: str) -> EventEntry:
     return EventEntry(id=data.get("id", ""), title_ja=data.get("title_ja", "名称未設定"), lines=lines)
 
 def save_event_file(project_root: str, filename: str, event: EventEntry) -> None:
+    path = os.path.join(events_dir(project_root), filename)
     data = {
         "version": 2,
         "id": event.id,
@@ -202,12 +192,12 @@ def save_event_file(project_root: str, filename: str, event: EventEntry) -> None
             } for ln in event.lines
         ]
     }
-    save_json(os.path.join(events_dir(project_root), filename), data)
+    save_json(path, data)
 
 def event_filename_from_id(event_id: str) -> str:
     return "evt_" + event_id.lower() + ".json"
 
-# --- Text ---
+# テキスト
 def load_all_texts(project_root: str) -> list[TextEntry]:
     tdir = text_dir(project_root)
     if not os.path.exists(tdir): return []
@@ -233,14 +223,17 @@ def load_text_files(project_root: str) -> list[tuple[str, str, list[TextEntry]]]
     return result
 
 def save_text_file(project_root: str, filename: str, category: str, entries: list[TextEntry]) -> None:
+    path = os.path.join(text_dir(project_root), filename)
     data = {"version": 1, "category": category, "entries": [{"id": e.id, "ja": e.ja} for e in entries]}
-    save_json(os.path.join(text_dir(project_root), filename), data)
+    save_json(path, data)
 
-# --- Gallery ---
+# ギャラリー
 def load_gallery(project_root: str) -> list[GalleryEntry]:
-    data = load_json(gallery_path(project_root))
-    return [GalleryEntry(category=e["category"], resource_id=e["resource_id"], ja=e["ja"]) for e in data.get("entries", [])]
+    path = gallery_path(project_root)
+    data = load_json(path)
+    return [GalleryEntry(category=e.get("category",""), resource_id=e.get("resource_id",""), ja=e.get("ja","")) for e in data.get("entries", [])]
 
 def save_gallery(project_root: str, entries: list[GalleryEntry]) -> None:
-    data = {"version": 2, "entries": [{"category": e.category, "resource_id": e.resource_id, "ja": e.ja} for e in entries]}
-    save_json(gallery_path(project_root), data)
+    path = gallery_path(project_root)
+    data = {"version": 1, "entries": [{"category": e.category, "resource_id": e.resource_id, "ja": e.ja} for e in entries]}
+    save_json(path, data)

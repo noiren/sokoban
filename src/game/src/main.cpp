@@ -5,6 +5,7 @@
 
 #include "state/Manager/state_manager.h"
 #include "state/shared_context.h"
+#include "ui/Core/Components/effect_manager.h" // 追加
 #include "state/Title/title_state.h"
 #include "state/MainMenu/menu_state.h"
 #include "state/MainPuzzle/puzzle_state.h"
@@ -42,6 +43,7 @@ int main()
 
     SaveData save;
     StateManager state_manager;
+    EffectManager effect_manager; // EWRAMに静的に配置するかどうか（今回は通常のローカルスタック。EWRAM staticを好む場合はそのように）
 
     // SRAM からセーブデータをロード
     save_data_load(save);
@@ -71,6 +73,7 @@ int main()
     SharedContext ctx;
     ctx.text_generator = &text_generator;
     ctx.save = &save;
+    ctx.effect_manager = &effect_manager; // 登録
     ctx.active_slot = 0;
 
     SoundManager::instance().set_bgm_enabled(save.slots[ctx.active_slot].bgm_enabled);
@@ -82,6 +85,7 @@ int main()
     {
         InputManager::instance().update();
         state_manager.update(ctx);
+        effect_manager.update(); // エフェクトの更新
         SoundManager::instance().update();
         bn::core::update();
     }
