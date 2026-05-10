@@ -16,7 +16,6 @@
 #include "state/Debug/debug_state.h"
 #include "audio/sound_manager.h"
 #include "save/save_data.h"
-#include "game/story_data.h"
 #include "input/input_manager.h"
 
 // ゲームフロー列挙子
@@ -73,7 +72,6 @@ int main()
     ctx.text_generator = &text_generator;
     ctx.save = &save;
     ctx.active_slot = 0;
-    ctx.story_script_index = 0;
 
     SoundManager::instance().set_bgm_enabled(save.slots[ctx.active_slot].bgm_enabled);
     SoundManager::instance().set_se_enabled(save.slots[ctx.active_slot].se_enabled);

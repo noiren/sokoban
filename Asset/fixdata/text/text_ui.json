@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "category": "ui",
+  "entries": [
+    { "id": "UI_TITLE_MENU_STORY",    "ja": "ストーリー" },
+    { "id": "UI_TITLE_MENU_ENDLESS",  "ja": "エンドレス" },
+    { "id": "UI_TITLE_MENU_PRACTICE", "ja": "れんしゅう" },
+    { "id": "UI_TITLE_MENU_GALLERY",  "ja": "ギャラリー" },
+    { "id": "UI_TITLE_MENU_SETTINGS", "ja": "せってい" },
+    { "id": "UI_SETTINGS_BGM",        "ja": "BGM" },
+    { "id": "UI_SETTINGS_SE",         "ja": "SE" },
+    { "id": "UI_SETTINGS_ON",         "ja": "ON" },
+    { "id": "UI_SETTINGS_OFF",        "ja": "OFF" },
+    { "id": "UI_GALLERY_TACHIE",      "ja": "立ち絵" },
+    { "id": "UI_GALLERY_STILL",       "ja": "スチル" },
+    { "id": "UI_GALLERY_BGM",         "ja": "BGM" },
+    { "id": "UI_GALLERY_SE",          "ja": "SE" },
+    { "id": "UI_PUZZLE_MOVES",        "ja": "てすう" },
+    { "id": "UI_PUZZLE_RESET",        "ja": "リセット" },
+    { "id": "UI_PUZZLE_CLEAR",        "ja": "クリア！" }
+  ]
+}

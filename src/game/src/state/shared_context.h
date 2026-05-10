@@ -9,7 +9,6 @@ struct SharedContext {
     SaveData* save = nullptr;
     
     int active_slot = 0;
-    int story_script_index = 0;
 };
 
 #endif // SHARED_CONTEXT_H

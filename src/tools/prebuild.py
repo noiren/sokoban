@@ -5,11 +5,12 @@ import json
 import re
 import sys
 
-# Import ui_compiler
+# Import ui_compiler and generate_fix_data
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 if SCRIPT_DIR not in sys.path:
     sys.path.append(SCRIPT_DIR)
 import ui_compiler
+import generate_fix_data
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))
 SRC_GRAPHICS_DIR = os.path.join(PROJECT_ROOT, "Asset", "graphics")
@@ -81,6 +82,9 @@ def main():
     
     print("[prebuild] Running UI Compiler (+ audio manifest codegen)...")
     ui_compiler.main()
+
+    print("[prebuild] Running FixDataManager codegen...")
+    generate_fix_data.main()
 
     print("[prebuild] Prebuild tasks complete.")
 

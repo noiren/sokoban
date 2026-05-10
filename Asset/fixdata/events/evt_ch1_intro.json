@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "EVT_CH1_INTRO",
+  "lines": [
+    {
+      "speaker_id": "chara_mayo",
+      "face_id":    "normal",
+      "image_id":   "mayo_normal",
+      "text":       "また来たんだ…"
+    },
+    {
+      "speaker_id": "chara_mayo",
+      "face_id":    "normal",
+      "image_id":   "mayo_normal",
+      "text":       "倉庫か。"
+    },
+    {
+      "speaker_id": "chara_b",
+      "face_id":    "happy1",
+      "image_id":   "chara_b_happy1",
+      "text":       "来た来た！"
+    },
+    {
+      "speaker_id": "chara_b",
+      "face_id":    "happy1",
+      "image_id":   "chara_b_happy1",
+      "text":       "荷物の整理、手伝ってよ。"
+    },
+    {
+      "speaker_id": "chara_b",
+      "face_id":    "normal",
+      "image_id":   "chara_b_normal",
+      "text":       "準備はいい？"
+    }
+  ]
+}

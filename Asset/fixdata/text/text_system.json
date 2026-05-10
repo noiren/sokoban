@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "category": "system",
+  "entries": [
+    { "id": "MSG_PRESS_START",   "ja": "スタートを押してください" },
+    { "id": "MSG_SAVING",        "ja": "セーブ中..." },
+    { "id": "MSG_SAVE_COMPLETE", "ja": "セーブしました" },
+    { "id": "MSG_LOAD_FAILED",   "ja": "データを読み込めませんでした" },
+    { "id": "MSG_NO_DATA",       "ja": "データがありません" },
+    { "id": "MSG_NEW_GAME",      "ja": "はじめから" },
+    { "id": "MSG_CONTINUE",      "ja": "つづきから" },
+    { "id": "MSG_YES",           "ja": "はい" },
+    { "id": "MSG_NO",            "ja": "いいえ" },
+    { "id": "MSG_BACK",          "ja": "もどる" },
+    { "id": "MSG_CONFIRM",       "ja": "決定" },
+    { "id": "MSG_CANCEL",        "ja": "キャンセル" }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "id": "EVT_CH1_CLEAR",
+  "lines": [
+    {
+      "speaker_id": "chara_b",
+      "face_id":    "happy1",
+      "image_id":   "chara_b_happy1",
+      "text":       "よくできました！"
+    },
+    {
+      "speaker_id": "chara_b",
+      "face_id":    "happy1",
+      "image_id":   "chara_b_happy1",
+      "text":       "いいスタートだね。"
+    },
+    {
+      "speaker_id": "chara_b",
+      "face_id":    "normal",
+      "image_id":   "chara_b_normal",
+      "text":       "明日はもっとあるから。"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "characters": [
+    {
+      "id": "chara_mayo",
+      "name_ja": "マヨ",
+      "faces": [
+        { "face_id": "normal",  "image_id": "mayo_normal"  },
+        { "face_id": "happy1",  "image_id": "mayo_happy1"  },
+        { "face_id": "happy2",  "image_id": "mayo_happy2"  },
+        { "face_id": "happy3",  "image_id": "mayo_happy3"  },
+        { "face_id": "sad",     "image_id": "mayo_sad"     },
+        { "face_id": "angry",   "image_id": "mayo_angry"   },
+        { "face_id": "surprised","image_id": "mayo_surprised" }
+      ]
+    },
+    {
+      "id": "chara_b",
+      "name_ja": "キャラB",
+      "faces": [
+        { "face_id": "normal",  "image_id": "chara_b_normal"  },
+        { "face_id": "happy1",  "image_id": "chara_b_happy1"  },
+        { "face_id": "sad",     "image_id": "chara_b_sad"     }
+      ]
+    }
+  ]
+}
