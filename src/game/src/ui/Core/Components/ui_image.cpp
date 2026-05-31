@@ -10,6 +10,7 @@ void UIImage::set_sprite(const bn::optional<bn::sprite_ptr>& sprite) {
         sprite_->set_rotation_angle(rotation_);
         sprite_->set_scale(scale_);
         sprite_->set_visible(visible_);
+        sprite_->set_bg_priority(bg_priority_);
     }
 }
 
@@ -38,5 +39,18 @@ void UIImage::set_scale(bn::fixed scale) {
     scale_ = scale;
     if (sprite_) {
         sprite_->set_scale(scale_);
+    }
+}
+
+void UIImage::set_horizontal_flip(bool flip) {
+    if (sprite_) {
+        sprite_->set_horizontal_flip(flip);
+    }
+}
+
+void UIImage::set_bg_priority(int priority) {
+    bg_priority_ = priority;
+    if (sprite_) {
+        sprite_->set_bg_priority(priority);
     }
 }

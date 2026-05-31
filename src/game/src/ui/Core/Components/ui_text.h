@@ -17,6 +17,7 @@ public:
     void set_text(const bn::string_view& text);
     void set_align(ui_types::TextAlign align);
     void set_font_size(int size);
+    void set_bg_priority(int priority) override;
 
     // オーバーライド
     void set_visible(bool visible) override;
@@ -34,6 +35,7 @@ private:
     int blink_timer_;
     bool blink_state_;
     bool dirty_;
+    int bg_priority_ = 3;
 
     bn::vector<bn::sprite_ptr, 16> sprites_;
     bn::sprite_text_generator& text_gen_;

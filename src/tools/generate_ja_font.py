@@ -7,9 +7,9 @@ WORK_DIR = r"C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn"
 TTF_PATH = r"C:\Users\ryota\Downloads\PixelMplus-20130602\PixelMplus-20130602\PixelMplus12-Bold.ttf"
 DOC_PATH = r"C:\Users\ryota\Documents\Obsidian Vault\ｽﾋﾟｷとマヨの倉庫番\概要.md"
 
-BMP_OUT = os.path.join(WORK_DIR, "graphics", "japanese_font.bmp")
-JSON_OUT = os.path.join(WORK_DIR, "graphics", "japanese_font.json")
-HEADER_OUT = os.path.join(WORK_DIR, "include", "japanese_sprite_font.h")
+BMP_OUT = os.path.join(WORK_DIR, "Asset", "graphics", "sprites", "ui", "japanese_font.bmp")
+JSON_OUT = os.path.join(WORK_DIR, "Asset", "graphics", "sprites", "ui", "japanese_font.json")
+HEADER_OUT = os.path.join(WORK_DIR, "src", "game", "include", "japanese_sprite_font.h")
 
 def main():
     if not os.path.exists(TTF_PATH):
@@ -36,6 +36,14 @@ def main():
         with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
             for c in f.read():
                 if ord(c) > 32: # スペース以上を除外
+                    chars.add(c)
+                    
+    # Asset/fixdata/ 以下のJSONの自動スキャン
+    fixdata_dir = os.path.join(WORK_DIR, "Asset", "fixdata")
+    for file_path in glob.glob(fixdata_dir + "/**/*.json", recursive=True):
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+            for c in f.read():
+                if ord(c) > 32:
                     chars.add(c)
     
     # UIなどで使う特定の文字列（念のため）

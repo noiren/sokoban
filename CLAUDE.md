@@ -1,17 +1,23 @@
 # GBA Sokoban (Butano C++ Engine) - AI Coding Rules
 
+## 0. AIの基本ルール (Behavioral Rules)
+- **勝手に実装しない:** ユーザーからの依頼に対して、いきなりコードを書いて実装を進めるのは厳禁です。
+- **事前確認の徹底:** 必ず「こういう設計・対応方針で進めますがOKですか？」と事前に確認し、ユーザーの合意を得てから作業に入ってください。
+- **明示的な指示がある場合:** ユーザーから「実装して！」と明確に指示された場合のみ、そのまま実装に移ってください。
+
 ## 1. ターゲット環境
 - Nintendo Game Boy Advance (ARM7TDMI)
 - C++17 / Butano Engine (https://github.com/GValiente/butano)
 
 ## 2. 絶対厳守のハードウェア＆エンジン制約 (CRITICAL)
-- **リソース解放:** Butanoリソース(`bn::regular_bg_ptr`等)は、Stateの `shutdown()` で必ず解放すること。`bn::optional<>` を使いReset可能にするのが定石。
+- **リソース解放:** Butanoリソース(`bn::regular_bg_ptr`等)は、Stateの `exit()` で必ず解放すること。`bn::optional<>` を使いReset可能にするのが定石。
 - **メモリ管理:** VRAM制限・スタックサイズが極めて小さい。ローカル配列は避け、`new/delete` の代わりに `bn::` コンテナを使用すること。
 - **テキスト描画:** `bn::sprite_text_generator` を使用し、毎フレームの再生成は避ける（変化があった時のみ）。
 - **入力:** `bn::keypad::a_pressed()` など `_pressed()` は1フレームのみtrueになる仕様に注意。
+- **アサートと境界チェック (必須):** ヌルポインタアクセスや配列外参照は絶対に避けること。アクセス前に必ず事前の範囲チェック（またはnullptrチェック）を行い、不正な状態になり得る箇所には `BN_ASSERT(条件, "エラーメッセージ");` を用いてエラー画面を明示的に表示させること。
 
 ## 3. アーキテクチャの前提
-- **State管理:** `StateManager` スタック (bn::vector<State*,8>) で制御。State基底は `init()`, `update()`, `shutdown()` を持つ。
+- **State管理:** `StateManager` スタック (bn::vector<State*,8>) で制御。State基底は `enter()`, `update()`, `exit()` などのライフサイクル関数を持つ。
 - **データセーブ:** SRAM（32KB）を使用。`SaveData` 構造体への書き込みは寿命を考慮し最小限に留めること。
 
 ## 4. ビルド・開発コマンド

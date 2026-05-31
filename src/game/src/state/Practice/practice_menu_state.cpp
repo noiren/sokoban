@@ -61,7 +61,7 @@ void PracticeMenuState::enter_select() {
     step_ = PhaseStep::RUNNING;
 }
 
-void PracticeMenuState::update_select(StateManager& sm, SharedContext& /*ctx*/) {
+void PracticeMenuState::update_select(StateManager& sm, SharedContext& ctx) {
     auto& inp = InputManager::instance();
     if (inp.is_repeat(Action::MoveUp)) {
         cursor_--;
@@ -76,7 +76,9 @@ void PracticeMenuState::update_select(StateManager& sm, SharedContext& /*ctx*/) 
 
     if (inp.is_triggered(Action::Decide)) {
         selected_level_ = cursor_;
-        sm.change_state(StateID::MENU); // TODO: 本来はパズル画面へ
+        ctx.target_puzzle_level = selected_level_;
+        ctx.puzzle_return_state = StateID::PRACTICE;
+        sm.change_state(StateID::PUZZLE);
     }
 
     if (inp.is_triggered(Action::Cancel)) {

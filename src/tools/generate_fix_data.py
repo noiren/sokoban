@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 import os
 import json
-import fix_data_io
-
+import sys
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))
+
+# Add gameeditor to path for fix_data_io
+sys.path.insert(0, os.path.join(PROJECT_ROOT, "src", "gameeditor"))
+import fix_data_io
 
 def escape_str(s: str) -> str:
     if s is None: return "nullptr"

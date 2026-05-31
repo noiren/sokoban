@@ -1,6 +1,6 @@
 # GBA Sokoban (gba-sokoban-bn) プロジェクト構成まとめ
 
-> 最終更新: 2026-04-22
+> 最終更新: 2026-05-13
 > エンジン: [Butano](https://github.com/GValiente/butano) (C++17, GBA向けゲームライブラリ)
 > ビルド: GNU Makefile + ARM GCC クロスコンパイラ
 
@@ -8,35 +8,32 @@
 
 ## ディレクトリ構成
 
-```
+```text
 gba-sokoban-bn/
-├── src/                        # C++ ソースコード
-│   ├── main.cpp                # エントリポイント・ゲームフロー制御
-│   ├── state/                  # ステートマシン (各画面)
-│   ├── game/                   # ゲームロジック
-│   ├── gfx/                    # 描画・UI管理
-│   ├── audio/                  # サウンド管理
-│   └── save/                   # セーブデータ (SRAM)
-├── include/                    # 共有ヘッダ
-│   ├── ui_types.h              # UIデータ型定義
-│   └── ui_data_*.h             # ★自動生成: 各画面のレイアウトデータ
-├── graphics/                   # 画像アセット (.bmp + .json)
-│   ├── *.bmp / *.json          # 背景・フォントなど
-│   ├── stills/chara/           # キャラクタースチル画像
-│   └── ui/menu/                # メニュー用スプライト
-├── audio/                      # BGM・SE (maxmod)
-├── dmg_audio/                  # DMGオーディオ (GameBoy風チャンネル)
-├── tools/                      # 開発支援ツール群
-│   ├── ui_compiler.py          # ★ビルド時自動実行: JSON→C++ヘッダ変換
-│   ├── generate_assets.py      # アセット生成スクリプト
-│   ├── generate_assets.exe     # ↑のスタンドアロン版
-│   ├── assets_list.json        # アセット定義リスト
-│   ├── image_manifest.json     # image_set→ファイルパス マッピング
-│   ├── ui_editor/index.html    # Webベース UIレイアウトエディタ
-│   └── asset_editor/index.html # Webベース アセット管理エディタ
-├── ui/screens/                 # UIレイアウト定義 JSON (エディタ出力)
+├── Asset/                      # アセット・データ定義（非プログラマー向け作業領域）
+│   ├── audio/                  # BGM・SE音声素材 (.wav, .xm, .it 等) および定義
+│   ├── fixdata/                # キャラクター・イベント・テキスト等の静的データ (.json)
+│   ├── graphics/               # 画像素材 (sprites, stills, csv等)
+│   ├── layouts/                # UIレイアウト定義 (.json)
+│   ├── tools/                  # データ作成用UI・オーディオ等の各種専用エディタ
+│   └── README_UI.md            # アセット・デザインチーム向けワークフローガイド
+├── src/                        # プログラムコード領域
+│   ├── game/                   # ゲーム本体コード
+│   │   ├── include/            # 共有・自動生成ヘッダ (generated 等)
+│   │   └── src/                # C++ 実装
+│   │       ├── main.cpp        # エントリポイント
+│   │       ├── audio/          # サウンド再生管理 (SoundManager)
+│   │       ├── fixdata/        # 固定データ管理 (FixDataManager)
+│   │       ├── game/           # パズルロジック・イベントスクリプト (Sokoban, Levels等)
+│   │       ├── gfx/            # 描画管理
+│   │       ├── input/          # 入力管理 (InputManager)
+│   │       ├── save/           # セーブデータ (SRAM)
+│   │       ├── state/          # 画面状態 (Title, Menu, Puzzle, Settings等)
+│   │       └── ui/             # コンポーネント指向 UIシステム (Core, HUD, 各画面用)
+│   ├── tools/                  # Python 開発支援ツール・ビルドスクリプト
+│   └── vs_project/             # Visual Studio プロジェクトファイル
 ├── Makefile                    # ビルド設定
-├── HANDOVER.md                 # セッション引き継ぎメモ
+├── CLAUDE.md                   # AIコーディングルール・アーキテクチャ設計書
 └── PROJECT_OVERVIEW.md         # 本ファイル
 ```
 
@@ -44,12 +41,12 @@ gba-sokoban-bn/
 
 ## アーキテクチャ概要
 
-### 1. ゲームフロー (main.cpp)
+### 1. ゲームフロー (src/game/src/main.cpp)
 
 スタックベースの `StateManager` で画面遷移を管理。  
-`GameFlow` 列挙子によって遷移先を決定する。
+各画面は `src/game/src/state/` 配下に格納されています。
 
-```
+```text
 TITLE → SAVE_SELECT → MENU ─┬─ STORY → STORY_EVENT ↔ PUZZLE
                               ├─ PRACTICE → (練習レベル選択)
                               ├─ ENDLESS → (無限生成パズル)
@@ -58,175 +55,38 @@ TITLE → SAVE_SELECT → MENU ─┬─ STORY → STORY_EVENT ↔ PUZZLE
                               └─ DEBUG → (開発者メニュー)
 ```
 
-GBAはヒープを使わないため、**全 State オブジェクトを main() のスタック上に確保**している。
+GBAはヒープ制限が厳しいため、各種ManagerクラスやStateオブジェクト等は極力スタックまたはグローバルに配置されます。
 
-### 2. ステート一覧 (src/state/)
+### 2. UIシステム (コンポーネント指向・データ駆動)
 
-| ファイル | 役割 |
-|---|---|
-| `state.h` | State 基底インターフェース |
-| `state_manager.h/cpp` | スタックベースの State 管理 |
-| `title_state` | タイトル画面 |
-| `save_select_state` | セーブスロット選択 |
-| `menu_state` | メインメニュー (STORY / PRACTICE / ENDLESS / GALLERY / SETTINGS / DEBUG) |
-| `puzzle_state` | 倉庫番パズル本編 |
-| `event_state` | ビジュアルノベル風イベント再生 |
-| `endless_state` | 無限パズル生成モード |
-| `practice_menu_state` | 練習モード (レベル選択) |
-| `gallery_state` | スチル画像ギャラリー |
-| `settings_state` | 設定画面 (BGM/SE/テキスト速度) |
-| `debug_state` | 開発者用デバッグメニュー |
+新しいUIアーキテクチャは `src/game/src/ui/Core/` をベースに構築されています。
+*   **UIレイアウト**: `Asset/layouts/*.json` をエディタ (`Asset/tools/ui_editor/`) で編集し、ビルド時に自動生成。
+*   **コンポーネント管理**: `ui_manager` を中心に、`ui_node`, `ui_image`, `ui_text` 等の階層化されたコンポーネントツリーで画面を構築。
+*   **アニメーション**: `ui_anim` クラスを用いて、イージング付きのアニメーション（移動・フェード・拡大縮小など）をサポート。
 
-### 3. UIシステム (データ駆動型)
+### 3. データ・入力管理
 
-#### データの流れ
-
-```
-ui/screens/*.json     ← UIエディタ (tools/ui_editor/) で編集
-       ↓ [ビルド時] tools/ui_compiler.py (Makefileの EXTTOOL で自動実行)
-include/ui_data_*.h   ← C++定数データとして出力 (AUTO-GENERATED, 編集禁止)
-       ↓ [実行時]
-UIManager::load_screen()  ← ScreenData を受け取りスプライト/BG/テキストを展開
-```
-
-#### 主要な型 (include/ui_types.h)
-
-```cpp
-namespace ui_types {
-    struct SpriteEntry { id, image_set, image_no, x, y, visible };
-    struct TextEntry   { id, text, x, y, center_align, blink, blink_interval, visible };
-    struct ScreenData  { bg_image_id, bg_scroll_x/y, sprites[], texts[] };
-}
-```
-
-#### image_set / image_no マッピング (tools/image_manifest.json)
-
-| image_set | no | ファイルパス |
-|---|---|---|
-| `menu_items` | 0 | `ui/menu/spr_menu_paper` |
-| `menu_items` | 1 | `ui/menu/spr_menu_icon_story` |
-| `menu_items` | 2 | `ui/menu/spr_menu_icon_practice` |
-| `menu_items` | 3 | `ui/menu/spr_menu_icon_endless` |
-| `chara_stills` | 0 | `stills/chara/spr_chara_default` |
-| `chara_stills` | 1 | `stills/chara/spr_chara_smile` |
-| `chara_stills` | 2 | `stills/chara/spr_chara_sad` |
-| `dummy` | 0 | `spr_dummy` |
-
-#### UIManager (src/gfx/ui_manager.h/cpp)
-
-- `load_screen(ScreenData&)` : 画面データをロードし BG/スプライト/テキストを生成
-- `update()` : 毎フレーム呼び出し。テキスト点滅などを処理
-- `clear_all()` : 全リソース解放
-- 内部でスプライトは最大16個、テキストは最大16個まで保持
-
-### 4. イベントスクリプト (src/game/)
-
-ビジュアルノベル風のイベントを `EventCommand` 配列で定義。
-
-```cpp
-enum class EventCmd {
-    TEXT, WAIT_INPUT, CLEAR_TEXT,         // テキスト
-    SHOW_LEFT, SHOW_RIGHT,                // キャラ表示
-    HIDE_LEFT, HIDE_RIGHT,               // キャラ非表示
-    SET_BG, CLEAR_BG,                    // 背景
-    FULL_STILL, CLEAR_STILL,             // フルスクリーンスチル
-    SET_FLAG, CHECK_FLAG,                // フラグ制御
-    GOTO_PUZZLE,                          // パズルへ移行
-    END, PLAY_SE                         // 終了・SE
-}
-```
-
-ストーリーデータは `src/game/story_data.h` にC++配列として直書き。  
-現在: チャプター1イントロ + チャプター1クリア後の2スクリプトのみ実装。
-
-### 5. セーブデータ (src/save/)
-
-SRAM (GBA内蔵の不揮発メモリ) に保存。スロット数: **3**
-
-```
-SaveData
-└── SaveSlot[3]
-    ├── magic (0x534F4B42 = "SOKB")  ← 有効判定
-    ├── version (現在: 2)
-    ├── bgm_enabled, se_enabled, text_speed
-    ├── story_chapter, story_level
-    ├── endless_high_score
-    └── flags[32]  (256ビットのフラグ領域)
-```
-
-### 6. グラフィックアセット (graphics/)
-
-Butano が `.bmp` + `.json` ペアを自動処理してC++ヘッダを生成する。
-
-| ファイル | 用途 |
-|---|---|
-| `bg.bmp` | 汎用背景 |
-| `bg_logo.bmp` | ロゴ画面背景 |
-| `bg_title.bmp` | タイトル画面背景 |
-| `common_fixed_8x8_font.bmp` | 英数字フォント (8x8固定幅) |
-| `common_fixed_8x16_font.bmp` | 英数字フォント (8x16固定幅) |
-| `japanese_font.bmp` | 日本語フォント (可変幅対応) |
-| `spr_dummy.bmp` | ダミースプライト (32x32) |
-| `stills/chara/` | キャラクタースチル (未実装/ダミー) |
-| `ui/menu/` | メニュー用スプライト (paper, icons等) |
+*   **入力管理 (InputManager)**: `bn::keypad` を直接叩かず、論理アクション (Decide, Cancel, MoveUp 等) やリピート制御を集中管理 (`src/game/src/input/`)。
+*   **固定データ (FixDataManager)**: キャラクター、イベント進行、テキストなどのマスターデータを `Asset/fixdata/*.json` から読み込み、ビルド時に自動で C++ ヘッダ化 (`src/game/include/generated/generated_fix_data.h`)。
+*   **セーブデータ (SaveData)**: GBA SRAMに保存。スロット切り替え対応 (`src/game/src/save/`)。
 
 ---
 
-## ビルド設定 (Makefile)
+## ビルド・アセット管理フロー
 
-| 項目 | 値 |
-|---|---|
-| `TARGET` | `gba-sokoban-bn` |
-| `LIBBUTANO` | `../butano` |
-| `SOURCES` | `src src/state src/game src/gfx src/audio src/save` |
-| `GRAPHICS` | `graphics graphics/stills/chara graphics/ui/menu` |
-| `AUDIO` | `audio` (maxmod バックエンド) |
-| `DMGAUDIO` | `dmg_audio` (default バックエンド) |
-| `EXTTOOL` | `python tools/ui_compiler.py` ← ビルド前に自動実行 |
-| `ROMTITLE` | `SOKOBAN` |
-| `ROMCODE` | `SOKB` |
+ビルド実行時 (`make` または `build.bat`) に、`src/tools/prebuild.py` 経由で以下の処理が自動的に走ります：
 
-> **重要**: `graphics/` 配下に新規サブフォルダを追加した場合は `GRAPHICS` 行に手動追加が必要。  
-> `generate_assets.exe` を使えばフォルダ作成とMakefile更新が自動化される。
+1. **`ui_compiler.py`**: UIレイアウト `Asset/layouts/*.json` を元に `src/game/include/ui_data_*.h` を自動生成。
+2. **`generate_audio_assets.py`**: 音声マニフェストから `src/game/include/generated/audio_ids.h` などを自動生成。
+3. **`generate_fix_data.py`**: `Asset/fixdata/*.json` 以下のマスターデータから `src/game/include/generated/generated_fix_data.h` を自動生成。
+
+> **注意**: C++コードから画像や音声などの各種アセット・データを変更したい場合は、**コードを直接書き換えるのではなく**、`Asset/` 以下のファイルやツール経由でJSONを編集し、ビルドを通す運用になっています。
 
 ---
 
-## 開発ツール (tools/)
+## Google AI Studio (LLM) で開発を続ける際のヒント
 
-### ui_compiler.py (自動実行)
-- `ui/screens/*.json` を読み込み `include/ui_data_*.h` を生成
-- レイアウトツリーをビルド時に絶対座標にフラット化（GBA最適化）
-- 処理の最後に **`generate_audio_assets`** を実行し、`audio_manifest.json` から `audio_ids.h` / `audio_dispatch_*.gen.h` を更新（UI と音声をビルド前に一度に更新）
-- `make` 実行時に `EXTTOOL` として自動呼び出し
-
-### generate_assets.py / generate_assets.exe
-- `assets_list.json` を読み込みアセット管理を自動化
-  - フォルダ作成
-  - ダミー画像 (.bmp) 生成  
-  - `image_manifest.json` 更新
-  - Makefile の `GRAPHICS` 行更新
-
-### Webエディタ (ブラウザで開いて使用)
-- **`tools/ui_editor/index.html`**: 画面レイアウトの視覚的編集 → JSON出力
-- **`tools/asset_editor/index.html`**: アセット一覧管理 → `assets_list.json` 出力
-
----
-
-## TODO / 未実装
-
-- [ ] 実際のドット絵素材への差し替え（現在はダミー `.bmp`）
-- [ ] `assets_list.json` へのスチル・アイコン全リスト反映
-- [ ] UIエディタでのメニュー画面本番レイアウト作成
-- [ ] 各 State への `set_slot()` 追加（アクティブスロット切り替え対応）
-- [ ] チャプター1以降のストーリースクリプト追加
-- [ ] キャラクタースチル (`stills/chara/`) の実装
-
----
-
-## Google AI Studio で開発を続ける際のヒント
-
-1. **まずこのファイルを読み込ませる**（全体像の即時把握）
-2. **`tools/image_manifest.json`** も読み込むと画像セット構造が復元できる
-3. **`ui/screens/*.json`** + **`src/state/`** の対象ファイルを読み込むと特定の画面実装に集中できる
-4. UIレイアウトの変更は **`ui/screens/` のJSONを編集** → ビルドで自動的にC++ヘッダが更新される（`ui_compiler.py`）
-5. 新しいスプライト追加時は `image_manifest.json` と `ui_manager.cpp` のルックアップテーブル両方の更新が必要
+1. **まずこのファイルと `CLAUDE.md` を読み込ませる**（全体像と設計思想の即時把握）
+2. **`src/game/src/state/state.h` や `src/game/src/ui/Core/` を読み込む**と、現在のモダンなオブジェクト・コンポーネント構成が把握できます。
+3. UIレイアウトの変更はプログラム側から行うのではなく、**`Asset/layouts/*.json` をエディタで編集**するか、JSONを直接更新します（ビルド時に C++ ヘッダへ変換されます）。
+4. 新しい画面の追加や改修時は、`CLAUDE.md` に記載されている **テーブル駆動アーキテクチャ (Phase/Step管理)** に必ず従ってください。

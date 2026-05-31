@@ -50,6 +50,7 @@ void UIText::set_scale(bn::fixed scale) {
 void UIText::_rebuild() {
     sprites_.clear();
     if (!text_.empty()) {
+        text_gen_.set_bg_priority(bg_priority_);
         switch (align_) {
             case ui_types::TextAlign::LEFT:
                 text_gen_.set_left_alignment();
@@ -85,5 +86,12 @@ void UIText::update() {
                 sp.set_visible(blink_state_);
             }
         }
+    }
+}
+
+void UIText::set_bg_priority(int priority) {
+    bg_priority_ = priority;
+    for (auto& sp : sprites_) {
+        sp.set_bg_priority(priority);
     }
 }

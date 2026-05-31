@@ -17,11 +17,16 @@ public:
     void set_visible(bool visible) override;
     void set_rotation(bn::fixed rotation) override;
     void set_scale(bn::fixed scale) override;
+    void set_bg_priority(int priority) override;
+
+    // スプライトの水平反転 (イベント右キャラクター用)
+    void set_horizontal_flip(bool flip);
 
 private:
     bn::optional<bn::sprite_ptr> sprite_;
     bn::fixed rotation_;
     bn::fixed scale_ = 1.0;
+    int bg_priority_ = 3;
 };
 
 #endif // UI_IMAGE_H

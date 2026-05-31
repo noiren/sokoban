@@ -14,19 +14,20 @@ namespace ui_data_event {
     constexpr int BG_SCROLL_Y = 0;
 
     // Sprites
-    constexpr int SPRITE_COUNT = 4;
+    constexpr int SPRITE_COUNT = 5;
     constexpr ui_types::SpriteEntry SPRITES[SPRITE_COUNT] = {
         { "event_cg", "dummy", 0, 0.0f, -20.0f, 0.0f, false },
-        { "char_left", "chara_portraits", 0, -60.0f, 0.0f, 0.0f, false },
-        { "char_right", "chara_portraits", 3, 60.0f, 0.0f, 0.0f, false },
-        { "msg_window", "ui_paper", 0, 0.0f, 50.0f, 0.0f, true },
+        { "char_left", "chara_portraits", 0, -56.0f, -32.0f, 0.0f, false },
+        { "char_right", "chara_portraits", 3, 64.0f, -32.0f, 0.0f, false },
+        { "msg_window", "ui_paper", 0, -72.0f, 40.0f, 0.0f, false },
+        { "next_icon", "ui_common", 7, 95.0f, 60.0f, 0.0f, false },
     };
 
     // Texts
     constexpr int TEXT_COUNT = 2;
     constexpr ui_types::TextEntry TEXTS[TEXT_COUNT] = {
-        { "name_box", "", -100.0f, 20.0f, ui_types::TextAlign::CENTER, 1.0f, false, 30, true },
-        { "message_text", "", -110.0f, 40.0f, ui_types::TextAlign::CENTER, 1.0f, false, 30, true },
+        { "name_box", "", -100.0f, 20.0f, ui_types::TextAlign::LEFT, 1.0f, false, 30, true },
+        { "message_text", "こんにちは、これはテキストのテストです。", -110.0f, 40.0f, ui_types::TextAlign::LEFT, 1.4f, false, 30, true },
     };
 
     // Animations

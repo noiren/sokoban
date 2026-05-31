@@ -14,6 +14,9 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 if SCRIPT_DIR not in sys.path:
     sys.path.insert(0, SCRIPT_DIR)
 
+PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))
+sys.path.insert(0, os.path.join(PROJECT_ROOT, "src", "gameeditor"))
+
 import audio_manifest_io as am
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))

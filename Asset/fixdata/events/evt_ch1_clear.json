@@ -1,22 +1,26 @@
 {
-  "version": 1,
+  "version": 2,
   "id": "EVT_CH1_CLEAR",
+  "title_ja": "チャプター1クリア",
   "lines": [
     {
       "speaker_id": "chara_b",
-      "face_id":    "happy1",
+      "face_id":    "happy_1",
+      "position":   "right",
       "image_id":   "chara_b_happy1",
       "text":       "よくできました！"
     },
     {
       "speaker_id": "chara_b",
-      "face_id":    "happy1",
+      "face_id":    "happy_1",
+      "position":   "right",
       "image_id":   "chara_b_happy1",
       "text":       "いいスタートだね。"
     },
     {
       "speaker_id": "chara_b",
-      "face_id":    "normal",
+      "face_id":    "normal_1",
+      "position":   "right",
       "image_id":   "chara_b_normal",
       "text":       "明日はもっとあるから。"
     }

@@ -16,6 +16,7 @@ public:
     // アニメーション用の拡張操作
     virtual void set_rotation(bn::fixed rotation);
     virtual void set_scale(bn::fixed scale);
+    virtual void set_bg_priority(int priority) {}
 
     // 毎フレームの更新処理（オーバーライド用）
     virtual void update() {}

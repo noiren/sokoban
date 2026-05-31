@@ -90,20 +90,20 @@ static constexpr FdTextEntry g_texts[] = {
 static constexpr uint16_t kTextCount = 28;
 
 static constexpr FdEventLine lines_EVT_CH1_CLEAR[] = {
-    {"chara_b", FdFaceId::None, FdPosition::Left, "chara_b_happy1", "よくできました！"},
-    {"chara_b", FdFaceId::None, FdPosition::Left, "chara_b_happy1", "いいスタートだね。"},
-    {"chara_b", FdFaceId::None, FdPosition::Left, "chara_b_normal", "明日はもっとあるから。"},
+    {"chara_b", FdFaceId::Happy_1, FdPosition::Right, "chara_b_happy1", "よくできました！"},
+    {"chara_b", FdFaceId::Happy_1, FdPosition::Right, "chara_b_happy1", "いいスタートだね。"},
+    {"chara_b", FdFaceId::Normal_1, FdPosition::Right, "chara_b_normal", "明日はもっとあるから。"},
 };
 static constexpr FdEventLine lines_EVT_CH1_INTRO[] = {
-    {"chara_mayo", FdFaceId::None, FdPosition::Left, "mayo_normal", "また来たんだ…"},
-    {"chara_mayo", FdFaceId::None, FdPosition::Left, "mayo_normal", "倉庫か。"},
-    {"chara_b", FdFaceId::None, FdPosition::Left, "chara_b_happy1", "来た来た！"},
-    {"chara_b", FdFaceId::None, FdPosition::Left, "chara_b_happy1", "荷物の整理、手伝ってよ。"},
-    {"chara_b", FdFaceId::None, FdPosition::Left, "chara_b_normal", "準備はいい？"},
+    {"chara_mayo", FdFaceId::Normal_1, FdPosition::Left, "mayo_normal", "また来たんだ…"},
+    {"chara_mayo", FdFaceId::Normal_1, FdPosition::Left, "mayo_normal", "倉庫か。"},
+    {"chara_b", FdFaceId::Happy_1, FdPosition::Right, "chara_b_happy1", "来た来た！"},
+    {"chara_b", FdFaceId::Happy_1, FdPosition::Right, "chara_b_happy1", "荷物の整理、手伝ってよ。"},
+    {"chara_b", FdFaceId::Normal_1, FdPosition::Right, "chara_b_normal", "準備はいい？"},
 };
 static constexpr FdEventEntry g_events[] = {
-    {"EVT_CH1_CLEAR", "名称未設定", lines_EVT_CH1_CLEAR, 3},
-    {"EVT_CH1_INTRO", "名称未設定", lines_EVT_CH1_INTRO, 5},
+    {"EVT_CH1_CLEAR", "チャプター1クリア", lines_EVT_CH1_CLEAR, 3},
+    {"EVT_CH1_INTRO", "プロローグ", lines_EVT_CH1_INTRO, 5},
 };
 static constexpr uint16_t kEventCount = 2;
 

@@ -1,4 +1,5 @@
 #include "debug_state.h"
+#include "game/sokoban.h"
 
 #include "state/Manager/state_manager.h"
 #include "input/input_manager.h"
@@ -76,6 +77,7 @@ static constexpr ui_types::AnimPreset test_preset = {
 DebugState::DebugState()
     : screen_(DebugScreen::Root),
       cursor_(0),
+      event_cursor_(0),
       test_bgm_id_(BgmId::Afterburner),
       test_se_id_(SeId::Default_Move),
       last_drawn_bgm_playing_(false),
@@ -141,6 +143,12 @@ void DebugState::update(StateManager& sm, SharedContext& ctx) {
         case DebugScreen::EffectTest:
             update_effect_test(sm, ctx);
             break;
+        case DebugScreen::EventTest:
+            update_event_test(sm, ctx);
+            break;
+        case DebugScreen::StageList:
+            update_stage_list(sm, ctx);
+            break;
         default:
             break;
     }
@@ -170,13 +178,19 @@ void DebugState::redraw(SharedContext& ctx) {
         case DebugScreen::EffectTest:
             draw_effect_test(ctx);
             break;
+        case DebugScreen::EventTest:
+            draw_event_test(ctx);
+            break;
+        case DebugScreen::StageList:
+            draw_stage_list(ctx);
+            break;
         default:
             break;
     }
 }
 
 void DebugState::update_root(StateManager& sm, SharedContext& ctx) {
-    constexpr int lines = 4; // 3 から 4 に変更
+    constexpr int lines = 6; // Effect + Event + Stage
     auto& inp = InputManager::instance();
     bool changed = false;
 
@@ -212,6 +226,14 @@ void DebugState::update_root(StateManager& sm, SharedContext& ctx) {
             screen_ = DebugScreen::EffectTest;
             cursor_ = 0;
             changed = true;
+        } else if (cursor_ == 4) {
+            screen_ = DebugScreen::EventTest;
+            event_cursor_ = 0;
+            changed = true;
+        } else if (cursor_ == 5) {
+            screen_ = DebugScreen::StageList;
+            event_cursor_ = 0;
+            changed = true;
         }
     }
 
@@ -232,7 +254,7 @@ void DebugState::draw_root(SharedContext& ctx) {
     ctx.text_generator->set_left_alignment();
     const int spacing = 14;
     int y = -40;
-    for (int i = 0; i < 4; ++i) { // 3 から 4 へ
+    for (int i = 0; i < 6; ++i) {
         bn::string<32> line;
         if (cursor_ == i) {
             line.append(">");
@@ -240,18 +262,12 @@ void DebugState::draw_root(SharedContext& ctx) {
             line.append(" ");
         }
         switch (i) {
-            case 0:
-                line.append("UI Debug");
-                break;
-            case 1:
-                line.append("BGM Debug");
-                break;
-            case 2:
-                line.append("SE Debug");
-                break;
-            default:
-                line.append("Effect Debug"); // 追加
-                break;
+            case 0:  line.append("UI Debug"); break;
+            case 1:  line.append("BGM Debug"); break;
+            case 2:  line.append("SE Debug"); break;
+            case 3:  line.append("Effect Debug"); break;
+            case 4:  line.append("Event Debug"); break;
+            default: line.append("Stage Debug"); break;
         }
         ctx.text_generator->generate(-112, y, line, sprites_);
         y += spacing;
@@ -532,6 +548,137 @@ void DebugState::draw_effect_test(SharedContext& ctx) {
     ctx.text_generator->generate(0, -40, "A = Spawn Test Effect", sprites_);
     ctx.text_generator->generate(0, -20, "(using Bounce / Rotate / Scale)", sprites_);
     ctx.text_generator->generate(0, 72, "B = back", sprites_);
+}
+
+// ==============================================================
+// Event Debug (イベント再生テスト)
+// ==============================================================
+static const char* kDebugEventIds[] = {
+    "EVT_CH1_INTRO",
+    "EVT_CH1_CLEAR",
+};
+static constexpr int kDebugEventCount = 2;
+
+void DebugState::update_event_test(StateManager& sm, SharedContext& ctx) {
+    auto& inp = InputManager::instance();
+    bool changed = false;
+
+    if (inp.is_repeat(Action::MoveUp)) {
+        event_cursor_--;
+        if (event_cursor_ < 0) event_cursor_ = kDebugEventCount - 1;
+        changed = true;
+        SoundManager::instance().play_move();
+    }
+    if (inp.is_repeat(Action::MoveDown)) {
+        event_cursor_++;
+        if (event_cursor_ >= kDebugEventCount) event_cursor_ = 0;
+        changed = true;
+        SoundManager::instance().play_move();
+    }
+
+    if (inp.is_triggered(Action::Decide)) {
+        // 選択したイベントを再生するために EventState へ遷移
+        ctx.target_event_id = bn::string_view(kDebugEventIds[event_cursor_]);
+        ctx.event_return_state = StateID::DEBUG_MENU;
+        sm.change_state(StateID::EVENT);
+        return;
+    }
+
+    if (inp.is_triggered(Action::Cancel)) {
+        screen_ = DebugScreen::Root;
+        cursor_ = 4;
+        changed = true;
+    }
+
+    if (changed) {
+        redraw(ctx);
+    }
+}
+
+void DebugState::draw_event_test(SharedContext& ctx) {
+    ctx.text_generator->set_center_alignment();
+    ctx.text_generator->generate(0, -76, "EVENT DEBUG", sprites_);
+
+    ctx.text_generator->set_left_alignment();
+    const int spacing = 14;
+    int y = -48;
+    for (int i = 0; i < kDebugEventCount; ++i) {
+        bn::string<40> line;
+        line.append(event_cursor_ == i ? ">" : " ");
+        line.append(kDebugEventIds[i]);
+        ctx.text_generator->generate(-112, y, line, sprites_);
+        y += spacing;
+    }
+
+    ctx.text_generator->set_center_alignment();
+    ctx.text_generator->generate(0, 72, "U/D A=play B=back", sprites_);
+}
+
+void DebugState::update_stage_list(StateManager& sm, SharedContext& ctx) {
+    auto& inp = InputManager::instance();
+    bool changed = false;
+    const int max_levels = get_num_levels();
+
+    if (inp.is_repeat(Action::MoveUp)) {
+        event_cursor_--;
+        if (event_cursor_ < 0) event_cursor_ = max_levels - 1;
+        changed = true;
+        SoundManager::instance().play_move();
+    }
+    if (inp.is_repeat(Action::MoveDown)) {
+        event_cursor_++;
+        if (event_cursor_ >= max_levels) event_cursor_ = 0;
+        changed = true;
+        SoundManager::instance().play_move();
+    }
+
+    if (inp.is_triggered(Action::Decide)) {
+        ctx.target_puzzle_level = event_cursor_;
+        ctx.puzzle_return_state = StateID::DEBUG_MENU;
+        sm.change_state(StateID::PUZZLE);
+        return;
+    }
+
+    if (inp.is_triggered(Action::Cancel)) {
+        screen_ = DebugScreen::Root;
+        cursor_ = 5;
+        changed = true;
+    }
+
+    if (changed) {
+        redraw(ctx);
+    }
+}
+
+void DebugState::draw_stage_list(SharedContext& ctx) {
+    ctx.text_generator->set_center_alignment();
+    ctx.text_generator->generate(0, -76, "STAGE DEBUG", sprites_);
+
+    ctx.text_generator->set_left_alignment();
+    const int spacing = 14;
+    int y = -48;
+    const int max_levels = get_num_levels();
+
+    int start_i = event_cursor_ - 4;
+    if (start_i < 0) start_i = 0;
+    int end_i = start_i + 8;
+    if (end_i > max_levels) {
+        end_i = max_levels;
+        start_i = end_i - 8;
+        if (start_i < 0) start_i = 0;
+    }
+
+    for (int i = start_i; i < end_i; ++i) {
+        bn::string<40> line;
+        line.append(event_cursor_ == i ? ">" : " ");
+        line.append("Level ");
+        line.append(bn::to_string<4>(i));
+        ctx.text_generator->generate(-112, y, line, sprites_);
+        y += spacing;
+    }
+
+    ctx.text_generator->set_center_alignment();
+    ctx.text_generator->generate(0, 72, "U/D A=play B=back", sprites_);
 }
 
 void DebugState::exit(StateManager& /*sm*/, SharedContext& ctx) {

@@ -29,6 +29,9 @@ public:
 
     void change_sprite_image(UIImage* node, const bn::string_view& image_set, int image_no);
 
+    // 画像 ID（文字列）から直接スプライトを切り替える (イベント用)
+    void change_sprite_image_by_id(UIImage* node, const bn::string_view& image_id);
+
 private:
     void clear_bg();
     void _set_bg_from_string(bn::string_view bg_id);

@@ -15,7 +15,9 @@ enum class DebugScreen {
     BgmTest,
     SeList,
     SeTest,
-    EffectTest, // 追加
+    EffectTest,
+    EventTest, // イベント再生デバッグ
+    StageList, // ステージ選んでプレイデバッグ
 };
 
 class DebugState : public State {
@@ -48,10 +50,17 @@ private:
     void update_effect_test(StateManager& sm, SharedContext& ctx);
     void draw_effect_test(SharedContext& ctx);
 
+    void update_event_test(StateManager& sm, SharedContext& ctx);
+    void draw_event_test(SharedContext& ctx);
+
+    void update_stage_list(StateManager& sm, SharedContext& ctx);
+    void draw_stage_list(SharedContext& ctx);
+
     [[nodiscard]] bool _bgm_test_track_is_playing() const;
 
     DebugScreen screen_;
     int cursor_;
+    int event_cursor_; // イベントテスト用カーソル
 
     BgmId test_bgm_id_;
     SeId test_se_id_;

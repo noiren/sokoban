@@ -151,6 +151,29 @@ void UIManager::change_sprite_image(UIImage* node, const bn::string_view& image_
     node->set_sprite(_create_sprite_from_set(image_set, image_no, node->get_x(), node->get_y()));
 }
 
+void UIManager::change_sprite_image_by_id(UIImage* node, const bn::string_view& image_id) {
+    if (!node) return;
+    // chara_portraits セット内の image_id -> image_no マッピング
+    // 順序は assets_list.json の chara_portraits.items に対応:
+    //   0: spr_ch_mayo_normal
+    //   1: spr_ch_mayo_smile
+    //   2: spr_ch_mayo_sad
+    //   3: spr_ch_mayo_angry
+    //   4: spr_ch_mayo_fun
+    //   5: spr_ch_riri_normal (chara_b 用素材が揃うまでの代替)
+    
+    if      (image_id == "mayo_normal")      change_sprite_image(node, "chara_portraits", 0);
+    else if (image_id == "chara_a_normal")   change_sprite_image(node, "chara_portraits", 0); // Alias
+    else if (image_id == "mayo_smile")       change_sprite_image(node, "chara_portraits", 1);
+    else if (image_id == "mayo_sad")         change_sprite_image(node, "chara_portraits", 2);
+    else if (image_id == "mayo_angry")       change_sprite_image(node, "chara_portraits", 3);
+    else if (image_id == "mayo_fun")         change_sprite_image(node, "chara_portraits", 4);
+    else if (image_id == "chara_b_normal" ||
+             image_id == "chara_b_smile" ||
+             image_id == "chara_b_sad")      change_sprite_image(node, "chara_portraits", 5);
+    // image_id が不明な場合は何もしない (既存のスプライトを維持)
+}
+
 void UIManager::_set_bg_from_string(bn::string_view bg_id) {
     if (bg_id == "stl_logo") bg_ = bn::regular_bg_items::stl_logo.create_bg(8, 48);
     else if (bg_id == "stl_title") bg_ = bn::regular_bg_items::stl_title.create_bg(8, 48);

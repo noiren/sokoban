@@ -23,8 +23,8 @@
       {
         "type": "sprite",
         "id": "char_left",
-        "x": -60,
-        "y": 0,
+        "x": -56,
+        "y": -32,
         "image_set": "chara_portraits",
         "image_no": 0,
         "visible": false
@@ -32,8 +32,8 @@
       {
         "type": "sprite",
         "id": "char_right",
-        "x": 60,
-        "y": 0,
+        "x": 64,
+        "y": -32,
         "image_set": "chara_portraits",
         "image_no": 3,
         "visible": false
@@ -41,11 +41,12 @@
       {
         "type": "sprite",
         "id": "msg_window",
-        "x": 0,
-        "y": 50,
+        "x": -72,
+        "y": 40,
         "image_set": "ui_paper",
-        "image_no": 0,
-        "visible": true
+        "image_no": "0",
+        "visible": false,
+        "viewer_visible": false
       },
       {
         "type": "text",
@@ -53,15 +54,27 @@
         "x": -100,
         "y": 20,
         "text": "",
-        "visible": true
+        "visible": true,
+        "align": "left"
       },
       {
         "type": "text",
         "id": "message_text",
         "x": -110,
         "y": 40,
-        "text": "",
-        "visible": true
+        "text": "\u3053\u3093\u306b\u3061\u306f\u3001\u3053\u308c\u306f\u30c6\u30ad\u30b9\u30c8\u306e\u30c6\u30b9\u30c8\u3067\u3059\u3002",
+        "visible": true,
+        "align": "left",
+        "font_size": 1.4
+      },
+      {
+        "type": "sprite",
+        "id": "next_icon",
+        "x": 95,
+        "y": 60,
+        "image_set": "ui_common",
+        "image_no": 7,
+        "visible": false
       }
     ]
   }
