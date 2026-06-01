@@ -27,7 +27,7 @@ public:
 private:
     void _rebuild();
 
-    bn::string<64> text_;
+    bn::string<128> text_;
     ui_types::TextAlign align_;
     int font_size_;
     bool blink_;

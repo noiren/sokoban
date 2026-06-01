@@ -1,0 +1,14 @@
+{
+  "chapters": [
+    {
+      "id": "CH1",
+      "title_ja": "第1章",
+      "steps": [
+        { "type": "STILL_EVENT", "ref": "STILL_PROLOGUE" },
+        { "type": "EVENT",       "ref": "EVT_CH1_INTRO" },
+        { "type": "PUZZLE",      "ref": 0, "intro_event": "EVT_PUZZLE0_INTRO" },
+        { "type": "EVENT",       "ref": "EVT_CH1_CLEAR" }
+      ]
+    }
+  ]
+}

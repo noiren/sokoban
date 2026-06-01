@@ -51,6 +51,26 @@ struct FdGalleryEntry {
     const char* ja;
 };
 
+enum class FdStoryStepType : uint8_t {
+    STILL_EVENT = 0,
+    EVENT       = 1,
+    PUZZLE      = 2,
+};
+
+struct FdStoryStep {
+    FdStoryStepType type;
+    int16_t         puzzle_ref;      // PUZZLE時のみ使用（-1=無効）
+    const char*     event_ref;       // EVENT/STILL_EVENT時のみ使用（nullptr=無効）
+    const char*     intro_event_ref; // PUZZLE専用：パズル前イベントID（nullptr=なし）
+};
+
+struct FdStoryChapter {
+    const char*        id;
+    const char*        title_ja;
+    const FdStoryStep* steps;
+    int16_t            num_steps;
+};
+
 static constexpr FdCharacterEntry g_characters[] = {
     {"chara_mayo", "マヨ", {"mayo_normal", "mayo_happy1", "mayo_happy2", "mayo_happy3", "mayo_sad", "mayo_angry", "mayo_surprised", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}},
     {"chara_b", "キャラB", {"chara_b_normal", "chara_b_happy1", "chara_b_sad", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}},
@@ -101,11 +121,21 @@ static constexpr FdEventLine lines_EVT_CH1_INTRO[] = {
     {"chara_b", FdFaceId::Happy_1, FdPosition::Right, "chara_b_happy1", "荷物の整理、手伝ってよ。"},
     {"chara_b", FdFaceId::Normal_1, FdPosition::Right, "chara_b_normal", "準備はいい？"},
 };
+static constexpr FdEventLine lines_EVT_PUZZLE0_INTRO[] = {
+    {"", FdFaceId::None, FdPosition::Left, "", "ここから先は岩を動かして進む必要があります。"},
+    {"", FdFaceId::None, FdPosition::Left, "", "岩は押すことしかできません。"},
+};
+static constexpr FdEventLine lines_STILL_PROLOGUE[] = {
+    {"", FdFaceId::None, FdPosition::Left, "", "これは、とある世界のお話。"},
+    {"", FdFaceId::None, FdPosition::Left, "", "謎のダンジョンに迷い込んだ主人公の運命は…"},
+};
 static constexpr FdEventEntry g_events[] = {
     {"EVT_CH1_CLEAR", "チャプター1クリア", lines_EVT_CH1_CLEAR, 3},
     {"EVT_CH1_INTRO", "プロローグ", lines_EVT_CH1_INTRO, 5},
+    {"EVT_PUZZLE0_INTRO", "パズルチュートリアル", lines_EVT_PUZZLE0_INTRO, 2},
+    {"STILL_PROLOGUE", "プロローグ", lines_STILL_PROLOGUE, 2},
 };
-static constexpr uint16_t kEventCount = 2;
+static constexpr uint16_t kEventCount = 4;
 
 static constexpr FdGalleryEntry g_gallery[] = {
     {"tachi-e", "mayo_normal", "マヨ（通常）"},
@@ -127,4 +157,15 @@ static constexpr FdGalleryEntry g_gallery[] = {
     {"se", "Reset", "リセット"},
 };
 static constexpr uint16_t kGalleryCount = 17;
+
+static constexpr FdStoryStep steps_ch1[] = {
+    {FdStoryStepType::STILL_EVENT, -1, "STILL_PROLOGUE", nullptr},
+    {FdStoryStepType::EVENT, -1, "EVT_CH1_INTRO", nullptr},
+    {FdStoryStepType::PUZZLE, 0, nullptr, "EVT_PUZZLE0_INTRO"},
+    {FdStoryStepType::EVENT, -1, "EVT_CH1_CLEAR", nullptr},
+};
+static constexpr FdStoryChapter g_story_chapters[] = {
+    {"CH1", "第1章", steps_ch1, 4},
+};
+static constexpr int16_t kStoryChapterCount = 1;
 

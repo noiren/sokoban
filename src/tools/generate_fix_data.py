@@ -24,11 +24,22 @@ def to_cpp_position(pos: str) -> str:
     if pos.upper() == "RIGHT": return "FdPosition::Right"
     return "FdPosition::Left"
 
+def load_story_progression(project_root: str):
+    """ story_progression.json を読み込んで辞書リストを返す """
+    path = os.path.join(project_root, "Asset", "fixdata", "story_progression.json")
+    if not os.path.exists(path):
+        return []
+    with open(path, encoding="utf-8") as f:
+        data = json.load(f)
+    return data.get("chapters", [])
+
+
 def main():
     characters = fix_data_io.load_characters(PROJECT_ROOT)
     texts = fix_data_io.load_all_texts(PROJECT_ROOT)
     events = fix_data_io.load_all_events(PROJECT_ROOT)
     gallery = fix_data_io.load_gallery(PROJECT_ROOT)
+    chapters = load_story_progression(PROJECT_ROOT)
 
     out_dir = os.path.join(PROJECT_ROOT, "src", "game", "include", "generated")
     os.makedirs(out_dir, exist_ok=True)
@@ -87,6 +98,26 @@ def main():
         "    const char* resource_id;",
         "    const char* ja;",
         "};",
+        "",
+        "enum class FdStoryStepType : uint8_t {",
+        "    STILL_EVENT = 0,",
+        "    EVENT       = 1,",
+        "    PUZZLE      = 2,",
+        "};",
+        "",
+        "struct FdStoryStep {",
+        "    FdStoryStepType type;",
+        "    int16_t         puzzle_ref;      // PUZZLE時のみ使用（-1=無効）",
+        "    const char*     event_ref;       // EVENT/STILL_EVENT時のみ使用（nullptr=無効）",
+        "    const char*     intro_event_ref; // PUZZLE専用：パズル前イベントID（nullptr=なし）",
+        "};",
+        "",
+        "struct FdStoryChapter {",
+        "    const char*        id;",
+        "    const char*        title_ja;",
+        "    const FdStoryStep* steps;",
+        "    int16_t            num_steps;",
+        "};",
         ""
     ]
 
@@ -130,6 +161,31 @@ def main():
         lines.append(f"    {{{escape_str(g.category)}, {escape_str(g.resource_id)}, {escape_str(g.ja)}}},")
     lines.append("};")
     lines.append(f"static constexpr uint16_t kGalleryCount = {len(gallery)};\n")
+
+    # --- Story Progression ---
+    for i, ch in enumerate(chapters):
+        steps = ch.get("steps", [])
+        safe_id = ch["id"].lower().replace("-", "_")
+        lines.append(f"static constexpr FdStoryStep steps_{safe_id}[] = {{")
+        for step in steps:
+            stype = step["type"]
+            if stype == "STILL_EVENT":
+                lines.append(f"    {{FdStoryStepType::STILL_EVENT, -1, {escape_str(step['ref'])}, nullptr}},")
+            elif stype == "EVENT":
+                lines.append(f"    {{FdStoryStepType::EVENT, -1, {escape_str(step['ref'])}, nullptr}},")
+            elif stype == "PUZZLE":
+                intro = step.get("intro_event")
+                intro_str = escape_str(intro) if intro else "nullptr"
+                lines.append(f"    {{FdStoryStepType::PUZZLE, {step['ref']}, nullptr, {intro_str}}},")
+        lines.append("};")
+
+    lines.append("static constexpr FdStoryChapter g_story_chapters[] = {")
+    for ch in chapters:
+        safe_id = ch["id"].lower().replace("-", "_")
+        steps = ch.get("steps", [])
+        lines.append(f"    {{{escape_str(ch['id'])}, {escape_str(ch.get('title_ja', ''))}, steps_{safe_id}, {len(steps)}}},")
+    lines.append("};")
+    lines.append(f"static constexpr int16_t kStoryChapterCount = {len(chapters)};\n")
 
     with open(out_path, "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(lines) + "\n")

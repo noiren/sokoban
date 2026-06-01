@@ -90,7 +90,7 @@ enum class EventPhase {
 class EventState : public State {
 public:
     // タイピング速度定数 (フレーム/文字)
-    static constexpr int TYPING_SPEED_NORMAL = 3; // 通常: 3フレームに1文字
+    static constexpr int TYPING_SPEED_NORMAL = 2; // 通常: 3フレームに1文字
     static constexpr int TYPING_SPEED_FAST   = 1; // A長押し: 1フレームに1文字 (ビュ～)
     static constexpr int TYPING_SPEED_INSTANT = 0; // Bボタン: 即時全表示
 

@@ -1,5 +1,6 @@
 #include "puzzle_state.h"
 #include "state/Manager/state_manager.h"
+#include "state/state_id.h"
 #include "input/input_manager.h"
 #include "graphics/renderer.h"
 #include "ui_data_sokoban_main.h"
@@ -225,12 +226,19 @@ void PuzzleState::enter_cleared() {
 void PuzzleState::update_cleared(StateManager& sm, SharedContext& ctx) {
     if (InputManager::instance().is_triggered(Action::Decide) ||
         bn::keypad::start_pressed()) {
-        int next_level = current_level_ + 1;
-        if (next_level < get_num_levels()) {
-            ctx.target_puzzle_level = next_level;
-            sm.change_state(StateID::PUZZLE);
+        // ストーリーモードから呼ばれた場合は pop_state() で StoryState の resume() を起動
+        if (ctx.puzzle_return_state == StateID::STORY) {
+            ctx.story_step_completed = true;
+            sm.pop_state();
         } else {
-            sm.change_state(ctx.puzzle_return_state);
+            // 非ストーリーモード：従来通り次のレベルへ or リターン
+            int next_level = current_level_ + 1;
+            if (next_level < get_num_levels()) {
+                ctx.target_puzzle_level = next_level;
+                sm.change_state(StateID::PUZZLE);
+            } else {
+                sm.change_state(ctx.puzzle_return_state);
+            }
         }
     }
 }

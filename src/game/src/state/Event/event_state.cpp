@@ -1,6 +1,7 @@
 #include "event_state.h"
 
 #include "state/Manager/state_manager.h"
+#include "state/state_id.h"
 #include "input/input_manager.h"
 #include "fixdata/fix_data_manager.h"
 #include "ui_data_event.h"
@@ -270,8 +271,14 @@ void EventState::enter_finished() {
 }
 
 void EventState::update_finished(StateManager& sm, SharedContext& ctx) {
-    // イベント終了後は指定されたStateへ戻る
-    sm.change_state(ctx.event_return_state);
+    // ストーリーモードから呼ばれた場合は pop_state() で StoryState の resume() を起動
+    // それ以外（メニューから直接など）は従来通り change_state
+    if (ctx.event_return_state == StateID::STORY) {
+        ctx.story_step_completed = true;
+        sm.pop_state();
+    } else {
+        sm.change_state(ctx.event_return_state);
+    }
 }
 
 void EventState::exit_finished() {}

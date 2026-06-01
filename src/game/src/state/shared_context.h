@@ -20,6 +20,20 @@ struct SharedContext {
     bn::string_view target_event_id;
     StateID event_return_state = StateID::MENU; // イベント終了後に戻るState
     StateID puzzle_return_state = StateID::MENU; // パズル終了後に戻るState
+
+    // ストーリー進行ペイロード
+    // StoryState がセット・参照する。各子Stateは変更不要。
+    int  story_chapter_idx = 0;       // 現在のチャプターインデックス
+    int  story_step_idx    = 0;       // チャプター内のステップインデックス
+
+    // ストーリーステップ完了通知
+    // 各子State（EventState/PuzzleState/StillEventState）が終了時に true にする。
+    // StoryState の resume() で必ず読み取り、false に戻すこと。
+    bool story_step_completed = false;
+
+    // StoryState内部: intro_eventの再生が完了したか
+    // （PUZZLE型ステップのintro_event→パズル本体の2段階遷移制御用）
+    bool story_intro_completed = false;
 };
 
 #endif // SHARED_CONTEXT_H

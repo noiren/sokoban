@@ -17,15 +17,16 @@ struct SaveSlot {
     uint8_t  text_speed;         // 0=slow, 1=normal, 2=fast
 
     // 進捗
-    uint8_t  story_chapter;      // 現在のチャプター番号
-    uint8_t  story_level;        // チャプター内のレベル番号(0-4)
+    uint8_t  story_chapter_idx;   // 現在のチャプターインデックス
+    uint8_t  story_step_idx;      // チャプター内のステップインデックス
     uint16_t endless_high_score;
+    bool     autosave_enabled;    // オートセーブON/OFF
 
     // フラグ (256ビット = 256フラグ)
     uint8_t  flags[32];
 
-    // パディング
-    uint8_t  _padding[1];
+    // パディング (4バイトアライメント維持)
+    uint8_t  _padding[2];
 };
 
 static_assert(sizeof(SaveSlot) % 4 == 0, "SaveSlot must be 4-byte aligned");
@@ -40,7 +41,7 @@ struct SaveData {
 using SaveSlotRef = SaveSlot&;
 
 constexpr uint32_t SAVE_MAGIC   = 0x534F4B42; // "SOKB"
-constexpr uint8_t  SAVE_VERSION = 2;
+constexpr uint8_t  SAVE_VERSION = 3;
 
 // 1スロットを初期値で初期化
 void save_slot_init(SaveSlot& slot);

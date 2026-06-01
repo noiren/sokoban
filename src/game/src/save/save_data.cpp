@@ -11,9 +11,10 @@ void save_slot_init(SaveSlot& slot) {
     slot.bgm_enabled         = true;
     slot.se_enabled          = true;
     slot.text_speed          = 1;  // normal
-    slot.story_chapter       = 0;
-    slot.story_level         = 0;
+    slot.story_chapter_idx   = 0;
+    slot.story_step_idx      = 0;
     slot.endless_high_score  = 0;
+    slot.autosave_enabled    = true;
     for (int i = 0; i < 32; i++) {
         slot.flags[i] = 0;
     }

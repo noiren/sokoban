@@ -15,6 +15,8 @@
 #include "state/Practice/practice_menu_state.h"
 #include "state/Gallery/gallery_state.h"
 #include "state/Debug/debug_state.h"
+#include "state/Story/story_state.h"
+#include "state/StillEvent/still_event_state.h"
 #include "audio/sound_manager.h"
 #include "save/save_data.h"
 #include "input/input_manager.h"
@@ -58,6 +60,8 @@ int main()
     BN_DATA_EWRAM static PracticeMenuState  practice_menu_state;
     BN_DATA_EWRAM static GalleryState       gallery_state;
     BN_DATA_EWRAM static DebugState         debug_state;
+    BN_DATA_EWRAM static StoryState         story_state;
+    BN_DATA_EWRAM static StillEventState    still_event_state;
 
     // State の登録
     state_manager.register_state(StateID::TITLE, &title_state);
@@ -69,6 +73,8 @@ int main()
     state_manager.register_state(StateID::PRACTICE, &practice_menu_state);
     state_manager.register_state(StateID::GALLERY, &gallery_state);
     state_manager.register_state(StateID::DEBUG_MENU, &debug_state);
+    state_manager.register_state(StateID::STORY, &story_state);
+    state_manager.register_state(StateID::STILL_EVENT, &still_event_state);
 
     SharedContext ctx;
     ctx.text_generator = &text_generator;

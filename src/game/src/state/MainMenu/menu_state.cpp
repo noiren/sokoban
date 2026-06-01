@@ -173,7 +173,7 @@ void MenuState::update_main(StateManager& sm, SharedContext& /*ctx*/) {
             } else {
                 // 待機が完了したら実際のState遷移を実行
                 switch (last_selected_) {
-                    case MenuItem::STORY:    sm.change_state(StateID::EVENT); break;
+                    case MenuItem::STORY:    sm.change_state(StateID::STORY); break;
                     case MenuItem::PRACTICE: sm.change_state(StateID::PRACTICE); break;
                     case MenuItem::ENDLESS:  sm.change_state(StateID::ENDLESS); break;
                     case MenuItem::GALLERY:  sm.change_state(StateID::GALLERY); break;

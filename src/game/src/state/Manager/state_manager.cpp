@@ -44,13 +44,22 @@ void StateManager::process_requests(SharedContext& ctx) {
         return;
     }
 
+    // 処理中のリクエストをローカルにコピーし、メンバ変数をリセットする。
+    // こうすることで、enter() や exit() 等の中で新たなリクエストが
+    // 発行されても上書き消去されず、次フレームで処理されるようになる。
+    RequestType req = current_request_;
+    StateID req_id = requested_state_id_;
+    
+    current_request_ = RequestType::NONE;
+    requested_state_id_ = StateID::NONE;
+
     State* next_state = nullptr;
-    if (requested_state_id_ != StateID::NONE) {
-        next_state = registry_[static_cast<int>(requested_state_id_)];
+    if (req_id != StateID::NONE) {
+        next_state = registry_[static_cast<int>(req_id)];
         BN_ASSERT(next_state != nullptr, "Requested State is not registered!");
     }
 
-    switch (current_request_) {
+    switch (req) {
         case RequestType::CHANGE:
             if (!stack_.empty()) {
                 stack_.back()->exit(*this, ctx);
@@ -81,8 +90,4 @@ void StateManager::process_requests(SharedContext& ctx) {
         default:
             break;
     }
-
-    // 処理が終わったらリクエストをリセット
-    current_request_ = RequestType::NONE;
-    requested_state_id_ = StateID::NONE;
 }
