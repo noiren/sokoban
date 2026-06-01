@@ -67,7 +67,7 @@ private:
 
     bn::optional<bn::regular_bg_ptr> bg_;
     bn::optional<bn::regular_bg_map_ptr> bg_map_;
-    alignas(4) bn::array<bn::regular_bg_map_cell, 32 * 32> map_cells_;
+    alignas(4) bn::array<bn::regular_bg_map_cell, 64 * 64> map_cells_;
 
     bn::vector<bn::sprite_ptr, 32> result_sprites_;
     bn::optional<UIManager> ui_manager_;

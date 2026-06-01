@@ -11,6 +11,7 @@ if SCRIPT_DIR not in sys.path:
     sys.path.append(SCRIPT_DIR)
 import ui_compiler
 import generate_fix_data
+import pack_tiles
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))
 SRC_GRAPHICS_DIR = os.path.join(PROJECT_ROOT, "Asset", "graphics")
@@ -30,6 +31,10 @@ def prepare_graphics():
         for file in files:
             if file.endswith(".bmp"):
                 rel_dir = os.path.relpath(root, SRC_GRAPHICS_DIR)
+                parts = rel_dir.split(os.sep)
+                if "tiles" in parts:
+                    continue  # 作業用の個別タイルフォルダはButanoの直接コンパイルから除外する
+                
                 src_path = os.path.join(root, file)
                 
                 # build/asset_tmp/stills, build/asset_tmp/sprites etc
@@ -77,6 +82,9 @@ def prepare_graphics():
             print(f"[prebuild] Updated Makefile GRAPHICS: {dirs_str}")
 
 def main():
+    print("[prebuild] Packing individual 8x8 tiles into texture atlas...")
+    pack_tiles.pack()
+    
     print("[prebuild] Preparing graphics assets...")
     prepare_graphics()
     

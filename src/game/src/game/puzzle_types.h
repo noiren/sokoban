@@ -26,7 +26,7 @@ enum class BgTile : uint8_t {
     WARP_RED_B,
     WARP_BLUE_A,
     WARP_BLUE_B,
-    EMPTY = 17      // マップ外（描画用）
+    EMPTY = 18      // マップ外（描画用）
 };
 
 // --- 前景オブジェクトの種別 ---

@@ -1,7 +1,7 @@
 import struct
 
-width = 256
-height = 256
+width = 512
+height = 512
 
 # 16 colors for our palette
 # 0: Magenta (Transparent)
@@ -44,12 +44,12 @@ full_palette = palette + [(0, 0, 0)] * (256 - len(palette))
 pixels = [[0 for _ in range(width)] for _ in range(height)]
 
 def draw_tile(tx, ty, bg_col, fg_col, pattern=0):
-    for y in range(8):
-        for x in range(8):
+    for y in range(16):
+        for x in range(16):
             # To make sure every tile is unique, we can put its index in binary or just rely on bg_col + pattern
-            px = tx * 8 + x
-            py = ty * 8 + y
-            if x == 0 or x == 7 or y == 0 or y == 7:
+            px = tx * 16 + x
+            py = ty * 16 + y
+            if x == 0 or x == 15 or y == 0 or y == 15:
                 pixels[py][px] = fg_col
             else:
                 pixels[py][px] = bg_col
@@ -82,9 +82,9 @@ for i in range(8, 17):
     draw_tile(i, 0, 13, 15, i%4 + 1)
 
 # Tile 17 is EMPTY (Transparent)
-for y in range(8):
-    for x in range(8):
-        pixels[0][17 * 8 + x] = 0 # Transparent
+for y in range(16):
+    for x in range(16):
+        pixels[0][17 * 16 + x] = 0 # Transparent
 
 # The rest of the image is transparent (index 0)
 # Since the array is initialized with 0, we don't need to do anything.

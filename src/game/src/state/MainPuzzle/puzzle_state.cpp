@@ -286,8 +286,8 @@ void PuzzleState::update_camera() {
     // プレイヤー(BG pixel px)を画面中心(hardware x=120)に置くには:
     //   BGHOFS = px - 120  →  cam_pos + 8 = px - 120  →  cam_pos = px - 128
     // Y も同様: BGVOFS = py - 80  →  cam_pos + 48 = py - 80  →  cam_pos = py - 128
-    bn::fixed px = engine_.data().player_x * 8 + 4;
-    bn::fixed py = engine_.data().player_y * 8 + 4;
+    bn::fixed px = engine_.data().player_x * 16 + 8;
+    bn::fixed py = engine_.data().player_y * 16 + 8;
 
-    camera_->set_position(px - 128, py - 128);
+    camera_->set_position(px - 256, py - 256);
 }
