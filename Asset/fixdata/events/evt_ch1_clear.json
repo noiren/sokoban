@@ -5,24 +5,33 @@
   "lines": [
     {
       "speaker_id": "chara_b",
-      "face_id":    "happy_1",
-      "position":   "right",
-      "image_id":   "chara_b_happy1",
-      "text":       "よくできました！"
+      "face_id": "happy_1",
+      "position": "right",
+      "image_id": "chara_b_happy1",
+      "text": "よくできました！",
+      "bgm_id": "Afterburner",
+      "se_id": "",
+      "stop_bgm": false
     },
     {
       "speaker_id": "chara_b",
-      "face_id":    "happy_1",
-      "position":   "right",
-      "image_id":   "chara_b_happy1",
-      "text":       "いいスタートだね。"
+      "face_id": "happy_1",
+      "position": "right",
+      "image_id": "chara_b_happy1",
+      "text": "いいスタートだね。",
+      "bgm_id": "",
+      "se_id": "",
+      "stop_bgm": false
     },
     {
       "speaker_id": "chara_b",
-      "face_id":    "normal_1",
-      "position":   "right",
-      "image_id":   "chara_b_normal",
-      "text":       "明日はもっとあるから。"
+      "face_id": "normal_1",
+      "position": "right",
+      "image_id": "chara_b_normal",
+      "text": "明日はもっとあるから。",
+      "bgm_id": "",
+      "se_id": "",
+      "stop_bgm": false
     }
   ]
 }

@@ -3,13 +3,17 @@
 
 #include <cstdint>
 
-constexpr unsigned BN_GENERATED_BGM_COUNT = 3;
-constexpr unsigned BN_GENERATED_SE_COUNT = 4;
+constexpr unsigned BN_GENERATED_BGM_COUNT = 7;
+constexpr unsigned BN_GENERATED_SE_COUNT = 5;
 
 enum class BgmId : uint8_t {
     Afterburner,
     RollinDownTheStreet,
     FlowerGuysPoolParty,
+    Balboa_megahawks_inc_saturday,
+    Chavez_funktion_extend_mania_the_scrub_off,
+    Mice_dekadence_ummetus,
+    Qumran_dknation_clink_veggienburg,
     COUNT
 };
 
@@ -23,5 +27,6 @@ enum class SeId : uint8_t {
     Default_Push,
     Default_Clear,
     Default_Reset,
+    Default_Popopo,
     COUNT
 };

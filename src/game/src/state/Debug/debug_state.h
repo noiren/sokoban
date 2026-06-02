@@ -4,6 +4,8 @@
 #include "state/state.h"
 
 #include "generated/audio_ids.h"
+#include "generated/sprite_anim_data.h"
+#include "animation/sprite_anim_manager.h"
 #include "bn_sprite_text_generator.h"
 #include "bn_sprite_ptr.h"
 #include "bn_fixed.h"
@@ -17,6 +19,7 @@ enum class DebugScreen {
     SeTest,
     EffectTest,
     EventTest, // イベント再生デバッグ
+    AnimTest,  // スプライトアニメーションデバッグ
     StageList, // ステージ選んでプレイデバッグ
 };
 
@@ -53,6 +56,9 @@ private:
     void update_event_test(StateManager& sm, SharedContext& ctx);
     void draw_event_test(SharedContext& ctx);
 
+    void update_anim_test(StateManager& sm, SharedContext& ctx);
+    void draw_anim_test(SharedContext& ctx);
+
     void update_stage_list(StateManager& sm, SharedContext& ctx);
     void draw_stage_list(SharedContext& ctx);
 
@@ -65,6 +71,7 @@ private:
     BgmId test_bgm_id_;
     SeId test_se_id_;
     bool last_drawn_bgm_playing_;
+    AnimHandle anim_test_handle_ = INVALID_ANIM_HANDLE;
 
     bn::vector<bn::sprite_ptr, 128> sprites_;
 

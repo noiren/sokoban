@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "animations": [
+    {
+      "id": "emotion_exclamation",
+      "clips": [
+        {
+          "sprite": "spr_emotion_exclamation",
+          "frame_count": 1,
+          "frame_duration": 8,
+          "width": 16,
+          "height": 32
+        }
+      ],
+      "default_loop_count": 3,
+      "se_id": "Default_Popopo"
+    }
+  ]
+}

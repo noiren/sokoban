@@ -12,6 +12,7 @@ if SCRIPT_DIR not in sys.path:
 import ui_compiler
 import generate_fix_data
 import pack_tiles
+import generate_sprite_anims
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))
 SRC_GRAPHICS_DIR = os.path.join(PROJECT_ROOT, "Asset", "graphics")
@@ -93,6 +94,9 @@ def main():
 
     print("[prebuild] Running FixDataManager codegen...")
     generate_fix_data.main()
+
+    print("[prebuild] Running SpriteAnim codegen...")
+    generate_sprite_anims.main()
 
     print("[prebuild] Prebuild tasks complete.")
 

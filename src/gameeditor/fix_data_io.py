@@ -30,6 +30,9 @@ def events_dir(project_root: str) -> str:
 def gallery_path(project_root: str) -> str:
     return os.path.join(fixdata_root(project_root), "gallery.json")
 
+def story_progression_path(project_root: str) -> str:
+    return os.path.join(fixdata_root(project_root), "story_progression.json")
+
 def audio_manifest_path(project_root: str) -> str:
     return os.path.join(project_root, "Asset", "audio", "audio_manifest.json")
 
@@ -61,6 +64,10 @@ class EventLine:
     position: str # "LEFT" or "RIGHT"
     image_id: str
     text: str
+    bgm_id: str = ""
+    se_id: str = ""
+    stop_bgm: bool = False
+    emotion_id: str = ""
 
 @dataclass
 class EventEntry:
@@ -121,7 +128,7 @@ def scan_still_resources(project_root: str) -> list[str]:
 def get_audio_ids(project_root: str) -> tuple[list[str], list[str]]:
     data = load_json(audio_manifest_path(project_root))
     bgms = [item.get("id", "") for item in data.get("bgm", [])]
-    ses = [item.get("id", "") for item in data.get("se", [])]
+    ses = [f"{item.get('category', '')}_{item.get('id', '')}" for item in data.get("se", [])]
     return sorted(bgms), sorted(ses)
 
 # キャラクター
@@ -171,7 +178,11 @@ def _parse_event_file(path: str) -> EventEntry:
             face_id=ln.get("face_id", ""),
             position=ln.get("position", "LEFT"),
             image_id=ln.get("image_id", ""),
-            text=ln.get("text", "")
+            text=ln.get("text", ""),
+            bgm_id=ln.get("bgm_id", ""),
+            se_id=ln.get("se_id", ""),
+            stop_bgm=ln.get("stop_bgm", False),
+            emotion_id=ln.get("emotion_id", "")
         ) for ln in data.get("lines", [])
     ]
     return EventEntry(id=data.get("id", ""), title_ja=data.get("title_ja", "名称未設定"), lines=lines)
@@ -188,14 +199,21 @@ def save_event_file(project_root: str, filename: str, event: EventEntry) -> None
                 "face_id": ln.face_id,
                 "position": ln.position,
                 "image_id": ln.image_id,
-                "text": ln.text
+                "text": ln.text,
+                "bgm_id": ln.bgm_id,
+                "se_id": ln.se_id,
+                "stop_bgm": ln.stop_bgm,
+                "emotion_id": ln.emotion_id
             } for ln in event.lines
         ]
     }
     save_json(path, data)
 
 def event_filename_from_id(event_id: str) -> str:
-    return "evt_" + event_id.lower() + ".json"
+    lower_id = event_id.lower()
+    if lower_id.startswith("evt_"):
+        return lower_id + ".json"
+    return "evt_" + lower_id + ".json"
 
 # テキスト
 def load_all_texts(project_root: str) -> list[TextEntry]:
@@ -236,4 +254,15 @@ def load_gallery(project_root: str) -> list[GalleryEntry]:
 def save_gallery(project_root: str, entries: list[GalleryEntry]) -> None:
     path = gallery_path(project_root)
     data = {"version": 1, "entries": [{"category": e.category, "resource_id": e.resource_id, "ja": e.ja} for e in entries]}
+    save_json(path, data)
+
+# ストーリー進行
+def load_story_progression(project_root: str) -> list[dict]:
+    path = story_progression_path(project_root)
+    data = load_json(path)
+    return data.get("chapters", [])
+
+def save_story_progression(project_root: str, chapters: list[dict]) -> None:
+    path = story_progression_path(project_root)
+    data = {"chapters": chapters}
     save_json(path, data)

@@ -1,6 +1,7 @@
 // AUTO GENERATED FILE. DO NOT EDIT.
 #pragma once
 #include <cstdint>
+#include "generated/audio_ids.h"
 
 enum class FdFaceId : uint8_t {
     Normal_1, Normal_2, Normal_3,
@@ -36,6 +37,10 @@ struct FdEventLine {
     FdPosition position;
     const char* image_id;
     const char* text;
+    BgmId bgm_id;
+    SeId se_id;
+    bool stop_bgm;
+    const char* emotion_id;
 };
 
 struct FdEventEntry {
@@ -110,24 +115,24 @@ static constexpr FdTextEntry g_texts[] = {
 static constexpr uint16_t kTextCount = 28;
 
 static constexpr FdEventLine lines_EVT_CH1_CLEAR[] = {
-    {"chara_b", FdFaceId::Happy_1, FdPosition::Right, "chara_b_happy1", "よくできました！"},
-    {"chara_b", FdFaceId::Happy_1, FdPosition::Right, "chara_b_happy1", "いいスタートだね。"},
-    {"chara_b", FdFaceId::Normal_1, FdPosition::Right, "chara_b_normal", "明日はもっとあるから。"},
+    {"chara_b", FdFaceId::Happy_1, FdPosition::Right, "chara_b_happy1", "よくできました！", BgmId::Afterburner, SeId::COUNT, false, ""},
+    {"chara_b", FdFaceId::Happy_1, FdPosition::Right, "chara_b_happy1", "いいスタートだね。", BgmId::COUNT, SeId::COUNT, false, ""},
+    {"chara_b", FdFaceId::Normal_1, FdPosition::Right, "chara_b_normal", "明日はもっとあるから。", BgmId::COUNT, SeId::COUNT, false, ""},
 };
 static constexpr FdEventLine lines_EVT_CH1_INTRO[] = {
-    {"chara_mayo", FdFaceId::Normal_1, FdPosition::Left, "mayo_normal", "また来たんだ…"},
-    {"chara_mayo", FdFaceId::Normal_1, FdPosition::Left, "mayo_normal", "倉庫か。"},
-    {"chara_b", FdFaceId::Happy_1, FdPosition::Right, "chara_b_happy1", "来た来た！"},
-    {"chara_b", FdFaceId::Happy_1, FdPosition::Right, "chara_b_happy1", "荷物の整理、手伝ってよ。"},
-    {"chara_b", FdFaceId::Normal_1, FdPosition::Right, "chara_b_normal", "準備はいい？"},
+    {"chara_mayo", FdFaceId::Normal_1, FdPosition::Left, "mayo_normal", "また来たんだ…", BgmId::FlowerGuysPoolParty, SeId::COUNT, false, ""},
+    {"chara_mayo", FdFaceId::Normal_1, FdPosition::Left, "mayo_normal", "倉庫か。", BgmId::COUNT, SeId::COUNT, false, ""},
+    {"chara_b", FdFaceId::Happy_1, FdPosition::Right, "chara_b_happy1", "来た来た！", BgmId::COUNT, SeId::COUNT, false, ""},
+    {"chara_b", FdFaceId::Happy_1, FdPosition::Right, "chara_b_happy1", "荷物の整理、手伝ってよ。", BgmId::COUNT, SeId::COUNT, false, ""},
+    {"chara_b", FdFaceId::Normal_1, FdPosition::Right, "chara_b_normal", "準備はいい？", BgmId::COUNT, SeId::COUNT, false, ""},
 };
 static constexpr FdEventLine lines_EVT_PUZZLE0_INTRO[] = {
-    {"", FdFaceId::None, FdPosition::Left, "", "ここから先は岩を動かして進む必要があります。"},
-    {"", FdFaceId::None, FdPosition::Left, "", "岩は押すことしかできません。"},
+    {"", FdFaceId::None, FdPosition::Left, "", "ここから先は岩を動かして進む必要があります。", BgmId::COUNT, SeId::COUNT, false, ""},
+    {"", FdFaceId::None, FdPosition::Left, "", "岩は押すことしかできません。", BgmId::COUNT, SeId::COUNT, false, ""},
 };
 static constexpr FdEventLine lines_STILL_PROLOGUE[] = {
-    {"", FdFaceId::None, FdPosition::Left, "", "これは、とある世界のお話。"},
-    {"", FdFaceId::None, FdPosition::Left, "", "謎のダンジョンに迷い込んだ主人公の運命は…"},
+    {"", FdFaceId::None, FdPosition::Left, "", "これは、とある世界のお話。", BgmId::COUNT, SeId::COUNT, false, ""},
+    {"", FdFaceId::None, FdPosition::Left, "", "謎のダンジョンに迷い込んだ主人公の運命は…", BgmId::COUNT, SeId::COUNT, false, ""},
 };
 static constexpr FdEventEntry g_events[] = {
     {"EVT_CH1_CLEAR", "チャプター1クリア", lines_EVT_CH1_CLEAR, 3},

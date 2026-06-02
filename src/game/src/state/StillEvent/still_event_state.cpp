@@ -8,6 +8,8 @@
 #include "bn_sprite_text_generator.h"
 #include "bn_keypad.h"
 #include "bn_assert.h"
+#include "audio/sound_manager.h"
+#include "animation/sprite_anim_manager.h"
 
 // =============================================================
 // UTF-8ヘルパー（EventStateと同じロジック）
@@ -92,12 +94,20 @@ void StillEventState::update(StateManager& sm, SharedContext& ctx) {
     if (phase_table_[(int)phase_].update) {
         (this->*phase_table_[(int)phase_].update)(sm, ctx);
     }
+    
+    SpriteAnimManager::instance().update();
 }
 
 void StillEventState::exit(StateManager& /*sm*/, SharedContext& /*ctx*/) {
     if (phase_table_[(int)phase_].exit) {
         (this->*phase_table_[(int)phase_].exit)();
     }
+    
+    // イベント終了時は必ず再生中のBGMを止める
+    SoundManager::instance().stop_bgm(0);
+    
+    SpriteAnimManager::instance().stop(emotion_handle_);
+    emotion_handle_ = INVALID_ANIM_HANDLE;
     text_sprites_.clear();
     still_bg_.reset();
     FadeEffect::reset_palette();
@@ -217,9 +227,38 @@ void StillEventState::apply_line(int line_index, SharedContext& /*ctx*/) {
     if (line_index < 0 || line_index >= event_entry_->line_count) return;
 
     const FdEventLine& line = event_entry_->lines[line_index];
+    
+    // オーディオ再生
+    if (line.stop_bgm) {
+        SoundManager::instance().stop_bgm();
+    }
+    if (line.bgm_id != BgmId::COUNT) {
+        SoundManager::instance().play_bgm(line.bgm_id, true);
+    }
+    if (line.se_id != SeId::COUNT) {
+        SoundManager::instance().play_se(line.se_id);
+    }
+    
     typewrite_text_  = bn::string_view(line.text);
     displayed_chars_ = 0;
     text_timer_      = TYPING_SPEED_NORMAL;
+
+    // エモーションの表示
+    SpriteAnimManager::instance().stop(emotion_handle_);
+    emotion_handle_ = INVALID_ANIM_HANDLE;
+    if (line.emotion_id && line.emotion_id[0] != '\0') {
+        for (int i = 0; i < static_cast<int>(SpriteAnimId::COUNT); ++i) {
+            if (bn::string_view(g_sprite_anims[i].id) == bn::string_view(line.emotion_id)) {
+                int ex = (line.position == FdPosition::Left) ? -56 : 64;
+                int ey = -48;
+                emotion_handle_ = SpriteAnimManager::instance().play(
+                    static_cast<SpriteAnimId>(i), ex, ey, -1
+                );
+                SpriteAnimManager::instance().set_bg_priority(emotion_handle_, 0);
+                break;
+            }
+        }
+    }
 
     // テキストスプライトをクリア（次のrefresh_display_textで再生成）
     text_sprites_.clear();
@@ -228,6 +267,12 @@ void StillEventState::apply_line(int line_index, SharedContext& /*ctx*/) {
 void StillEventState::advance_typewriter(int chars_per_frame) {
     displayed_chars_ += chars_per_frame;
     int max_chars = get_utf8_char_count(typewrite_text_);
+    
+    // 文字送り音（ポポポ）の再生
+    if (chars_per_frame > 0 && displayed_chars_ <= max_chars) {
+        SoundManager::instance().play_se(SeId::Default_Popopo);
+    }
+    
     if (displayed_chars_ > max_chars) displayed_chars_ = max_chars;
 }
 

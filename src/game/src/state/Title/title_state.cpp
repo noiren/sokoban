@@ -8,6 +8,7 @@
 #include "ui_data_attention.h"
 #include "ui_data_autosave_attension.h"
 #include "ui_data_title.h"
+#include "audio/sound_manager.h"
 
 namespace {
     constexpr int FADE_FRAMES          = 30;  // フェードイン/アウトの長さ
@@ -205,6 +206,10 @@ void TitleState::enter_title() {
     step_ = PhaseStep::OPENING;
     blink_counter_ = 0;
     fade_.start_fade_in(FADE_FRAMES);
+
+    // タイトル画面に入ったときにBGMを再生（ひな形）
+    // BgmId::Afterburner 等を適切なIDに変更してください
+    SoundManager::instance().play_bgm(BgmId::Balboa_megahawks_inc_saturday, true, 0, true);
 }
 
 void TitleState::update_title(StateManager& sm, SharedContext& /*ctx*/) {

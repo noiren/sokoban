@@ -19,11 +19,30 @@ namespace audio_dispatch {
         case BgmId::Afterburner: return bn::music_items::afterburner;
         case BgmId::RollinDownTheStreet: return bn::music_items::rollindownthestreet;
         case BgmId::FlowerGuysPoolParty: return bn::music_items::flowerguyspoolparty;
+        case BgmId::Balboa_megahawks_inc_saturday: return bn::music_items::balboa_megahawks_inc_saturday;
+        case BgmId::Chavez_funktion_extend_mania_the_scrub_off: return bn::music_items::chavez_funktion_extend_mania_the_scrub_off;
+        case BgmId::Mice_dekadence_ummetus: return bn::music_items::mice_dekadence_ummetus;
+        case BgmId::Qumran_dknation_clink_veggienburg: return bn::music_items::qumran_dknation_clink_veggienburg;
         default:
             BN_ASSERT(false);
             break;
     }
     return bn::music_items::afterburner;
+}
+
+[[nodiscard]] inline const char* bgm_name(BgmId id)
+{
+    switch (id) {
+        case BgmId::Afterburner: return "afterburner";
+        case BgmId::RollinDownTheStreet: return "rollin down the street";
+        case BgmId::FlowerGuysPoolParty: return "flowerguy pool party";
+        case BgmId::Balboa_megahawks_inc_saturday: return "balboa_megahawks_inc_saturday";
+        case BgmId::Chavez_funktion_extend_mania_the_scrub_off: return "chavez_funktion_extend_mania_the_scrub_off";
+        case BgmId::Mice_dekadence_ummetus: return "mice_dekadence_ummetus";
+        case BgmId::Qumran_dknation_clink_veggienburg: return "qumran_dknation_clink_veggienburg";
+        default:
+            return "?";
+    }
 }
 
 } // namespace audio_dispatch

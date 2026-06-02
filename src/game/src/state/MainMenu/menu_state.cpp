@@ -1,6 +1,7 @@
 #include "state/MainMenu/menu_state.h"
 #include "state/Manager/state_manager.h"
 #include "input/input_manager.h"
+#include "audio/sound_manager.h"
 
 // ==========================================
 // フェーズハンドラテーブルの定義
@@ -98,6 +99,11 @@ void MenuState::enter_main() {
     
     step_ = PhaseStep::OPENING;
     wait_timer_ = 0;
+
+    // メニュー画面に入ったときにBGMを再生（ひな形）
+    // （タイトル画面と同じBGMを使用する場合は、既に流れているBGMを再再生しないよう
+    //  プレイ中のBGMを確認する等の工夫が必要な場合があります）
+    SoundManager::instance().play_bgm(BgmId::Mice_dekadence_ummetus, true, 0, true);
 }
 
 void MenuState::update_main(StateManager& sm, SharedContext& /*ctx*/) {

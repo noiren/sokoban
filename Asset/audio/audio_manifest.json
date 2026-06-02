@@ -18,6 +18,26 @@
       "id": "FlowerGuysPoolParty",
       "file": "bgm/flowerguyspoolparty.it",
       "display_name": "flowerguy pool party"
+    },
+    {
+      "id": "Balboa_megahawks_inc_saturday",
+      "file": "bgm/balboa_megahawks_inc_saturday.mod",
+      "display_name": "balboa_megahawks_inc_saturday"
+    },
+    {
+      "id": "Chavez_funktion_extend_mania_the_scrub_off",
+      "file": "bgm/chavez_funktion_extend_mania_the_scrub_off.mod",
+      "display_name": "chavez_funktion_extend_mania_the_scrub_off"
+    },
+    {
+      "id": "Mice_dekadence_ummetus",
+      "file": "bgm/mice_dekadence_ummetus.mod",
+      "display_name": "mice_dekadence_ummetus"
+    },
+    {
+      "id": "Qumran_dknation_clink_veggienburg",
+      "file": "bgm/qumran_dknation_clink_veggienburg.xm",
+      "display_name": "qumran_dknation_clink_veggienburg"
     }
   ],
   "se": [
@@ -48,6 +68,13 @@
       "id": "Reset",
       "file": "uwa.wav",
       "display_name": "Reset"
+    },
+    {
+      "category": "Default",
+      "number": 4,
+      "id": "Popopo",
+      "file": "se/popopo.wav",
+      "display_name": "popopo"
     }
   ]
 }

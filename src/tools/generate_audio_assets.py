@@ -61,6 +61,13 @@ def _bgm_dispatch_switch(entries: list[am.AudioEntry]) -> str:
         lines.append(f"        case BgmId::{e.id}: return bn::music_items::{stem};")
     return "\n".join(lines)
 
+def _bgm_name_switch(entries: list[am.AudioEntry]) -> str:
+    lines = []
+    for e in entries:
+        display = e.display_name if hasattr(e, 'display_name') and e.display_name else e.id
+        lines.append(f'        case BgmId::{e.id}: return "{display}";')
+    return "\n".join(lines)
+
 
 def _se_dispatch_switch(entries: list[am.SeAudioEntry]) -> str:
     lines = []
@@ -68,6 +75,14 @@ def _se_dispatch_switch(entries: list[am.SeAudioEntry]) -> str:
         stem = os.path.splitext(os.path.basename(e.file))[0].lower()
         enum_name = am.se_cpp_enum_name(e.category, e.id)
         lines.append(f"        case SeId::{enum_name}: return bn::sound_items::{stem};")
+    return "\n".join(lines)
+
+def _se_name_switch(entries: list[am.SeAudioEntry]) -> str:
+    lines = []
+    for e in entries:
+        enum_name = am.se_cpp_enum_name(e.category, e.id)
+        display = e.display_name if hasattr(e, 'display_name') and e.display_name else e.id
+        lines.append(f'        case SeId::{enum_name}: return "{display}";')
     return "\n".join(lines)
 
 
@@ -132,6 +147,11 @@ namespace audio_dispatch {
     return bn::music_item(0);
 }
 
+[[nodiscard]] inline const char* bgm_name(BgmId)
+{
+    return "?";
+}
+
 } // namespace audio_dispatch
 """
     else:
@@ -163,6 +183,15 @@ namespace audio_dispatch {{
     return bn::music_items::{first_stem};
 }}
 
+[[nodiscard]] inline const char* bgm_name(BgmId id)
+{{
+    switch (id) {{
+{_bgm_name_switch(bgm)}
+        default:
+            return "?";
+    }}
+}}
+
 }} // namespace audio_dispatch
 """
     with open(path, "w", encoding="utf-8") as f:
@@ -190,6 +219,11 @@ namespace audio_dispatch {
 [[nodiscard]] inline bn::sound_item se_item(SeId)
 {
     return bn::sound_item(0);
+}
+
+[[nodiscard]] inline const char* se_name(SeId)
+{
+    return "?";
 }
 
 } // namespace audio_dispatch
@@ -222,6 +256,15 @@ namespace audio_dispatch {{
             break;
     }}
     return bn::sound_items::{first_stem};
+}}
+
+[[nodiscard]] inline const char* se_name(SeId id)
+{{
+    switch (id) {{
+{_se_name_switch(se_sorted)}
+        default:
+            return "?";
+    }}
 }}
 
 }} // namespace audio_dispatch

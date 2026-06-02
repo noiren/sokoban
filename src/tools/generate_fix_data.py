@@ -24,22 +24,12 @@ def to_cpp_position(pos: str) -> str:
     if pos.upper() == "RIGHT": return "FdPosition::Right"
     return "FdPosition::Left"
 
-def load_story_progression(project_root: str):
-    """ story_progression.json を読み込んで辞書リストを返す """
-    path = os.path.join(project_root, "Asset", "fixdata", "story_progression.json")
-    if not os.path.exists(path):
-        return []
-    with open(path, encoding="utf-8") as f:
-        data = json.load(f)
-    return data.get("chapters", [])
-
-
 def main():
     characters = fix_data_io.load_characters(PROJECT_ROOT)
     texts = fix_data_io.load_all_texts(PROJECT_ROOT)
     events = fix_data_io.load_all_events(PROJECT_ROOT)
     gallery = fix_data_io.load_gallery(PROJECT_ROOT)
-    chapters = load_story_progression(PROJECT_ROOT)
+    chapters = fix_data_io.load_story_progression(PROJECT_ROOT)
 
     out_dir = os.path.join(PROJECT_ROOT, "src", "game", "include", "generated")
     os.makedirs(out_dir, exist_ok=True)
@@ -49,6 +39,7 @@ def main():
         "// AUTO GENERATED FILE. DO NOT EDIT.",
         "#pragma once",
         "#include <cstdint>",
+        '#include "generated/audio_ids.h"',
         "",
         "enum class FdFaceId : uint8_t {",
         "    Normal_1, Normal_2, Normal_3,",
@@ -84,6 +75,10 @@ def main():
         "    FdPosition position;",
         "    const char* image_id;",
         "    const char* text;",
+        "    BgmId bgm_id;",
+        "    SeId se_id;",
+        "    bool stop_bgm;",
+        "    const char* emotion_id;",
         "};",
         "",
         "struct FdEventEntry {",
@@ -145,7 +140,11 @@ def main():
         if not e.lines: continue
         lines.append(f"static constexpr FdEventLine lines_{fix_data_io.sanitize_cpp_token(e.id)}[] = {{")
         for ln in e.lines:
-            lines.append(f"    {{{escape_str(ln.speaker_id)}, {to_cpp_face_id(ln.face_id)}, {to_cpp_position(ln.position)}, {escape_str(ln.image_id)}, {escape_str(ln.text)}}},")
+            bgm_val = f"BgmId::{ln.bgm_id}" if ln.bgm_id else "BgmId::COUNT"
+            se_val = f"SeId::{ln.se_id}" if ln.se_id else "SeId::COUNT"
+            stop_val = "true" if ln.stop_bgm else "false"
+            emotion_val = escape_str(ln.emotion_id) if hasattr(ln, 'emotion_id') else "nullptr"
+            lines.append(f"    {{{escape_str(ln.speaker_id)}, {to_cpp_face_id(ln.face_id)}, {to_cpp_position(ln.position)}, {escape_str(ln.image_id)}, {escape_str(ln.text)}, {bgm_val}, {se_val}, {stop_val}, {emotion_val}}},")
         lines.append("};")
 
     lines.append("static constexpr FdEventEntry g_events[] = {")

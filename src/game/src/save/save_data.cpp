@@ -14,7 +14,7 @@ void save_slot_init(SaveSlot& slot) {
     slot.story_chapter_idx   = 0;
     slot.story_step_idx      = 0;
     slot.endless_high_score  = 0;
-    slot.autosave_enabled    = true;
+    slot.autosave_enabled    = false;
     for (int i = 0; i < 32; i++) {
         slot.flags[i] = 0;
     }

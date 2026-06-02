@@ -1,14 +1,27 @@
 {
-    "id": "STILL_PROLOGUE",
-    "title_ja": "プロローグ",
-    "lines": [
-        {
-            "speaker": "",
-            "text": "これは、とある世界のお話。"
-        },
-        {
-            "speaker": "",
-            "text": "謎のダンジョンに迷い込んだ主人公の運命は…"
-        }
-    ]
+  "version": 2,
+  "id": "STILL_PROLOGUE",
+  "title_ja": "プロローグ",
+  "lines": [
+    {
+      "speaker_id": "",
+      "face_id": "",
+      "position": "LEFT",
+      "image_id": "",
+      "text": "これは、とある世界のお話。",
+      "bgm_id": "",
+      "se_id": "",
+      "stop_bgm": false
+    },
+    {
+      "speaker_id": "",
+      "face_id": "",
+      "position": "LEFT",
+      "image_id": "",
+      "text": "謎のダンジョンに迷い込んだ主人公の運命は…",
+      "bgm_id": "",
+      "se_id": "",
+      "stop_bgm": false
+    }
+  ]
 }

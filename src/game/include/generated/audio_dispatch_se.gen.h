@@ -20,11 +20,25 @@ namespace audio_dispatch {
         case SeId::Default_Push: return bn::sound_items::jowayo;
         case SeId::Default_Clear: return bn::sound_items::jowayo3;
         case SeId::Default_Reset: return bn::sound_items::uwa;
+        case SeId::Default_Popopo: return bn::sound_items::popopo;
         default:
             BN_ASSERT(false);
             break;
     }
     return bn::sound_items::supi;
+}
+
+[[nodiscard]] inline const char* se_name(SeId id)
+{
+    switch (id) {
+        case SeId::Default_Move: return "Move cursor";
+        case SeId::Default_Push: return "Push block";
+        case SeId::Default_Clear: return "Stage clear";
+        case SeId::Default_Reset: return "Reset";
+        case SeId::Default_Popopo: return "popopo";
+        default:
+            return "?";
+    }
 }
 
 } // namespace audio_dispatch

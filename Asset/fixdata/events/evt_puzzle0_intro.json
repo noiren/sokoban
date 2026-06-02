@@ -1,14 +1,27 @@
 {
-    "id": "EVT_PUZZLE0_INTRO",
-    "title_ja": "パズルチュートリアル",
-    "lines": [
-        {
-            "speaker": "案内人",
-            "text": "ここから先は岩を動かして進む必要があります。"
-        },
-        {
-            "speaker": "案内人",
-            "text": "岩は押すことしかできません。"
-        }
-    ]
+  "version": 2,
+  "id": "EVT_PUZZLE0_INTRO",
+  "title_ja": "パズルチュートリアル",
+  "lines": [
+    {
+      "speaker_id": "",
+      "face_id": "",
+      "position": "LEFT",
+      "image_id": "",
+      "text": "ここから先は岩を動かして進む必要があります。",
+      "bgm_id": "",
+      "se_id": "",
+      "stop_bgm": false
+    },
+    {
+      "speaker_id": "",
+      "face_id": "",
+      "position": "LEFT",
+      "image_id": "",
+      "text": "岩は押すことしかできません。",
+      "bgm_id": "",
+      "se_id": "",
+      "stop_bgm": false
+    }
+  ]
 }

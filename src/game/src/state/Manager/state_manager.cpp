@@ -1,6 +1,7 @@
 #include "state/Manager/state_manager.h"
 #include "state/state.h"
 #include "bn_assert.h"
+#include "audio/sound_manager.h"
 
 StateManager::StateManager() 
     : current_request_(RequestType::NONE),
@@ -63,6 +64,7 @@ void StateManager::process_requests(SharedContext& ctx) {
         case RequestType::CHANGE:
             if (!stack_.empty()) {
                 stack_.back()->exit(*this, ctx);
+                SoundManager::instance().stop_bgm(0); // Stateを出るときにBGMを停止
                 stack_.pop_back();
             }
             stack_.push_back(next_state);
@@ -80,6 +82,7 @@ void StateManager::process_requests(SharedContext& ctx) {
         case RequestType::POP:
             if (!stack_.empty()) {
                 stack_.back()->exit(*this, ctx);
+                SoundManager::instance().stop_bgm(0); // Stateを出るときにBGMを停止
                 stack_.pop_back();
             }
             if (!stack_.empty()) {

@@ -4,6 +4,7 @@
 #include "state/state.h"
 #include "bn_optional.h"
 #include "bn_regular_bg_ptr.h"
+#include "animation/sprite_anim_manager.h"
 #include "bn_sprite_ptr.h"
 #include "bn_vector.h"
 #include "ui/Core/Effects/fade_effect.h"
@@ -92,6 +93,8 @@ private:
 
     // テキスト表示用スプライト（sprite_text_generator 結果）
     bn::vector<bn::sprite_ptr, 64> text_sprites_;
+    
+    AnimHandle emotion_handle_ = INVALID_ANIM_HANDLE;
 
     // フェード
     FadeEffect fade_;

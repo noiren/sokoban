@@ -22,8 +22,9 @@ void StoryState::enter(StateManager& sm, SharedContext& ctx) {
     BN_ASSERT(ctx.save != nullptr, "StoryState::enter: save is null");
 
     const SaveSlot& slot = ctx.save->slots[ctx.active_slot];
-    chapter_idx_ = slot.story_chapter_idx;
-    step_idx_    = slot.story_step_idx;
+    // デバッグ・テスト用に一時的に常に最初から開始するように変更
+    chapter_idx_ = 0; // slot.story_chapter_idx;
+    step_idx_    = 0; // slot.story_step_idx;
     pending_puzzle_     = false;
     pending_puzzle_ref_ = 0;
 
@@ -175,8 +176,12 @@ void StoryState::handle_chapter_clear(StateManager& sm, SharedContext& ctx) {
 // =============================================================
 void StoryState::save_progress(SharedContext& ctx) {
     if (!ctx.save) return;
+    
+    // デバッグ・テスト用に一時的にセーブを無効化
+    /*
     SaveSlot& slot = ctx.save->slots[ctx.active_slot];
     slot.story_chapter_idx = static_cast<uint8_t>(chapter_idx_);
     slot.story_step_idx    = static_cast<uint8_t>(step_idx_);
     save_slot_save(*ctx.save, ctx.active_slot);
+    */
 }

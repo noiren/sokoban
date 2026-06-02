@@ -5,6 +5,8 @@
 #include "save/save_data.h"
 #include "bn_optional.h"
 #include "bn_string_view.h"
+#include "bn_sprite_ptr.h"
+#include "animation/sprite_anim_manager.h"
 #include "bn_regular_bg_ptr.h"
 #include "ui/Core/Manager/ui_manager.h"
 #include "generated/generated_fix_data.h"
@@ -103,6 +105,8 @@ public:
     void resume(StateManager& sm, SharedContext& ctx) override {}
 
 private:
+    AnimHandle emotion_handle_ = INVALID_ANIM_HANDLE;
+
     void change_phase(EventPhase next);
 
     void enter_typing();

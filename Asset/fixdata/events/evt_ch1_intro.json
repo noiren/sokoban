@@ -5,38 +5,53 @@
   "lines": [
     {
       "speaker_id": "chara_mayo",
-      "face_id":    "normal_1",
-      "position":   "left",
-      "image_id":   "mayo_normal",
-      "text":       "また来たんだ…"
+      "face_id": "normal_1",
+      "position": "left",
+      "image_id": "mayo_normal",
+      "text": "また来たんだ…",
+      "bgm_id": "FlowerGuysPoolParty",
+      "se_id": "",
+      "stop_bgm": false
     },
     {
       "speaker_id": "chara_mayo",
-      "face_id":    "normal_1",
-      "position":   "left",
-      "image_id":   "mayo_normal",
-      "text":       "倉庫か。"
+      "face_id": "normal_1",
+      "position": "left",
+      "image_id": "mayo_normal",
+      "text": "倉庫か。",
+      "bgm_id": "",
+      "se_id": "",
+      "stop_bgm": false
     },
     {
       "speaker_id": "chara_b",
-      "face_id":    "happy_1",
-      "position":   "right",
-      "image_id":   "chara_b_happy1",
-      "text":       "来た来た！"
+      "face_id": "happy_1",
+      "position": "right",
+      "image_id": "chara_b_happy1",
+      "text": "来た来た！",
+      "bgm_id": "",
+      "se_id": "",
+      "stop_bgm": false
     },
     {
       "speaker_id": "chara_b",
-      "face_id":    "happy_1",
-      "position":   "right",
-      "image_id":   "chara_b_happy1",
-      "text":       "荷物の整理、手伝ってよ。"
+      "face_id": "happy_1",
+      "position": "right",
+      "image_id": "chara_b_happy1",
+      "text": "荷物の整理、手伝ってよ。",
+      "bgm_id": "",
+      "se_id": "",
+      "stop_bgm": false
     },
     {
       "speaker_id": "chara_b",
-      "face_id":    "normal_1",
-      "position":   "right",
-      "image_id":   "chara_b_normal",
-      "text":       "準備はいい？"
+      "face_id": "normal_1",
+      "position": "right",
+      "image_id": "chara_b_normal",
+      "text": "準備はいい？",
+      "bgm_id": "",
+      "se_id": "",
+      "stop_bgm": false
     }
   ]
 }

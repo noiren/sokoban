@@ -5,9 +5,12 @@
 #include "input/input_manager.h"
 #include "audio/sound_manager.h"
 #include "generated/audio_dispatch_bgm.gen.h"
+#include "generated/audio_dispatch_se.gen.h"
 #include "ui/Core/Effects/fade_effect.h"
 #include "ui/Core/Components/effect_manager.h" // 追加
+#include "animation/sprite_anim_manager.h"
 #include "bn_sprite_items_spr_dummy.h" // テスト用ダミースプライト
+#include "generated/generated_fix_data.h"
 
 #include "bn_backdrop.h"
 #include "bn_color.h"
@@ -18,46 +21,6 @@
 #include "bn_string.h"
 
 namespace {
-
-[[nodiscard]] const char* bgm_line_label(int index)
-{
-    if (index < 0 || index >= static_cast<int>(BN_GENERATED_BGM_COUNT)) {
-        return "?";
-    }
-    const auto id = static_cast<BgmId>(index);
-    switch (id) {
-        case BgmId::Afterburner:
-            return "Afterburner";
-        case BgmId::RollinDownTheStreet:
-            return "Rollin";
-        case BgmId::FlowerGuysPoolParty:
-            return "FlowerGuy";
-        case BgmId::COUNT:
-        default:
-            return "?";
-    }
-}
-
-[[nodiscard]] const char* se_line_label(int index)
-{
-    if (index < 0 || index >= static_cast<int>(BN_GENERATED_SE_COUNT)) {
-        return "?";
-    }
-    const auto id = static_cast<SeId>(index);
-    switch (id) {
-        case SeId::Default_Move:
-            return "Move";
-        case SeId::Default_Push:
-            return "Push";
-        case SeId::Default_Clear:
-            return "Clear";
-        case SeId::Default_Reset:
-            return "Reset";
-        case SeId::COUNT:
-        default:
-            return "?";
-    }
-}
 
 static constexpr ui_types::AnimKeyframe test_keyframes[] = {
     { 0,   0.0f,  40.0f,   0.0f, 0.2f, ui_types::EaseType::BOUNCE_OUT },
@@ -146,12 +109,18 @@ void DebugState::update(StateManager& sm, SharedContext& ctx) {
         case DebugScreen::EventTest:
             update_event_test(sm, ctx);
             break;
+        case DebugScreen::AnimTest:
+            update_anim_test(sm, ctx);
+            break;
         case DebugScreen::StageList:
             update_stage_list(sm, ctx);
             break;
         default:
             break;
     }
+
+    // SpriteAnimManager を毎フレーム更新
+    SpriteAnimManager::instance().update();
 }
 
 void DebugState::redraw(SharedContext& ctx) {
@@ -181,6 +150,9 @@ void DebugState::redraw(SharedContext& ctx) {
         case DebugScreen::EventTest:
             draw_event_test(ctx);
             break;
+        case DebugScreen::AnimTest:
+            draw_anim_test(ctx);
+            break;
         case DebugScreen::StageList:
             draw_stage_list(ctx);
             break;
@@ -190,7 +162,7 @@ void DebugState::redraw(SharedContext& ctx) {
 }
 
 void DebugState::update_root(StateManager& sm, SharedContext& ctx) {
-    constexpr int lines = 6; // Effect + Event + Stage
+    constexpr int lines = 7; // +AnimTest
     auto& inp = InputManager::instance();
     bool changed = false;
 
@@ -231,6 +203,10 @@ void DebugState::update_root(StateManager& sm, SharedContext& ctx) {
             event_cursor_ = 0;
             changed = true;
         } else if (cursor_ == 5) {
+            screen_ = DebugScreen::AnimTest;
+            event_cursor_ = 0;
+            changed = true;
+        } else if (cursor_ == 6) {
             screen_ = DebugScreen::StageList;
             event_cursor_ = 0;
             changed = true;
@@ -252,9 +228,9 @@ void DebugState::draw_root(SharedContext& ctx) {
     ctx.text_generator->generate(0, -72, "DEBUG", sprites_);
 
     ctx.text_generator->set_left_alignment();
-    const int spacing = 14;
-    int y = -40;
-    for (int i = 0; i < 6; ++i) {
+    const int spacing = 13;
+    int y = -44;
+    for (int i = 0; i < 7; ++i) {
         bn::string<32> line;
         if (cursor_ == i) {
             line.append(">");
@@ -267,6 +243,7 @@ void DebugState::draw_root(SharedContext& ctx) {
             case 2:  line.append("SE Debug"); break;
             case 3:  line.append("Effect Debug"); break;
             case 4:  line.append("Event Debug"); break;
+            case 5:  line.append("Anim Debug"); break;
             default: line.append("Stage Debug"); break;
         }
         ctx.text_generator->generate(-112, y, line, sprites_);
@@ -339,7 +316,7 @@ void DebugState::draw_bgm_list(SharedContext& ctx) {
             }
             line.append(bn::to_string<4>(static_cast<int>(i)));
             line.append(" ");
-            line.append(bgm_line_label(static_cast<int>(i)));
+            line.append(audio_dispatch::bgm_name(static_cast<BgmId>(i)));
             ctx.text_generator->generate(-112, y, line, sprites_);
             y += spacing;
         }
@@ -399,7 +376,7 @@ void DebugState::draw_bgm_test(SharedContext& ctx) {
     ctx.text_generator->set_center_alignment();
     bn::string<48> title;
     title.append("BGM ");
-    title.append(bgm_line_label(static_cast<int>(test_bgm_id_)));
+    title.append(audio_dispatch::bgm_name(test_bgm_id_));
     ctx.text_generator->generate(0, -76, title, sprites_);
 
     ctx.text_generator->set_left_alignment();
@@ -473,7 +450,7 @@ void DebugState::draw_se_list(SharedContext& ctx) {
             }
             line.append(bn::to_string<4>(static_cast<int>(i)));
             line.append(" ");
-            line.append(se_line_label(static_cast<int>(i)));
+            line.append(audio_dispatch::se_name(static_cast<SeId>(i)));
             ctx.text_generator->generate(-112, y, line, sprites_);
             y += spacing;
         }
@@ -510,7 +487,7 @@ void DebugState::draw_se_test(SharedContext& ctx) {
     ctx.text_generator->set_center_alignment();
     bn::string<48> title;
     title.append("SE ");
-    title.append(se_line_label(static_cast<int>(test_se_id_)));
+    title.append(audio_dispatch::se_name(test_se_id_));
     ctx.text_generator->generate(0, -76, title, sprites_);
 
     ctx.text_generator->set_center_alignment();
@@ -553,11 +530,6 @@ void DebugState::draw_effect_test(SharedContext& ctx) {
 // ==============================================================
 // Event Debug (イベント再生テスト)
 // ==============================================================
-static const char* kDebugEventIds[] = {
-    "EVT_CH1_INTRO",
-    "EVT_CH1_CLEAR",
-};
-static constexpr int kDebugEventCount = 2;
 
 void DebugState::update_event_test(StateManager& sm, SharedContext& ctx) {
     auto& inp = InputManager::instance();
@@ -565,20 +537,20 @@ void DebugState::update_event_test(StateManager& sm, SharedContext& ctx) {
 
     if (inp.is_repeat(Action::MoveUp)) {
         event_cursor_--;
-        if (event_cursor_ < 0) event_cursor_ = kDebugEventCount - 1;
+        if (event_cursor_ < 0) event_cursor_ = kEventCount - 1;
         changed = true;
         SoundManager::instance().play_move();
     }
     if (inp.is_repeat(Action::MoveDown)) {
         event_cursor_++;
-        if (event_cursor_ >= kDebugEventCount) event_cursor_ = 0;
+        if (event_cursor_ >= kEventCount) event_cursor_ = 0;
         changed = true;
         SoundManager::instance().play_move();
     }
 
     if (inp.is_triggered(Action::Decide)) {
         // 選択したイベントを再生するために EventState へ遷移
-        ctx.target_event_id = bn::string_view(kDebugEventIds[event_cursor_]);
+        ctx.target_event_id = bn::string_view(g_events[event_cursor_].id);
         ctx.event_return_state = StateID::DEBUG_MENU;
         sm.change_state(StateID::EVENT);
         return;
@@ -602,10 +574,20 @@ void DebugState::draw_event_test(SharedContext& ctx) {
     ctx.text_generator->set_left_alignment();
     const int spacing = 14;
     int y = -48;
-    for (int i = 0; i < kDebugEventCount; ++i) {
+    
+    int start_i = event_cursor_ - 4;
+    if (start_i < 0) start_i = 0;
+    int end_i = start_i + 8;
+    if (end_i > kEventCount) {
+        end_i = kEventCount;
+        start_i = end_i - 8;
+        if (start_i < 0) start_i = 0;
+    }
+
+    for (int i = start_i; i < end_i; ++i) {
         bn::string<40> line;
         line.append(event_cursor_ == i ? ">" : " ");
-        line.append(kDebugEventIds[i]);
+        line.append(g_events[i].id);
         ctx.text_generator->generate(-112, y, line, sprites_);
         y += spacing;
     }
@@ -700,4 +682,85 @@ void DebugState::exit(StateManager& /*sm*/, SharedContext& ctx) {
     }
 
     sprites_.clear();
+}
+
+// ============================================================
+// AnimTest screen
+// ============================================================
+void DebugState::update_anim_test(StateManager& /*sm*/, SharedContext& ctx) {
+    auto& inp = InputManager::instance();
+    const int count = static_cast<int>(SpriteAnimId::COUNT);
+    bool changed = false;
+
+    if (inp.is_repeat(Action::MoveUp)) {
+        event_cursor_--;
+        if (event_cursor_ < 0) event_cursor_ = count - 1;
+        changed = true;
+        SoundManager::instance().play_move();
+        SpriteAnimManager::instance().stop(anim_test_handle_);
+        anim_test_handle_ = INVALID_ANIM_HANDLE;
+    }
+    if (inp.is_repeat(Action::MoveDown)) {
+        event_cursor_++;
+        if (event_cursor_ >= count) event_cursor_ = 0;
+        changed = true;
+        SoundManager::instance().play_move();
+        SpriteAnimManager::instance().stop(anim_test_handle_);
+        anim_test_handle_ = INVALID_ANIM_HANDLE;
+    }
+
+    if (inp.is_triggered(Action::Decide)) {
+        // 再生（無限ループ）
+        SpriteAnimManager::instance().stop(anim_test_handle_);
+        SpriteAnimId id = static_cast<SpriteAnimId>(event_cursor_);
+        anim_test_handle_ = SpriteAnimManager::instance().play(id, 0, 0, -1);
+        SpriteAnimManager::instance().set_bg_priority(anim_test_handle_, 0);
+        changed = true;
+    }
+    if (inp.is_triggered(Action::Cancel)) {
+        SpriteAnimManager::instance().stop(anim_test_handle_);
+        anim_test_handle_ = INVALID_ANIM_HANDLE;
+        screen_ = DebugScreen::Root;
+        cursor_ = 5;
+        changed = true;
+    }
+
+    if (changed) redraw(ctx);
+}
+
+void DebugState::draw_anim_test(SharedContext& ctx) {
+    const int count = static_cast<int>(SpriteAnimId::COUNT);
+    ctx.text_generator->set_center_alignment();
+    ctx.text_generator->generate(0, -76, "ANIM DEBUG", sprites_);
+
+    ctx.text_generator->set_left_alignment();
+    const int spacing = 13;
+    int y = -50;
+
+    int start_i = event_cursor_ - 4;
+    if (start_i < 0) start_i = 0;
+    int end_i = start_i + 8;
+    if (end_i > count) { end_i = count; start_i = end_i - 8; if (start_i < 0) start_i = 0; }
+
+    for (int i = start_i; i < end_i; ++i) {
+        bn::string<40> line;
+        line.append(event_cursor_ == i ? ">" : " ");
+        const FdSpriteAnim& anim = g_sprite_anims[i];
+        // show id string (truncated)
+        for (int c = 0; anim.id[c] != '\0' && c < 20; ++c) {
+            line.push_back(anim.id[c]);
+        }
+        ctx.text_generator->generate(-112, y, line, sprites_);
+        y += spacing;
+    }
+
+    ctx.text_generator->set_center_alignment();
+    bn::string<32> playing_str;
+    if (anim_test_handle_ != INVALID_ANIM_HANDLE &&
+        SpriteAnimManager::instance().is_playing(anim_test_handle_)) {
+        playing_str.append("PLAYING");
+    } else {
+        playing_str.append("A=play B=back");
+    }
+    ctx.text_generator->generate(0, 68, playing_str, sprites_);
 }

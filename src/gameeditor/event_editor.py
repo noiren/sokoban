@@ -22,6 +22,8 @@ class EventEditorApp:
         
         self.preview_photo = None
         
+        self.bgms, self.ses = fix_data_io.get_audio_ids(PROJECT_ROOT)
+        
         self._setup_ui()
         self._refresh_event_list()
 
@@ -106,10 +108,37 @@ class EventEditorApp:
         self.var_image = tk.StringVar()
         ttk.Entry(edit_form, textvariable=self.var_image, state="readonly", width=20).grid(row=1, column=3, padx=4, pady=4, sticky="w")
 
-        # Row 2: Text
-        ttk.Label(edit_form, text="Text:").grid(row=2, column=0, padx=4, pady=4, sticky="ne")
+        # Row 2: Audio
+        ttk.Label(edit_form, text="BGM:").grid(row=2, column=0, padx=4, pady=4, sticky="e")
+        self.var_bgm = tk.StringVar()
+        self.cb_bgm = ttk.Combobox(edit_form, textvariable=self.var_bgm, state="readonly", width=12)
+        self.cb_bgm['values'] = [""] + self.bgms
+        self.cb_bgm.grid(row=2, column=1, padx=4, pady=4, sticky="w")
+        self.cb_bgm.bind("<<ComboboxSelected>>", self._on_field_modified)
+
+        self.var_stop_bgm = tk.BooleanVar()
+        self.chk_stop_bgm = ttk.Checkbutton(edit_form, text="Stop", variable=self.var_stop_bgm, command=self._on_field_modified)
+        self.chk_stop_bgm.grid(row=2, column=2, padx=4, pady=4, sticky="w")
+
+        ttk.Label(edit_form, text="SE:").grid(row=2, column=3, padx=4, pady=4, sticky="e") # fixed grid
+        self.var_se = tk.StringVar()
+        self.cb_se = ttk.Combobox(edit_form, textvariable=self.var_se, state="readonly", width=12)
+        self.cb_se['values'] = [""] + self.ses
+        self.cb_se.grid(row=2, column=4, padx=4, pady=4, sticky="w")
+        self.cb_se.bind("<<ComboboxSelected>>", self._on_field_modified)
+
+        # Row 3: Emotion
+        ttk.Label(edit_form, text="Emotion:").grid(row=3, column=0, padx=4, pady=4, sticky="e")
+        self.var_emotion = tk.StringVar()
+        self.cb_emotion = ttk.Combobox(edit_form, textvariable=self.var_emotion, state="readonly", width=12)
+        self.cb_emotion['values'] = ["", "exclamation", "question", "anger", "sweat", "heart"]
+        self.cb_emotion.grid(row=3, column=1, padx=4, pady=4, sticky="w")
+        self.cb_emotion.bind("<<ComboboxSelected>>", self._on_field_modified)
+
+        # Row 4: Text
+        ttk.Label(edit_form, text="Text:").grid(row=4, column=0, padx=4, pady=4, sticky="ne")
         self.txt_text = tk.Text(edit_form, height=4, width=40)
-        self.txt_text.grid(row=2, column=1, columnspan=3, padx=4, pady=4, sticky="we")
+        self.txt_text.grid(row=4, column=1, columnspan=4, padx=4, pady=4, sticky="we")
         self.txt_text.bind("<KeyRelease>", self._on_field_modified)
 
         # Right side: Preview
@@ -142,6 +171,10 @@ class EventEditorApp:
         self.var_face.set("")
         self.var_pos.set("LEFT")
         self.var_image.set("")
+        self.var_bgm.set("")
+        self.var_se.set("")
+        self.var_stop_bgm.set(False)
+        self.var_emotion.set("")
         self.txt_text.delete(1.0, tk.END)
         self._update_preview("")
 
@@ -163,6 +196,10 @@ class EventEditorApp:
         self.var_face.set(ln.face_id)
         self.var_pos.set(ln.position)
         self.var_image.set(ln.image_id)
+        self.var_bgm.set(ln.bgm_id)
+        self.var_se.set(ln.se_id)
+        self.var_stop_bgm.set(ln.stop_bgm)
+        self.var_emotion.set(ln.emotion_id)
         
         self.txt_text.delete(1.0, tk.END)
         self.txt_text.insert(1.0, ln.text)
@@ -199,6 +236,10 @@ class EventEditorApp:
         ln.face_id = self.var_face.get()
         ln.position = self.var_pos.get()
         ln.image_id = self.var_image.get()
+        ln.bgm_id = self.var_bgm.get()
+        ln.se_id = self.var_se.get()
+        ln.stop_bgm = self.var_stop_bgm.get()
+        ln.emotion_id = self.var_emotion.get()
         ln.text = self.txt_text.get(1.0, "end-1c")
 
         self.line_tree.item(str(idx), values=(ln.speaker_id, ln.face_id, ln.position, ln.image_id, ln.text.replace('\n', ' ')[:20]))
@@ -240,7 +281,7 @@ class EventEditorApp:
 
     def _add_line(self):
         if self.current_evt_idx is None: return
-        new_ln = fix_data_io.EventLine(speaker_id="", face_id="normal_1", position="LEFT", image_id="", text="")
+        new_ln = fix_data_io.EventLine(speaker_id="", face_id="normal_1", position="LEFT", image_id="", text="", bgm_id="", se_id="", stop_bgm=False)
         self.events[self.current_evt_idx].lines.append(new_ln)
         self._refresh_line_list(select_idx=len(self.events[self.current_evt_idx].lines)-1)
 

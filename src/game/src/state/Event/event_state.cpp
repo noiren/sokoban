@@ -8,6 +8,8 @@
 
 #include "bn_keypad.h"
 #include "bn_regular_bg_items_ui_msg_window.h"
+#include "audio/sound_manager.h"
+#include "animation/sprite_anim_manager.h"
 
 namespace {
 
@@ -122,6 +124,8 @@ void EventState::update(StateManager& sm, SharedContext& ctx) {
         (this->*phase_table_[(int)phase_].update)(sm, ctx);
     }
 
+    SpriteAnimManager::instance().update();
+
     if (ui_manager_) {
         ui_manager_->update();
     }
@@ -131,7 +135,12 @@ void EventState::exit(StateManager& /*sm*/, SharedContext& /*ctx*/) {
     if (phase_table_[(int)phase_].exit) {
         (this->*phase_table_[(int)phase_].exit)();
     }
+    
+    // イベント終了時は必ず再生中のBGMを止める
+    SoundManager::instance().stop_bgm(0);
 
+    SpriteAnimManager::instance().stop(emotion_handle_);
+    emotion_handle_ = INVALID_ANIM_HANDLE;
     ui_.reset();
     msg_window_bg_.reset();
     if (ui_manager_) {
@@ -294,6 +303,17 @@ void EventState::apply_line(int line_index) {
 
     const FdEventLine& line = event_entry_->lines[line_index];
 
+    // オーディオ再生
+    if (line.stop_bgm) {
+        SoundManager::instance().stop_bgm();
+    }
+    if (line.bgm_id != BgmId::COUNT) {
+        SoundManager::instance().play_bgm(line.bgm_id, true);
+    }
+    if (line.se_id != SeId::COUNT) {
+        SoundManager::instance().play_se(line.se_id);
+    }
+
     // キャラクター名の表示 (FixDataManager から取得)
     const FdCharacterEntry* chara = FixDataManager::instance().find_character(
         bn::string_view(line.speaker_id));
@@ -316,12 +336,37 @@ void EventState::apply_line(int line_index) {
     displayed_chars_ = 0;
     text_timer_ = TYPING_SPEED_NORMAL;
     refresh_display_text();
+
+    // エモーションの表示
+    SpriteAnimManager::instance().stop(emotion_handle_);
+    emotion_handle_ = INVALID_ANIM_HANDLE;
+    if (line.emotion_id && line.emotion_id[0] != '\0') {
+        // emotion_id の文字列で SpriteAnimId を検索
+        for (int i = 0; i < static_cast<int>(SpriteAnimId::COUNT); ++i) {
+            if (bn::string_view(g_sprite_anims[i].id) == bn::string_view(line.emotion_id)) {
+                int ex = (line.position == FdPosition::Left) ? -56 : 64;
+                int ey = -48;
+                // 台詞中は無限ループ（次の行に進んだら止める）
+                emotion_handle_ = SpriteAnimManager::instance().play(
+                    static_cast<SpriteAnimId>(i), ex, ey, -1
+                );
+                SpriteAnimManager::instance().set_bg_priority(emotion_handle_, 0);
+                break;
+            }
+        }
+    }
 }
 
 // タイプライター: chars_per_frame 文字分だけ進める
 void EventState::advance_typewriter(int chars_per_frame) {
     displayed_chars_ += chars_per_frame;
     int max_chars = get_utf8_char_count(typewrite_text_);
+    
+    // 文字送り音（ポポポ）の再生
+    if (chars_per_frame > 0 && displayed_chars_ <= max_chars) {
+        SoundManager::instance().play_se(SeId::Default_Popopo);
+    }
+    
     if (displayed_chars_ > max_chars) {
         displayed_chars_ = max_chars;
     }
