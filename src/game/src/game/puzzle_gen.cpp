@@ -1,4 +1,5 @@
 #include "puzzle_gen.h"
+#include "bn_common.h"
 
 // Simple LCG random number generator
 static int rng_state = 1;
@@ -24,11 +25,19 @@ static bool is_open(const GameState& gs, int x, int y) {
 }
 
 // Simple flood-fill reachability check
+// NOTE: visited/stack はIWRAMスタックに収まらないため、EWRAMに静的確保する
 static bool flood_check(const unsigned char map[MAP_H][MAP_W], int sx, int sy, int tx, int ty) {
-    bool visited[MAP_H][MAP_W] = {};
-    // Simple BFS with stack
+    BN_DATA_EWRAM static bool visited[MAP_H][MAP_W];
     struct Pos { int x, y; };
-    Pos stack[MAP_W * MAP_H];
+    BN_DATA_EWRAM static Pos stack[MAP_W * MAP_H];
+
+    // visited を初期化
+    for (int y = 0; y < MAP_H; ++y) {
+        for (int x = 0; x < MAP_W; ++x) {
+            visited[y][x] = false;
+        }
+    }
+
     int top = 0;
 
     stack[top++] = {sx, sy};

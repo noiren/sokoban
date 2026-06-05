@@ -1,0 +1,1072 @@
+﻿[prebuild] Packing individual 8x8 tiles into texture atlas...
+[pack_tiles] Successfully packed all individual tiles into C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn\Asset\graphics\stills\still_puzzle_map.bmp!
+[prebuild] Preparing graphics assets...
+[prebuild] Running UI Compiler (+ audio manifest codegen)...
+[ui_compiler] Up-to-date: C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn\src\game\include\ui_data_attention.h
+[ui_compiler] Up-to-date: C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn\src\game\include\ui_data_autosave_attension.h
+[ui_compiler] Up-to-date: C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn\src\game\include\ui_data_event.h
+[ui_compiler] Up-to-date: C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn\src\game\include\ui_data_gallerymenu.h
+[ui_compiler] Up-to-date: C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn\src\game\include\ui_data_gallery_bgm.h
+[ui_compiler] Up-to-date: C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn\src\game\include\ui_data_gallery_selectevent.h
+[ui_compiler] Up-to-date: C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn\src\game\include\ui_data_gallery_viewbustup.h
+[ui_compiler] Up-to-date: C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn\src\game\include\ui_data_gallery_viewstill.h
+[ui_compiler] Up-to-date: C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn\src\game\include\ui_data_logo.h
+[ui_compiler] Up-to-date: C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn\src\game\include\ui_data_mainmenu.h
+[ui_compiler] Up-to-date: C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn\src\game\include\ui_data_practice_stageSelect.h
+[ui_compiler] Up-to-date: C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn\src\game\include\ui_data_save_select.h
+[ui_compiler] Up-to-date: C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn\src\game\include\ui_data_settings.h
+[ui_compiler] Up-to-date: C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn\src\game\include\ui_data_sokoban_main.h
+[ui_compiler] Up-to-date: C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn\src\game\include\ui_data_title.h
+[ui_compiler] Done: 15 screen(s) processed.
+[ui_compiler] Audio manifest → generated headers (generate_audio_assets)...
+[generate_audio_assets] Wrote C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn\src\game\include\generated\audio_ids.h
+[generate_audio_assets] Wrote C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn\src\game\include\generated\audio_dispatch_bgm.gen.h
+[generate_audio_assets] Wrote C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn\src\game\include\generated\audio_dispatch_se.gen.h
+[prebuild] Running FixDataManager codegen...
+Generated C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn\src\game\include\generated\generated_fix_data.h
+[prebuild] Running SpriteAnim codegen...
+  [sprite_anims] generated C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn\src\game\include\generated\sprite_anim_data.h
+  [sprite_anims] generated C:\Users\ryota\.gemini\antigravity\scratch\gba-sokoban-bn\src\game\include\generated\sprite_anim_dispatch.gen.h
+[prebuild] Prebuild tasks complete.
+spr_chara_default.bmp
+spr_chara_sad.bmp
+spr_chara_smile.bmp
+spr_ch_mayo_angry.bmp
+spr_ch_mayo_fun.bmp
+spr_ch_mayo_normal.bmp
+spr_ch_mayo_sad.bmp
+spr_ch_mayo_smile.bmp
+spr_ch_riri_normal.bmp
+spr_face_icon_mayo.bmp
+spr_face_icon_riri.bmp
+spr_mn_crying.bmp
+spr_dummy.bmp
+spr_button_ok.bmp
+spr_nav_arrow.bmp
+spr_photo_corner.bmp
+spr_selection_common.bmp
+spr_selector_gold_bl.bmp
+spr_selector_gold_br.bmp
+spr_selector_gold_tl.bmp
+spr_selector_gold_tr.bmp
+spr_sparkle.bmp
+spr_thum_01.bmp
+spr_thum_02.bmp
+spr_thum_03.bmp
+spr_btn_l.bmp
+spr_btn_r.bmp
+spr_icon_clapper.bmp
+spr_icon_lock.bmp
+spr_icon_note.bmp
+spr_icon_pot.bmp
+spr_icon_pumpkin.bmp
+spr_icon_ticket.bmp
+spr_menu_icon_endless.bmp
+spr_menu_icon_practice.bmp
+spr_menu_icon_story.bmp
+spr_menu_paper.bmp
+spr_paper_large.bmp
+spr_paper_medium.bmp
+spr_paper_small.bmp
+spr_paper_tail.bmp
+spr_stage_icon_base.bmp
+spr_stage_icon_cloud.bmp
+spr_press_start.bmp
+still_puzzle_map.bmp
+test_bg.bmp
+still_gallerymenu.bmp
+still_bgm.bmp
+still_se.bmp
+still_event.bmp
+still_viewbustup.bmp
+still_viewstill.bmp
+still_mainmenu.bmp
+still_practice.bmp
+still_saveattention.bmp
+still_sokoban_main.bmp
+stl_attention.bmp
+stl_logo.bmp
+stl_title.bmp
+    spr_chara_default.bmp item header written in build/bn_sprite_items_spr_chara_default.h (graphics size: 2080 bytes)
+    spr_chara_sad.bmp item header written in build/bn_sprite_items_spr_chara_sad.h (graphics size: 2080 bytes)
+    spr_chara_smile.bmp item header written in build/bn_sprite_items_spr_chara_smile.h (graphics size: 2080 bytes)
+    spr_ch_mayo_angry.bmp item header written in build/bn_sprite_items_spr_ch_mayo_angry.h (graphics size: 2080 bytes)
+    spr_ch_mayo_fun.bmp item header written in build/bn_sprite_items_spr_ch_mayo_fun.h (graphics size: 2080 bytes)
+    spr_ch_mayo_normal.bmp item header written in build/bn_sprite_items_spr_ch_mayo_normal.h (graphics size: 2080 bytes)
+    spr_ch_mayo_sad.bmp item header written in build/bn_sprite_items_spr_ch_mayo_sad.h (graphics size: 2080 bytes)
+    spr_ch_mayo_smile.bmp item header written in build/bn_sprite_items_spr_ch_mayo_smile.h (graphics size: 2080 bytes)
+    spr_ch_riri_normal.bmp item header written in build/bn_sprite_items_spr_ch_riri_normal.h (graphics size: 2080 bytes)
+    spr_face_icon_mayo.bmp item header written in build/bn_sprite_items_spr_face_icon_mayo.h (graphics size: 544 bytes)
+    spr_face_icon_riri.bmp item header written in build/bn_sprite_items_spr_face_icon_riri.h (graphics size: 544 bytes)
+    spr_mn_crying.bmp item header written in build/bn_sprite_items_spr_mn_crying.h (graphics size: 544 bytes)
+    spr_dummy.bmp item header written in build/bn_sprite_items_spr_dummy.h (graphics size: 544 bytes)
+    spr_button_ok.bmp item header written in build/bn_sprite_items_spr_button_ok.h (graphics size: 544 bytes)
+    spr_nav_arrow.bmp item header written in build/bn_sprite_items_spr_nav_arrow.h (graphics size: 544 bytes)
+    spr_photo_corner.bmp item header written in build/bn_sprite_items_spr_photo_corner.h (graphics size: 544 bytes)
+    spr_selection_common.bmp item header written in build/bn_sprite_items_spr_selection_common.h (graphics size: 544 bytes)
+    spr_selector_gold_bl.bmp item header written in build/bn_sprite_items_spr_selector_gold_bl.h (graphics size: 544 bytes)
+    spr_selector_gold_br.bmp item header written in build/bn_sprite_items_spr_selector_gold_br.h (graphics size: 544 bytes)
+    spr_selector_gold_tl.bmp item header written in build/bn_sprite_items_spr_selector_gold_tl.h (graphics size: 544 bytes)
+    spr_selector_gold_tr.bmp item header written in build/bn_sprite_items_spr_selector_gold_tr.h (graphics size: 544 bytes)
+    spr_sparkle.bmp item header written in build/bn_sprite_items_spr_sparkle.h (graphics size: 544 bytes)
+    spr_thum_01.bmp item header written in build/bn_sprite_items_spr_thum_01.h (graphics size: 2080 bytes)
+    spr_thum_02.bmp item header written in build/bn_sprite_items_spr_thum_02.h (graphics size: 2080 bytes)
+    spr_thum_03.bmp item header written in build/bn_sprite_items_spr_thum_03.h (graphics size: 2080 bytes)
+    spr_btn_l.bmp item header written in build/bn_sprite_items_spr_btn_l.h (graphics size: 160 bytes)
+    spr_btn_r.bmp item header written in build/bn_sprite_items_spr_btn_r.h (graphics size: 160 bytes)
+    spr_icon_clapper.bmp item header written in build/bn_sprite_items_spr_icon_clapper.h (graphics size: 160 bytes)
+    spr_icon_lock.bmp item header written in build/bn_sprite_items_spr_icon_lock.h (graphics size: 160 bytes)
+    spr_icon_note.bmp item header written in build/bn_sprite_items_spr_icon_note.h (graphics size: 160 bytes)
+    spr_icon_pot.bmp item header written in build/bn_sprite_items_spr_icon_pot.h (graphics size: 160 bytes)
+    spr_icon_pumpkin.bmp item header written in build/bn_sprite_items_spr_icon_pumpkin.h (graphics size: 160 bytes)
+    spr_icon_ticket.bmp item header written in build/bn_sprite_items_spr_icon_ticket.h (graphics size: 160 bytes)
+    spr_menu_icon_endless.bmp item header written in build/bn_sprite_items_spr_menu_icon_endless.h (graphics size: 2080 bytes)
+    spr_menu_icon_practice.bmp item header written in build/bn_sprite_items_spr_menu_icon_practice.h (graphics size: 2080 bytes)
+    spr_menu_icon_story.bmp item header written in build/bn_sprite_items_spr_menu_icon_story.h (graphics size: 2080 bytes)
+    spr_menu_paper.bmp item header written in build/bn_sprite_items_spr_menu_paper.h (graphics size: 2080 bytes)
+    spr_paper_large.bmp item header written in build/bn_sprite_items_spr_paper_large.h (graphics size: 2080 bytes)
+    spr_paper_medium.bmp item header written in build/bn_sprite_items_spr_paper_medium.h (graphics size: 2080 bytes)
+    spr_paper_small.bmp item header written in build/bn_sprite_items_spr_paper_small.h (graphics size: 2080 bytes)
+    spr_paper_tail.bmp item header written in build/bn_sprite_items_spr_paper_tail.h (graphics size: 2080 bytes)
+    spr_stage_icon_base.bmp item header written in build/bn_sprite_items_spr_stage_icon_base.h (graphics size: 544 bytes)
+    spr_stage_icon_cloud.bmp item header written in build/bn_sprite_items_spr_stage_icon_cloud.h (graphics size: 544 bytes)
+    spr_press_start.bmp item header written in build/bn_sprite_items_spr_press_start.h (graphics size: 1056 bytes)
+    still_puzzle_map.bmp item header written in build/bn_regular_bg_items_still_puzzle_map.h (graphics size: 9312 bytes)
+    test_bg.bmp item header written in build/bn_regular_bg_items_test_bg.h (graphics size: 2144 bytes)
+    still_gallerymenu.bmp item header written in build/bn_regular_bg_items_still_gallerymenu.h (graphics size: 41088 bytes)
+    still_bgm.bmp item header written in build/bn_regular_bg_items_still_bgm.h (graphics size: 41088 bytes)
+    still_se.bmp item header written in build/bn_regular_bg_items_still_se.h (graphics size: 41088 bytes)
+    still_event.bmp item header written in build/bn_regular_bg_items_still_event.h (graphics size: 41088 bytes)
+    still_viewbustup.bmp item header written in build/bn_regular_bg_items_still_viewbustup.h (graphics size: 41088 bytes)
+    still_viewstill.bmp item header written in build/bn_regular_bg_items_still_viewstill.h (graphics size: 41088 bytes)
+    still_mainmenu.bmp item header written in build/bn_regular_bg_items_still_mainmenu.h (graphics size: 41088 bytes)
+    still_practice.bmp item header written in build/bn_regular_bg_items_still_practice.h (graphics size: 41088 bytes)
+    still_saveattention.bmp item header written in build/bn_regular_bg_items_still_saveattention.h (graphics size: 41088 bytes)
+    still_sokoban_main.bmp item header written in build/bn_regular_bg_items_still_sokoban_main.h (graphics size: 40544 bytes)
+    stl_attention.bmp item header written in build/bn_regular_bg_items_stl_attention.h (graphics size: 35968 bytes)
+    stl_logo.bmp item header written in build/bn_regular_bg_items_stl_logo.h (graphics size: 22464 bytes)
+    stl_title.bmp item header written in build/bn_regular_bg_items_stl_title.h (graphics size: 35968 bytes)
+    Processed graphics size: 568288 bytes
+spr_ch_mayo_angry_bn_gfx.s
+spr_ch_mayo_fun_bn_gfx.s
+spr_ch_mayo_normal_bn_gfx.s
+spr_ch_mayo_sad_bn_gfx.s
+spr_ch_mayo_smile_bn_gfx.s
+spr_ch_riri_normal_bn_gfx.s
+spr_chara_default_bn_gfx.s
+spr_chara_sad_bn_gfx.s
+spr_chara_smile_bn_gfx.s
+spr_face_icon_mayo_bn_gfx.s
+spr_face_icon_riri_bn_gfx.s
+spr_mn_crying_bn_gfx.s
+spr_dummy_bn_gfx.s
+spr_button_ok_bn_gfx.s
+spr_nav_arrow_bn_gfx.s
+spr_photo_corner_bn_gfx.s
+spr_selection_common_bn_gfx.s
+spr_selector_gold_bl_bn_gfx.s
+spr_selector_gold_br_bn_gfx.s
+spr_selector_gold_tl_bn_gfx.s
+spr_selector_gold_tr_bn_gfx.s
+spr_sparkle_bn_gfx.s
+spr_thum_01_bn_gfx.s
+spr_thum_02_bn_gfx.s
+spr_thum_03_bn_gfx.s
+spr_btn_l_bn_gfx.s
+spr_btn_r_bn_gfx.s
+spr_icon_clapper_bn_gfx.s
+spr_icon_lock_bn_gfx.s
+spr_icon_note_bn_gfx.s
+spr_icon_pot_bn_gfx.s
+spr_icon_pumpkin_bn_gfx.s
+spr_icon_ticket_bn_gfx.s
+spr_menu_icon_endless_bn_gfx.s
+spr_menu_icon_practice_bn_gfx.s
+spr_menu_icon_story_bn_gfx.s
+spr_menu_paper_bn_gfx.s
+spr_paper_large_bn_gfx.s
+spr_paper_medium_bn_gfx.s
+spr_paper_small_bn_gfx.s
+spr_paper_tail_bn_gfx.s
+spr_stage_icon_base_bn_gfx.s
+spr_stage_icon_cloud_bn_gfx.s
+spr_press_start_bn_gfx.s
+still_puzzle_map_bn_gfx.s
+test_bg_bn_gfx.s
+still_gallerymenu_bn_gfx.s
+still_bgm_bn_gfx.s
+still_se_bn_gfx.s
+still_event_bn_gfx.s
+still_viewbustup_bn_gfx.s
+still_viewstill_bn_gfx.s
+still_mainmenu_bn_gfx.s
+still_practice_bn_gfx.s
+still_saveattention_bn_gfx.s
+still_sokoban_main_bn_gfx.s
+stl_attention_bn_gfx.s
+stl_logo_bn_gfx.s
+stl_title_bn_gfx.s
+main.cpp
+make : In file included from C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/ui/Core/Manager/ui_
+manager.h:13,
+発生場所 行:1 文字:1
++ make 2>&1 | Out-File build_full.txt -Encoding utf8; Get-Content build ...
++ ~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (In file include...i_manager.h:13,:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+                 from C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Title/title_state.h:
+7,
+                 from C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/main.cpp:9:
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/ui/Core/Components/ui_node.h: In member function
+ 'virtual void UINode::set_bg_priority(int)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/ui/Core/Components/ui_node.h:19:38: warning: unu
+sed parameter 'priority' [-Wunused-parameter]
+   19 |     virtual void set_bg_priority(int priority) {}
+      |                                  ~~~~^~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Title/title_state.h: In member function 'v
+irtual void TitleState::pause(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Title/title_state.h:27:30: warning: unused
+ parameter 'sm' [-Wunused-parameter]
+   27 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Title/title_state.h:27:49: warning: unused
+ parameter 'ctx' [-Wunused-parameter]
+   27 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                                  ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Title/title_state.h: In member function 'v
+irtual void TitleState::resume(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Title/title_state.h:28:31: warning: unused
+ parameter 'sm' [-Wunused-parameter]
+   28 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                 ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Title/title_state.h:28:50: warning: unused
+ parameter 'ctx' [-Wunused-parameter]
+   28 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                                   ~~~~~~~~~~~~~~~^~~
+In file included from C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/main.cpp:10:
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/MainMenu/menu_state.h: In member function 
+'virtual void MenuState::pause(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/MainMenu/menu_state.h:38:30: warning: unus
+ed parameter 'sm' [-Wunused-parameter]
+   38 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/MainMenu/menu_state.h:38:49: warning: unus
+ed parameter 'ctx' [-Wunused-parameter]
+   38 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                                  ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/MainMenu/menu_state.h: In member function 
+'virtual void MenuState::resume(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/MainMenu/menu_state.h:39:31: warning: unus
+ed parameter 'sm' [-Wunused-parameter]
+   39 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                 ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/MainMenu/menu_state.h:39:50: warning: unus
+ed parameter 'ctx' [-Wunused-parameter]
+   39 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                                   ~~~~~~~~~~~~~~~^~~
+In file included from C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/main.cpp:11:
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/MainPuzzle/puzzle_state.h: In member funct
+ion 'virtual void PuzzleState::pause(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/MainPuzzle/puzzle_state.h:32:30: warning: 
+unused parameter 'sm' [-Wunused-parameter]
+   32 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/MainPuzzle/puzzle_state.h:32:49: warning: 
+unused parameter 'ctx' [-Wunused-parameter]
+   32 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                                  ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/MainPuzzle/puzzle_state.h: In member funct
+ion 'virtual void PuzzleState::resume(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/MainPuzzle/puzzle_state.h:33:31: warning: 
+unused parameter 'sm' [-Wunused-parameter]
+   33 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                 ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/MainPuzzle/puzzle_state.h:33:50: warning: 
+unused parameter 'ctx' [-Wunused-parameter]
+   33 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                                   ~~~~~~~~~~~~~~~^~~
+In file included from C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/main.cpp:12:
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Setting/settings_state.h: In member functi
+on 'virtual void SettingsState::pause(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Setting/settings_state.h:42:30: warning: u
+nused parameter 'sm' [-Wunused-parameter]
+   42 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Setting/settings_state.h:42:49: warning: u
+nused parameter 'ctx' [-Wunused-parameter]
+   42 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                                  ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Setting/settings_state.h: In member functi
+on 'virtual void SettingsState::resume(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Setting/settings_state.h:43:31: warning: u
+nused parameter 'sm' [-Wunused-parameter]
+   43 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                 ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Setting/settings_state.h:43:50: warning: u
+nused parameter 'ctx' [-Wunused-parameter]
+   43 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                                   ~~~~~~~~~~~~~~~^~~
+In file included from C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/main.cpp:13:
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Event/event_state.h: In member function 'v
+irtual void EventState::pause(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Event/event_state.h:104:30: warning: unuse
+d parameter 'sm' [-Wunused-parameter]
+  104 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Event/event_state.h:104:49: warning: unuse
+d parameter 'ctx' [-Wunused-parameter]
+  104 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                                  ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Event/event_state.h: In member function 'v
+irtual void EventState::resume(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Event/event_state.h:105:31: warning: unuse
+d parameter 'sm' [-Wunused-parameter]
+  105 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                 ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Event/event_state.h:105:50: warning: unuse
+d parameter 'ctx' [-Wunused-parameter]
+  105 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                                   ~~~~~~~~~~~~~~~^~~
+In file included from C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/main.cpp:14:
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Endless/endless_state.h: In member functio
+n 'virtual void EndlessState::pause(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Endless/endless_state.h:33:30: warning: un
+used parameter 'sm' [-Wunused-parameter]
+   33 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Endless/endless_state.h:33:49: warning: un
+used parameter 'ctx' [-Wunused-parameter]
+   33 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                                  ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Endless/endless_state.h: In member functio
+n 'virtual void EndlessState::resume(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Endless/endless_state.h:34:31: warning: un
+used parameter 'sm' [-Wunused-parameter]
+   34 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                 ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Endless/endless_state.h:34:50: warning: un
+used parameter 'ctx' [-Wunused-parameter]
+   34 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                                   ~~~~~~~~~~~~~~~^~~
+In file included from C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/main.cpp:15:
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Practice/practice_menu_state.h: In member 
+function 'virtual void PracticeMenuState::pause(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Practice/practice_menu_state.h:23:30: warn
+ing: unused parameter 'sm' [-Wunused-parameter]
+   23 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Practice/practice_menu_state.h:23:49: warn
+ing: unused parameter 'ctx' [-Wunused-parameter]
+   23 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                                  ~~~~~~~~~~~~~~~^~~
+In file included from C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/main.cpp:16:
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h: In member functio
+n 'virtual void GalleryState::pause(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:21:30: warning: un
+used parameter 'sm' [-Wunused-parameter]
+   21 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:21:49: warning: un
+used parameter 'ctx' [-Wunused-parameter]
+   21 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                                  ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h: In member functio
+n 'virtual void GalleryStillState::pause(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:40:30: warning: un
+used parameter 'sm' [-Wunused-parameter]
+   40 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:40:49: warning: un
+used parameter 'ctx' [-Wunused-parameter]
+   40 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                                  ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h: In member functio
+n 'virtual void GalleryStillState::resume(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:41:31: warning: un
+used parameter 'sm' [-Wunused-parameter]
+   41 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                 ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:41:50: warning: un
+used parameter 'ctx' [-Wunused-parameter]
+   41 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                                   ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h: In member functio
+n 'virtual void GalleryTachiState::pause(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:63:30: warning: un
+used parameter 'sm' [-Wunused-parameter]
+   63 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:63:49: warning: un
+used parameter 'ctx' [-Wunused-parameter]
+   63 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                                  ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h: In member functio
+n 'virtual void GalleryTachiState::resume(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:64:31: warning: un
+used parameter 'sm' [-Wunused-parameter]
+   64 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                 ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:64:50: warning: un
+used parameter 'ctx' [-Wunused-parameter]
+   64 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                                   ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h: In member functio
+n 'virtual void GalleryEventState::pause(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:85:30: warning: un
+used parameter 'sm' [-Wunused-parameter]
+   85 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:85:49: warning: un
+used parameter 'ctx' [-Wunused-parameter]
+   85 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                                  ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h: In member functio
+n 'virtual void GalleryAudioState::pause(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:107:30: warning: u
+nused parameter 'sm' [-Wunused-parameter]
+  107 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:107:49: warning: u
+nused parameter 'ctx' [-Wunused-parameter]
+  107 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                                  ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h: In member functio
+n 'virtual void GalleryAudioState::resume(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:108:31: warning: u
+nused parameter 'sm' [-Wunused-parameter]
+  108 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                 ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:108:50: warning: u
+nused parameter 'ctx' [-Wunused-parameter]
+  108 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                                   ~~~~~~~~~~~~~~~^~~
+In file included from C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/main.cpp:17:
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Debug/debug_state.h: In member function 'v
+irtual void DebugState::pause(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Debug/debug_state.h:37:30: warning: unused
+ parameter 'sm' [-Wunused-parameter]
+   37 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Debug/debug_state.h:37:49: warning: unused
+ parameter 'ctx' [-Wunused-parameter]
+   37 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                                  ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Debug/debug_state.h: In member function 'v
+irtual void DebugState::resume(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Debug/debug_state.h:38:31: warning: unused
+ parameter 'sm' [-Wunused-parameter]
+   38 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                 ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Debug/debug_state.h:38:50: warning: unused
+ parameter 'ctx' [-Wunused-parameter]
+   38 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                                   ~~~~~~~~~~~~~~~^~~
+In file included from C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/main.cpp:19:
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/StillEvent/still_event_state.h: In member 
+function 'virtual void StillEventState::pause(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/StillEvent/still_event_state.h:31:30: warn
+ing: unused parameter 'sm' [-Wunused-parameter]
+   31 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/StillEvent/still_event_state.h:31:49: warn
+ing: unused parameter 'ctx' [-Wunused-parameter]
+   31 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                                  ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/StillEvent/still_event_state.h: In member 
+function 'virtual void StillEventState::resume(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/StillEvent/still_event_state.h:32:31: warn
+ing: unused parameter 'sm' [-Wunused-parameter]
+   32 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                 ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/StillEvent/still_event_state.h:32:50: warn
+ing: unused parameter 'ctx' [-Wunused-parameter]
+   32 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                                   ~~~~~~~~~~~~~~~^~~
+sprite_anim_manager.cpp
+In file included from C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/animation/sprite_anim_mana
+ger.cpp:2:
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/include/generated/sprite_anim_dispatch.gen.h: In fun
+ction 'const bn::sprite_item& get_sprite_item_for_clip(SpriteAnimId, int)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/include/generated/sprite_anim_dispatch.gen.h:10:31: 
+warning: unused parameter 'clip_idx' [-Wunused-parameter]
+   10 |     SpriteAnimId anim_id, int clip_idx)
+      |                           ~~~~^~~~~~~~
+sound_manager.cpp
+fix_data_manager.cpp
+renderer.cpp
+debug_state.cpp
+In file included from C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Debug/debug_state.cp
+p:1:
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Debug/debug_state.h: In member function 'v
+irtual void DebugState::pause(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Debug/debug_state.h:37:30: warning: unused
+ parameter 'sm' [-Wunused-parameter]
+   37 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Debug/debug_state.h:37:49: warning: unused
+ parameter 'ctx' [-Wunused-parameter]
+   37 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                                  ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Debug/debug_state.h: In member function 'v
+irtual void DebugState::resume(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Debug/debug_state.h:38:31: warning: unused
+ parameter 'sm' [-Wunused-parameter]
+   38 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                 ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Debug/debug_state.h:38:50: warning: unused
+ parameter 'ctx' [-Wunused-parameter]
+   38 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                                   ~~~~~~~~~~~~~~~^~~
+event_state.cpp
+In file included from C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/ui/Core/Manager/ui_manager
+.h:13,
+                 from C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Event/event_state.h:
+11,
+                 from C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Event/event_state.cp
+p:1:
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/ui/Core/Components/ui_node.h: In member function
+ 'virtual void UINode::set_bg_priority(int)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/ui/Core/Components/ui_node.h:19:38: warning: unu
+sed parameter 'priority' [-Wunused-parameter]
+   19 |     virtual void set_bg_priority(int priority) {}
+      |                                  ~~~~^~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Event/event_state.h: In member function 'v
+irtual void EventState::pause(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Event/event_state.h:104:30: warning: unuse
+d parameter 'sm' [-Wunused-parameter]
+  104 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Event/event_state.h:104:49: warning: unuse
+d parameter 'ctx' [-Wunused-parameter]
+  104 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                                  ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Event/event_state.h: In member function 'v
+irtual void EventState::resume(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Event/event_state.h:105:31: warning: unuse
+d parameter 'sm' [-Wunused-parameter]
+  105 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                 ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Event/event_state.h:105:50: warning: unuse
+d parameter 'ctx' [-Wunused-parameter]
+  105 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                                   ~~~~~~~~~~~~~~~^~~
+gallery_state.cpp
+In file included from C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_stat
+e.cpp:1:
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h: In member functio
+n 'virtual void GalleryState::pause(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:21:30: warning: un
+used parameter 'sm' [-Wunused-parameter]
+   21 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:21:49: warning: un
+used parameter 'ctx' [-Wunused-parameter]
+   21 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                                  ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h: In member functio
+n 'virtual void GalleryStillState::pause(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:40:30: warning: un
+used parameter 'sm' [-Wunused-parameter]
+   40 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:40:49: warning: un
+used parameter 'ctx' [-Wunused-parameter]
+   40 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                                  ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h: In member functio
+n 'virtual void GalleryStillState::resume(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:41:31: warning: un
+used parameter 'sm' [-Wunused-parameter]
+   41 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                 ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:41:50: warning: un
+used parameter 'ctx' [-Wunused-parameter]
+   41 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                                   ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h: In member functio
+n 'virtual void GalleryTachiState::pause(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:63:30: warning: un
+used parameter 'sm' [-Wunused-parameter]
+   63 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:63:49: warning: un
+used parameter 'ctx' [-Wunused-parameter]
+   63 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                                  ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h: In member functio
+n 'virtual void GalleryTachiState::resume(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:64:31: warning: un
+used parameter 'sm' [-Wunused-parameter]
+   64 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                 ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:64:50: warning: un
+used parameter 'ctx' [-Wunused-parameter]
+   64 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                                   ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h: In member functio
+n 'virtual void GalleryEventState::pause(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:85:30: warning: un
+used parameter 'sm' [-Wunused-parameter]
+   85 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:85:49: warning: un
+used parameter 'ctx' [-Wunused-parameter]
+   85 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                                  ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h: In member functio
+n 'virtual void GalleryAudioState::pause(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:107:30: warning: u
+nused parameter 'sm' [-Wunused-parameter]
+  107 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:107:49: warning: u
+nused parameter 'ctx' [-Wunused-parameter]
+  107 |     void pause(StateManager& sm, SharedContext& ctx) override {}
+      |                                  ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h: In member functio
+n 'virtual void GalleryAudioState::resume(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:108:31: warning: u
+nused parameter 'sm' [-Wunused-parameter]
+  108 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                 ~~~~~~~~~~~~~~^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.h:108:50: warning: u
+nused parameter 'ctx' [-Wunused-parameter]
+  108 |     void resume(StateManager& sm, SharedContext& ctx) override {}
+      |                                   ~~~~~~~~~~~~~~~^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp: In function 'vo
+id {anonymous}::draw_list(bn::sprite_text_generator&, bn::vector<bn::sprite_ptr, 64>&, const char*, const char**, int, 
+int, const char*)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:42:5: error: inv
+alid use of incomplete type 'class bn::sprite_text_generator'
+   42 |     gen.set_center_alignment();
+      |     ^~~
+In file included from C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/state.h:5,
+                 from C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_stat
+e.h:4:
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:43:5: error: inv
+alid use of incomplete type 'class bn::sprite_text_generator'
+   43 |     gen.generate(0, -76, title, sprites);
+      |     ^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:45:5: error: inv
+alid use of incomplete type 'class bn::sprite_text_generator'
+   45 |     gen.set_left_alignment();
+      |     ^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:50:9: error: inv
+alid use of incomplete type 'class bn::sprite_text_generator'
+   50 |         gen.set_center_alignment();
+      |         ^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:51:9: error: inv
+alid use of incomplete type 'class bn::sprite_text_generator'
+   51 |         gen.generate(0, 0, "(隗｣遖∵ｸ医∩縺ｪ縺・", sprites);
+      |         ^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:65:13: error: in
+valid use of incomplete type 'class bn::sprite_text_generator'
+   65 |             gen.generate(-112, y, line, sprites);
+      |             ^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:70:5: error: inv
+alid use of incomplete type 'class bn::sprite_text_generator'
+   70 |     gen.set_center_alignment();
+      |     ^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:71:5: error: inv
+alid use of incomplete type 'class bn::sprite_text_generator'
+   71 |     gen.generate(0, 76, hint, sprites);
+      |     ^~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp: In member funct
+ion 'virtual void GalleryState::enter(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:86:27: error: in
+valid use of incomplete type 'class bn::sprite_text_generator'
+   86 |         ctx.text_generator->set_palette_item(bn::sprite_items::japanese_font.palette_item());
+      |                           ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp: In member funct
+ion 'virtual void GalleryState::update(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:115:16: warning:
+ switch missing default case [-Wswitch-default]
+  115 |         switch (cursor_) {
+      |                ^
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp: In member funct
+ion 'void GalleryState::redraw(SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:137:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  137 |     ctx.text_generator->set_center_alignment();
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:138:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  138 |     ctx.text_generator->generate(0, -76, "GALLERY", sprites_);
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:140:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  140 |     ctx.text_generator->set_left_alignment();
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:153:27: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  153 |         ctx.text_generator->generate(-80, y, line, sprites_);
+      |                           ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:156:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  156 |     ctx.text_generator->set_center_alignment();
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:157:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  157 |     ctx.text_generator->generate(0, 72, "U/D A=open B=menu", sprites_);
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp: In member funct
+ion 'void GalleryStillState::redraw(SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:210:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  210 |     ctx.text_generator->set_center_alignment();
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:211:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  211 |     ctx.text_generator->generate(0, -76, "繧ｹ繝√Ν髑題ｳ・, sprites_);
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:213:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  213 |     ctx.text_generator->set_left_alignment();
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:217:27: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  217 |         ctx.text_generator->set_center_alignment();
+      |                           ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:218:27: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  218 |         ctx.text_generator->generate(0, 0, "(隗｣遖∵ｸ医∩縺ｪ縺・", sprites_);
+      |                           ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:228:31: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  228 |             ctx.text_generator->generate(-112, y, line, sprites_);
+      |                               ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:232:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  232 |     ctx.text_generator->set_center_alignment();
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:233:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  233 |     ctx.text_generator->generate(0, 76, "U/D A=view B=back", sprites_);
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp: In member funct
+ion 'void GalleryTachiState::redraw(SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:286:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  286 |     ctx.text_generator->set_center_alignment();
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:287:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  287 |     ctx.text_generator->generate(0, -76, "遶九■邨ｵ髑題ｳ・, sprites_);
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:289:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  289 |     ctx.text_generator->set_left_alignment();
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:293:27: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  293 |         ctx.text_generator->set_center_alignment();
+      |                           ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:294:27: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  294 |         ctx.text_generator->generate(0, 0, "(隗｣遖∵ｸ医∩縺ｪ縺・", sprites_);
+      |                           ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:304:31: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  304 |             ctx.text_generator->generate(-112, y, line, sprites_);
+      |                               ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:308:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  308 |     ctx.text_generator->set_center_alignment();
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:309:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  309 |     ctx.text_generator->generate(0, 76, "U/D A=view B=back", sprites_);
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp: In member funct
+ion 'void GalleryEventState::redraw(SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:384:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  384 |     ctx.text_generator->set_center_alignment();
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:385:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  385 |     ctx.text_generator->generate(0, -76, "繧､繝吶Φ繝医そ繝ｬ繧ｯ繝・, sprites_);
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:387:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  387 |     ctx.text_generator->set_left_alignment();
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:391:27: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  391 |         ctx.text_generator->set_center_alignment();
+      |                           ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:392:27: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  392 |         ctx.text_generator->generate(0, 0, "(隗｣遖∵ｸ医∩縺ｪ縺・", sprites_);
+      |                           ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:402:31: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  402 |             ctx.text_generator->generate(-112, y, line, sprites_);
+      |                               ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:406:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  406 |     ctx.text_generator->set_center_alignment();
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:407:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  407 |     ctx.text_generator->generate(0, 76, "U/D A=play B=back", sprites_);
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp: In member funct
+ion 'virtual void GalleryAudioState::update(StateManager&, SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:438:34: error: '
+SwitchLeft' is not a member of 'Action'
+  438 |     if (inp.is_triggered(Action::SwitchLeft) || inp.is_triggered(Action::SwitchRight)) {
+      |                                  ^~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:438:74: error: '
+SwitchRight' is not a member of 'Action'
+  438 |     if (inp.is_triggered(Action::SwitchLeft) || inp.is_triggered(Action::SwitchRight)) {
+      |                                                                          ^~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp: In member funct
+ion 'void GalleryAudioState::redraw(SharedContext&)':
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:508:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  508 |     ctx.text_generator->set_center_alignment();
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:509:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  509 |     ctx.text_generator->generate(0, -76,
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:513:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  513 |     ctx.text_generator->set_left_alignment();
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:516:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  516 |     ctx.text_generator->generate(-112, -60, mode_line, sprites_);
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:526:27: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  526 |         ctx.text_generator->set_center_alignment();
+      |                           ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:527:27: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  527 |         ctx.text_generator->generate(0, 0, "(隗｣遖∵ｸ医∩縺ｪ縺・", sprites_);
+      |                           ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:537:31: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  537 |             ctx.text_generator->generate(-112, y, line, sprites_);
+      |                               ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:541:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  541 |     ctx.text_generator->set_center_alignment();
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:542:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  542 |     ctx.text_generator->generate(0, 64,  "A=play/stop", sprites_);
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:543:23: error: i
+nvalid use of incomplete type 'class bn::sprite_text_generator'
+  543 |     ctx.text_generator->generate(0, 76, "L/R=BGM/SE  B=back", sprites_);
+      |                       ^~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/shared_context.h:9:22: note: forward decla
+ration of 'class bn::sprite_text_generator'
+    9 | namespace bn { class sprite_text_generator; }
+      |                      ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp: At global scope
+:
+C:/Users/ryota/.gemini/antigravity/scratch/gba-sokoban-bn/src/game/src/state/Gallery/gallery_state.cpp:37:6: warning: '
+void {anonymous}::draw_list(bn::sprite_text_generator&, bn::vector<bn::sprite_ptr, 64>&, const char*, const char**, int
+, int, const char*)' defined but not used [-Wunused-function]
+   37 | void draw_list(bn::sprite_text_generator& gen,
+      |      ^~~~~~~~~
+make[2]: *** [/opt/devkitpro/devkitARM/base_rules:34: gallery_state.o] Error 1
+make[1]: *** [/home/ryota/.gemini/antigravity/scratch/butano/tools/common_setup.mak:93: build] Error 2
+make: *** [/home/ryota/.gemini/antigravity/scratch/butano/tools/common_setup.mak:88: all] Error 2

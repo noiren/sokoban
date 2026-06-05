@@ -10,6 +10,9 @@
 #include "bn_sprite_ptr.h"
 #include "bn_fixed.h"
 #include "bn_vector.h"
+#include "save/save_data.h"
+#include "save/user_data_puzzle.h"
+#include "game/levels.h"
 
 enum class DebugScreen {
     Root,
@@ -18,9 +21,11 @@ enum class DebugScreen {
     SeList,
     SeTest,
     EffectTest,
-    EventTest, // イベント再生デバッグ
-    AnimTest,  // スプライトアニメーションデバッグ
-    StageList, // ステージ選んでプレイデバッグ
+    EventTest,      // イベント再生デバッグ
+    AnimTest,       // スプライトアニメーションデバッグ
+    StageList,      // ステージ選んでプレイデバッグ
+    StillEventTest, // スチルイベント再生デバッグ
+    ProgressData,   // 知識値（フラグ・パズルクリア）デバッグ
 };
 
 class DebugState : public State {
@@ -29,8 +34,8 @@ public:
     void enter(StateManager& sm, SharedContext& ctx) override;
     void update(StateManager& sm, SharedContext& ctx) override;
     void exit(StateManager& sm, SharedContext& ctx) override;
-    void pause(StateManager& sm, SharedContext& ctx) override {}
-    void resume(StateManager& sm, SharedContext& ctx) override {}
+    void pause(StateManager& /*sm*/, SharedContext& /*ctx*/) override {}
+    void resume(StateManager& /*sm*/, SharedContext& /*ctx*/) override {}
 
 private:
     void redraw(SharedContext& ctx);
@@ -59,14 +64,22 @@ private:
     void update_anim_test(StateManager& sm, SharedContext& ctx);
     void draw_anim_test(SharedContext& ctx);
 
+    void update_still_event_test(StateManager& sm, SharedContext& ctx);
+    void draw_still_event_test(SharedContext& ctx);
+
     void update_stage_list(StateManager& sm, SharedContext& ctx);
     void draw_stage_list(SharedContext& ctx);
+
+    void update_progress_data(StateManager& sm, SharedContext& ctx);
+    void draw_progress_data(SharedContext& ctx);
 
     [[nodiscard]] bool _bgm_test_track_is_playing() const;
 
     DebugScreen screen_;
     int cursor_;
-    int event_cursor_; // イベントテスト用カーソル
+    int event_cursor_;    // イベントテスト用カーソル
+    int progress_cursor_; // 知識値デバッグ用カーソル
+    int progress_sub_;    // 0=トップ 1=イベント個別 2=パズル個別
 
     BgmId test_bgm_id_;
     SeId test_se_id_;

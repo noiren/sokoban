@@ -33,7 +33,7 @@ void MenuState::enter(StateManager& /*sm*/, SharedContext& ctx) {
     // 最初のフェーズを設定して Enter 関数を呼び出す
     phase_ = MenuPhase::MAIN;
     if (phase_table_[(int)phase_].enter) {
-        (this->*phase_table_[(int)phase_].enter)();
+        (this->*phase_table_[(int)phase_].enter)(ctx);
     }
 }
 
@@ -49,10 +49,10 @@ void MenuState::update(StateManager& sm, SharedContext& ctx) {
     }
 }
 
-void MenuState::exit(StateManager& /*sm*/, SharedContext& /*ctx*/) {
+void MenuState::exit(StateManager& /*sm*/, SharedContext& ctx) {
     // 最後のフェーズの Exit 関数を呼ぶ
     if (phase_table_[(int)phase_].exit) {
-        (this->*phase_table_[(int)phase_].exit)();
+        (this->*phase_table_[(int)phase_].exit)(ctx);
     }
 
     view_.reset(); // Viewを先に破棄
@@ -65,10 +65,10 @@ void MenuState::exit(StateManager& /*sm*/, SharedContext& /*ctx*/) {
 // ==========================================
 // フェーズ遷移
 // ==========================================
-void MenuState::change_phase(MenuPhase next) {
+void MenuState::change_phase(MenuPhase next, SharedContext& ctx) {
     // 1. 現在のフェーズの Exit を呼ぶ
     if (phase_table_[(int)phase_].exit) {
-        (this->*phase_table_[(int)phase_].exit)();
+        (this->*phase_table_[(int)phase_].exit)(ctx);
     }
 
     // 2. フェーズ切り替え
@@ -76,20 +76,27 @@ void MenuState::change_phase(MenuPhase next) {
 
     // 3. 新しいフェーズの Enter を呼ぶ
     if (phase_table_[(int)phase_].enter) {
-        (this->*phase_table_[(int)phase_].enter)();
+        (this->*phase_table_[(int)phase_].enter)(ctx);
     }
 }
 
 // ==========================================
 // メインメニュー フェーズ
 // ==========================================
-void MenuState::enter_main() {
-    // 本来はセーブデータ等から取得して設定する（ここでは仮としてENDLESS(2)のみ未解禁とする）
-    unlocked_flags_[0] = true;  // STORY
-    unlocked_flags_[1] = true;  // PRACTICE
-    unlocked_flags_[2] = false; // ENDLESS (未解禁)
-    unlocked_flags_[3] = true;  // GALLERY
-    unlocked_flags_[4] = true;  // SETTINGS
+void MenuState::enter_main(SharedContext& ctx) {
+    // SaveSlot のフラグを参照して解禁状況を設定
+    bool endless_unlocked  = false;
+    bool gallery_unlocked  = true; // ギャラリーは常時（将来フラグ参照も可）
+    if (ctx.save) {
+        const SaveSlot& slot = ctx.save->slots[ctx.active_slot];
+        endless_unlocked = save_slot_get_flag(slot, FLAG_ENDLESS_UNLOCKED);
+    }
+
+    unlocked_flags_[0] = true;             // STORY
+    unlocked_flags_[1] = true;             // PRACTICE
+    unlocked_flags_[2] = endless_unlocked; // ENDLESS
+    unlocked_flags_[3] = gallery_unlocked; // GALLERY
+    unlocked_flags_[4] = true;             // SETTINGS
 
     cursor_ = (int)last_selected_;
     if (cursor_ >= VISIBLE_MENU_COUNT) cursor_ = 0;
@@ -100,9 +107,7 @@ void MenuState::enter_main() {
     step_ = PhaseStep::OPENING;
     wait_timer_ = 0;
 
-    // メニュー画面に入ったときにBGMを再生（ひな形）
-    // （タイトル画面と同じBGMを使用する場合は、既に流れているBGMを再再生しないよう
-    //  プレイ中のBGMを確認する等の工夫が必要な場合があります）
+    // メニュー画面に入ったときにBGMを再生
     SoundManager::instance().play_bgm(BgmId::Mice_dekadence_ummetus, true, 0, true);
 }
 
@@ -191,6 +196,6 @@ void MenuState::update_main(StateManager& sm, SharedContext& /*ctx*/) {
     }
 }
 
-void MenuState::exit_main() {
+void MenuState::exit_main(SharedContext& /*ctx*/) {
     // MAINフェーズ終了時の処理があれば記述
 }

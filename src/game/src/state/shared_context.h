@@ -19,6 +19,8 @@ struct SharedContext {
     int target_puzzle_level = 0;
     bn::string_view target_event_id;
     StateID event_return_state = StateID::MENU; // イベント終了後に戻るState
+    bool event_is_overlay = false; // パズル上にオーバーレイ表示するかどうか
+    bool use_puzzle_event_table = false; // g_puzzle_eventsを使用するかどうか
     StateID puzzle_return_state = StateID::MENU; // パズル終了後に戻るState
 
     // ストーリー進行ペイロード
@@ -34,6 +36,17 @@ struct SharedContext {
     // StoryState内部: intro_eventの再生が完了したか
     // （PUZZLE型ステップのintro_event→パズル本体の2段階遷移制御用）
     bool story_intro_completed = false;
+
+    // パズルクリア結果（PracticeMenuState の resume() で読み取る）
+    // PuzzleState がクリア時にセット、PracticeMenuState が読み取り後に false に戻す
+    bool puzzle_just_cleared   = false;
+    int  puzzle_clear_level    = 0;   // クリアしたレベル番号
+    int  puzzle_clear_moves    = 0;   // クリア時の手数
+    int  puzzle_clear_frames   = 0;   // クリア時の経過フレーム数
+
+    // パズルイベントの再生状態 (プレイセッション中のみ維持)
+    bool puzzle_played_intro[64] = {false};
+    bool puzzle_played_outro[64] = {false};
 };
 
 #endif // SHARED_CONTEXT_H

@@ -27,6 +27,12 @@ def text_dir(project_root: str) -> str:
 def events_dir(project_root: str) -> str:
     return os.path.join(fixdata_root(project_root), "events")
 
+def puzzle_events_dir(project_root: str) -> str:
+    return os.path.join(fixdata_root(project_root), "puzzle_events")
+
+def still_events_dir(project_root: str) -> str:
+    return os.path.join(fixdata_root(project_root), "still_events")
+
 def gallery_path(project_root: str) -> str:
     return os.path.join(fixdata_root(project_root), "gallery.json")
 
@@ -76,10 +82,36 @@ class EventEntry:
     lines: list[EventLine] = field(default_factory=list)
 
 @dataclass
+class StillEventMessage:
+    text: str
+    se_id: str = ""
+    bgm_id: str = ""
+    stop_bgm: bool = False
+
+@dataclass
+class StillEventPage:
+    still_image_id: str
+    fade_in_frames: int = 16
+    fade_out_frames: int = 16
+    messages: list[StillEventMessage] = field(default_factory=list)
+
+@dataclass
+class StillEventEntry:
+    id: str
+    title_ja: str
+    pages: list[StillEventPage] = field(default_factory=list)
+
+@dataclass
 class GalleryEntry:
-    category: str # "bustup", "still", "bgm", "se"
+    category: str # "tachi-e", "still", "event", "bgm", "se"
     resource_id: str
     ja: str
+    unlock_event_id: str = ""  # "" = 常時解禁、以外 = そのイベント再生完了後に解禁
+
+@dataclass
+class UnlockRule:
+    event_id: str   # このイベントIDの再生完了時
+    flag_id: int    # このフラグを立てる
 
 # ---------------------------------------------------------
 # 共通I/O関数
@@ -167,6 +199,15 @@ def load_all_events(project_root: str) -> list[EventEntry]:
             result.append(_parse_event_file(os.path.join(edir, fname)))
     return result
 
+def load_all_puzzle_events(project_root: str) -> list[EventEntry]:
+    pdir = puzzle_events_dir(project_root)
+    if not os.path.exists(pdir): return []
+    result = []
+    for fname in sorted(os.listdir(pdir)):
+        if fname.startswith("pze_") and fname.endswith(".json"):
+            result.append(_parse_event_file(os.path.join(pdir, fname)))
+    return result
+
 def load_event_file(project_root: str, filename: str) -> EventEntry:
     return _parse_event_file(os.path.join(events_dir(project_root), filename))
 
@@ -189,6 +230,13 @@ def _parse_event_file(path: str) -> EventEntry:
 
 def save_event_file(project_root: str, filename: str, event: EventEntry) -> None:
     path = os.path.join(events_dir(project_root), filename)
+    _save_event_impl(path, event)
+
+def save_puzzle_event_file(project_root: str, filename: str, event: EventEntry) -> None:
+    path = os.path.join(puzzle_events_dir(project_root), filename)
+    _save_event_impl(path, event)
+
+def _save_event_impl(path: str, event: EventEntry) -> None:
     data = {
         "version": 2,
         "id": event.id,
@@ -214,6 +262,72 @@ def event_filename_from_id(event_id: str) -> str:
     if lower_id.startswith("evt_"):
         return lower_id + ".json"
     return "evt_" + lower_id + ".json"
+
+def puzzle_event_filename_from_id(event_id: str) -> str:
+    lower_id = event_id.lower()
+    if lower_id.startswith("pze_"):
+        return lower_id + ".json"
+    return "pze_" + lower_id + ".json"
+
+# スチルイベント
+def load_all_still_events(project_root: str) -> list[StillEventEntry]:
+    edir = still_events_dir(project_root)
+    if not os.path.exists(edir): return []
+    result = []
+    for fname in sorted(os.listdir(edir)):
+        if fname.startswith("sevt_") and fname.endswith(".json"):
+            result.append(_parse_still_event_file(os.path.join(edir, fname)))
+    return result
+
+def _parse_still_event_file(path: str) -> StillEventEntry:
+    data = load_json(path)
+    pages = []
+    for p in data.get("pages", []):
+        msgs = [
+            StillEventMessage(
+                text=m.get("text", ""),
+                se_id=m.get("se_id", ""),
+                bgm_id=m.get("bgm_id", ""),
+                stop_bgm=m.get("stop_bgm", False)
+            ) for m in p.get("messages", [])
+        ]
+        pages.append(StillEventPage(
+            still_image_id=p.get("still_image_id", ""),
+            fade_in_frames=p.get("fade_in_frames", 16),
+            fade_out_frames=p.get("fade_out_frames", 16),
+            messages=msgs
+        ))
+    return StillEventEntry(id=data.get("id", ""), title_ja=data.get("title_ja", "名称未設定"), pages=pages)
+
+def save_still_event_file(project_root: str, filename: str, event: StillEventEntry) -> None:
+    path = os.path.join(still_events_dir(project_root), filename)
+    data = {
+        "version": 1,
+        "id": event.id,
+        "title_ja": event.title_ja,
+        "pages": [
+            {
+                "still_image_id": p.still_image_id,
+                "fade_in_frames": p.fade_in_frames,
+                "fade_out_frames": p.fade_out_frames,
+                "messages": [
+                    {
+                        "text": m.text,
+                        "se_id": m.se_id,
+                        "bgm_id": m.bgm_id,
+                        "stop_bgm": m.stop_bgm
+                    } for m in p.messages
+                ]
+            } for p in event.pages
+        ]
+    }
+    save_json(path, data)
+
+def still_event_filename_from_id(event_id: str) -> str:
+    lower_id = event_id.lower()
+    if lower_id.startswith("sevt_"):
+        return lower_id + ".json"
+    return "sevt_" + lower_id + ".json"
 
 # テキスト
 def load_all_texts(project_root: str) -> list[TextEntry]:
@@ -249,11 +363,25 @@ def save_text_file(project_root: str, filename: str, category: str, entries: lis
 def load_gallery(project_root: str) -> list[GalleryEntry]:
     path = gallery_path(project_root)
     data = load_json(path)
-    return [GalleryEntry(category=e.get("category",""), resource_id=e.get("resource_id",""), ja=e.get("ja","")) for e in data.get("entries", [])]
+    result = []
+    for e in data.get("entries", []):
+        result.append(GalleryEntry(
+            category=e.get("category",""),
+            resource_id=e.get("resource_id",""),
+            ja=e.get("ja",""),
+            unlock_event_id=e.get("unlock_event_id", e.get("unlock_flag_compat","")) or ""
+        ))
+    return result
 
 def save_gallery(project_root: str, entries: list[GalleryEntry]) -> None:
     path = gallery_path(project_root)
-    data = {"version": 1, "entries": [{"category": e.category, "resource_id": e.resource_id, "ja": e.ja} for e in entries]}
+    data = {
+        "version": 2,
+        "entries": [
+            {"category": e.category, "resource_id": e.resource_id, "ja": e.ja, "unlock_event_id": e.unlock_event_id}
+            for e in entries
+        ]
+    }
     save_json(path, data)
 
 # ストーリー進行
@@ -265,4 +393,18 @@ def load_story_progression(project_root: str) -> list[dict]:
 def save_story_progression(project_root: str, chapters: list[dict]) -> None:
     path = story_progression_path(project_root)
     data = {"chapters": chapters}
+    save_json(path, data)
+
+# 解禁ルール
+def unlock_rules_path(project_root: str) -> str:
+    return os.path.join(fixdata_root(project_root), "unlock_rules.json")
+
+def load_unlock_rules(project_root: str) -> list[UnlockRule]:
+    path = unlock_rules_path(project_root)
+    data = load_json(path)
+    return [UnlockRule(event_id=r.get("event_id",""), flag_id=int(r.get("flag_id", -1))) for r in data.get("rules", [])]
+
+def save_unlock_rules(project_root: str, rules: list[UnlockRule]) -> None:
+    path = unlock_rules_path(project_root)
+    data = {"version": 1, "rules": [{"event_id": r.event_id, "flag_id": r.flag_id} for r in rules]}
     save_json(path, data)

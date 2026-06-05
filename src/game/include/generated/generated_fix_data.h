@@ -50,10 +50,38 @@ struct FdEventEntry {
     uint16_t line_count;
 };
 
+struct FdStillEventMessage {
+    const char* text;
+    SeId se_id;
+    BgmId bgm_id;
+    bool stop_bgm;
+};
+
+struct FdStillEventPage {
+    const char* still_image_id;
+    uint16_t fade_in_frames;
+    uint16_t fade_out_frames;
+    const FdStillEventMessage* messages;
+    uint16_t message_count;
+};
+
+struct FdStillEventEntry {
+    const char* id;
+    const char* title_ja;
+    const FdStillEventPage* pages;
+    uint16_t page_count;
+};
+
 struct FdGalleryEntry {
     const char* category;
     const char* resource_id;
     const char* ja;
+    int16_t     unlock_flag; // -1=常に解禁、>=0=フラグ参照
+};
+
+struct FdUnlockRule {
+    const char* event_id;   // このイベントIDの再生完了時
+    int16_t     flag_id;    // このフラグを立てる
 };
 
 enum class FdStoryStepType : uint8_t {
@@ -142,26 +170,65 @@ static constexpr FdEventEntry g_events[] = {
 };
 static constexpr uint16_t kEventCount = 4;
 
+static constexpr FdEventEntry g_puzzle_events[] = {
+    {nullptr, nullptr, nullptr, 0}
+};
+static constexpr uint16_t kPuzzleEventCount = 0;
+
+static constexpr FdStillEventMessage msgs_EVENT_STILL_01_p0[] = {
+    {"", SeId::COUNT, BgmId::COUNT, false},
+};
+static constexpr FdStillEventPage pages_EVENT_STILL_01[] = {
+    {"stl_logo", 16, 16, msgs_EVENT_STILL_01_p0, 1},
+};
+static constexpr FdStillEventMessage msgs_sevt_sample_p0[] = {
+    {" ", SeId::COUNT, BgmId::Afterburner, false},
+    {"最初のテキストです", SeId::COUNT, BgmId::COUNT, false},
+    {"次のテキストです", SeId::COUNT, BgmId::FlowerGuysPoolParty, false},
+};
+static constexpr FdStillEventMessage msgs_sevt_sample_p1[] = {
+    {"さらに次のテキスト...", SeId::COUNT, BgmId::COUNT, false},
+};
+static constexpr FdStillEventPage pages_sevt_sample[] = {
+    {"stl_logo", 60, 60, msgs_sevt_sample_p0, 3},
+    {"stl_title", 60, 60, msgs_sevt_sample_p1, 1},
+};
+static constexpr FdStillEventEntry g_still_events[] = {
+    {"EVENT_STILL_01", "OPENING", pages_EVENT_STILL_01, 1},
+    {"sevt_sample", "サンプル演出", pages_sevt_sample, 2},
+};
+static constexpr uint16_t kStillEventCount = 2;
+
 static constexpr FdGalleryEntry g_gallery[] = {
-    {"tachi-e", "mayo_normal", "マヨ（通常）"},
-    {"tachi-e", "mayo_happy1", "マヨ（喜び1）"},
-    {"tachi-e", "mayo_happy2", "マヨ（喜び2）"},
-    {"tachi-e", "mayo_happy3", "マヨ（喜び3）"},
-    {"tachi-e", "mayo_sad", "マヨ（悲しみ）"},
-    {"tachi-e", "mayo_angry", "マヨ（怒り）"},
-    {"tachi-e", "mayo_surprised", "マヨ（驚き）"},
-    {"tachi-e", "chara_b_normal", "キャラB（通常）"},
-    {"tachi-e", "chara_b_happy1", "キャラB（喜び）"},
-    {"tachi-e", "chara_b_sad", "キャラB（悲しみ）"},
-    {"bgm", "Afterburner", "afterburner"},
-    {"bgm", "RollinDownTheStreet", "rollin down the street"},
-    {"bgm", "FlowerGuysPoolParty", "flowerguy pool party"},
-    {"se", "Move", "カーソル移動"},
-    {"se", "Push", "ブロック押し"},
-    {"se", "Clear", "ステージクリア"},
-    {"se", "Reset", "リセット"},
+    {"tachi-e", "mayo_normal", "マヨ（通常）", -1},
+    {"tachi-e", "mayo_happy1", "マヨ（喜び1）", -1},
+    {"tachi-e", "mayo_happy2", "マヨ（喜び2）", -1},
+    {"tachi-e", "mayo_happy3", "マヨ（喜び3）", -1},
+    {"tachi-e", "mayo_sad", "マヨ（悲しみ）", -1},
+    {"tachi-e", "mayo_angry", "マヨ（怒り）", -1},
+    {"tachi-e", "mayo_surprised", "マヨ（驚き）", -1},
+    {"tachi-e", "chara_b_normal", "キャラB（通常）", -1},
+    {"tachi-e", "chara_b_happy1", "キャラB（喜び）", -1},
+    {"tachi-e", "chara_b_sad", "キャラB（悲しみ）", -1},
+    {"bgm", "Afterburner", "afterburner", -1},
+    {"bgm", "RollinDownTheStreet", "rollin down the street", -1},
+    {"bgm", "FlowerGuysPoolParty", "flowerguy pool party", -1},
+    {"se", "Move", "カーソル移動", -1},
+    {"se", "Push", "ブロック押し", -1},
+    {"se", "Clear", "ステージクリア", -1},
+    {"se", "Reset", "リセット", -1},
 };
 static constexpr uint16_t kGalleryCount = 17;
+
+static constexpr FdUnlockRule g_unlock_rules[] = {
+    {"EVT_CH1_CLEAR", 32},
+    {"EVT_CH1_INTRO", 33},
+    {"EVT_PUZZLE0_INTRO", 34},
+    {"STILL_PROLOGUE", 35},
+    {"EVENT_STILL_01", 36},
+    {"sevt_sample", 37},
+};
+static constexpr int16_t kUnlockRuleCount = 6;
 
 static constexpr FdStoryStep steps_ch1[] = {
     {FdStoryStepType::STILL_EVENT, -1, "STILL_PROLOGUE", nullptr},

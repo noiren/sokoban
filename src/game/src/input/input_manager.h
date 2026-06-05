@@ -9,6 +9,8 @@ enum class Action {
     Decide,     // 決定 / 次へ : A, START
     Cancel,     // 戻る : B
     OpenMenu,   // メニュー : SELECT
+    LButton,    // L ボタン
+    RButton,    // R ボタン
     COUNT
 };
 

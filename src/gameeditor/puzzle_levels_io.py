@@ -94,6 +94,8 @@ class LevelEntry:
     player_y: int = 1
     shady_x: int = -1
     shady_y: int = -1
+    intro_event_id: str = ""
+    outro_event_id: str = ""
 
 
 def _empty_bg() -> list[list[int]]:
@@ -191,6 +193,8 @@ def parse_levels_h(path: str) -> list[LevelEntry]:
                 player_y=py[i] if i < len(py) else 1,
                 shady_x=sx[i] if i < len(sx) else -1,
                 shady_y=sy[i] if i < len(sy) else -1,
+                intro_event_id="", # TODO: parse from header if needed, but json is primary
+                outro_event_id="",
             )
         )
     return levels
@@ -226,6 +230,8 @@ def level_to_dict(level: LevelEntry) -> dict:
         "player_y": level.player_y,
         "shady_x": level.shady_x,
         "shady_y": level.shady_y,
+        "intro_event_id": level.intro_event_id,
+        "outro_event_id": level.outro_event_id,
     }
 
 
@@ -238,6 +244,8 @@ def level_from_dict(d: dict) -> LevelEntry:
         player_y=int(d.get("player_y", 1)),
         shady_x=int(d.get("shady_x", -1)),
         shady_y=int(d.get("shady_y", -1)),
+        intro_event_id=d.get("intro_event_id", ""),
+        outro_event_id=d.get("outro_event_id", ""),
     )
 
 
@@ -288,8 +296,10 @@ def write_levels_h(path: str, levels: list[LevelEntry]) -> None:
         "",
         f"#define NUM_LEVELS {n}",
         "",
+        "inline int get_num_levels() { return NUM_LEVELS; }",
+        "",
         "// Background layouts for each level",
-        f"static const unsigned char level_bg_data[NUM_LEVELS][10][15] = {{",
+        f"static const unsigned char level_bg_data[NUM_LEVELS][{MAP_H}][{MAP_W}] = {{",
     ]
 
     for i, lv in enumerate(levels):
@@ -303,7 +313,7 @@ def write_levels_h(path: str, levels: list[LevelEntry]) -> None:
     lines.append("};")
     lines.append("")
     lines.append("// Foreground starting layouts (Player, Barrels, Shady)")
-    lines.append(f"static const unsigned char level_fg_data[NUM_LEVELS][10][15] = {{")
+    lines.append(f"static const unsigned char level_fg_data[NUM_LEVELS][{MAP_H}][{MAP_W}] = {{")
 
     for i, lv in enumerate(levels):
         lines.append(f"    // --- Level {i}: {lv.title} ---")
@@ -326,6 +336,12 @@ def write_levels_h(path: str, levels: list[LevelEntry]) -> None:
     sy = ", ".join(str(lv.shady_y) for lv in levels)
     lines.append(f"static const int level_shady_x[NUM_LEVELS] = {{ {sx} }};")
     lines.append(f"static const int level_shady_y[NUM_LEVELS] = {{ {sy} }};")
+    lines.append("")
+    lines.append("// Intro/Outro Events")
+    intro_strs = ", ".join(f'"{lv.intro_event_id}"' if lv.intro_event_id else "nullptr" for lv in levels)
+    outro_strs = ", ".join(f'"{lv.outro_event_id}"' if lv.outro_event_id else "nullptr" for lv in levels)
+    lines.append(f"static const char* level_intro_event[NUM_LEVELS] __attribute__((unused)) = {{ {intro_strs} }};")
+    lines.append(f"static const char* level_outro_event[NUM_LEVELS] __attribute__((unused)) = {{ {outro_strs} }};")
     lines.append("")
     lines.append("#endif // LEVELS_H")
     lines.append("")

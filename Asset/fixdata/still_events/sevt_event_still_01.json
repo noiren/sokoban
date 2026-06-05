@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "id": "EVENT_STILL_01",
+  "title_ja": "OPENING",
+  "pages": [
+    {
+      "still_image_id": "stl_logo",
+      "messages": [
+        {
+          "text": "",
+          "se_id": "",
+          "bgm_id": "",
+          "stop_bgm": false
+        }
+      ]
+    }
+  ]
+}

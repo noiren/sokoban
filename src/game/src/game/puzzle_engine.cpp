@@ -1,4 +1,5 @@
 #include "game/puzzle_engine.h"
+#include "bn_assert.h"
 #include "bn_math.h"
 
 // levels.h は puzzle_engine.cpp と同じ game/ ディレクトリにあるため、ファイル名のみで参照可
@@ -9,6 +10,8 @@
 // =============================================================================
 
 void PuzzleEngine::load_level(int level_id) {
+    BN_ASSERT(level_id >= 0 && level_id < NUM_LEVELS,
+              "PuzzleEngine::load_level: invalid level_id=", level_id);
     if (level_id < 0) level_id = 0;
     if (level_id >= NUM_LEVELS) level_id = NUM_LEVELS - 1;
 
@@ -36,6 +39,9 @@ void PuzzleEngine::load_level(int level_id) {
     data_.moves           = 0;
     data_.dropped_barrels = 0;
     events_.clear();
+
+    history_count_ = 0;
+    history_head_ = 0;
 }
 
 PuzzleEngine::Result PuzzleEngine::try_move(int dx, int dy) {
@@ -57,10 +63,15 @@ PuzzleEngine::Result PuzzleEngine::try_move(int dx, int dy) {
     // 移動先に樽があれば押す
     FgObj dest_fg = data_.fg_map[ny][nx];
     if (dest_fg == FgObj::BARREL) {
-        if (!try_push_barrel(nx, ny, dx, dy)) return Result::CONTINUE;
+        if (!is_passable_for_barrel(nx + dx, ny + dy)) return Result::CONTINUE;
+        record_history();
+        try_push_barrel(nx, ny, dx, dy);
+    } else if (dest_fg == FgObj::SHADY) {
+        // シェイディがいれば移動不可（ボスは捕まえる側なので通り抜けはさせない）
+        return Result::CONTINUE;
+    } else {
+        record_history();
     }
-    // シェイディがいれば移動不可（ボスは捕まえる側なので通り抜けはさせない）
-    if (dest_fg == FgObj::SHADY) return Result::CONTINUE;
 
     // プレイヤーを1マス動かす
     data_.fg_map[data_.player_y][data_.player_x] = FgObj::NONE;
@@ -114,7 +125,30 @@ void PuzzleEngine::change_bg(int x, int y, BgTile new_tile) {
                 new_tile, 0});
 }
 
+bool PuzzleEngine::try_undo() {
+    if (history_count_ == 0) return false;
+    
+    int index = (history_head_ + history_count_ - 1) % HISTORY_SIZE;
+    data_ = history_[index];
+    history_count_--;
+    
+    events_.clear();
+    return true;
+}
+
+void PuzzleEngine::record_history() {
+    int index = (history_head_ + history_count_) % HISTORY_SIZE;
+    history_[index] = data_;
+    if (history_count_ < HISTORY_SIZE) {
+        history_count_++;
+    } else {
+        history_head_ = (history_head_ + 1) % HISTORY_SIZE;
+    }
+}
+
 void PuzzleEngine::push_event(const PuzzleEvent& e) {
+    BN_ASSERT(!events_.full(),
+              "PuzzleEngine::push_event: event queue overflow! capacity=", events_.max_size());
     if (!events_.full()) {
         events_.push_back(e);
     }

@@ -31,7 +31,7 @@
 #define FG_OBJ_BARREL           2
 #define FG_OBJ_SHADY            3
 
-int get_num_levels();
+// get_num_levels() は levels.h に移動しました
 
 struct GameState {
     unsigned char bg_map[MAP_H][MAP_W];

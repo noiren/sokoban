@@ -6,6 +6,8 @@
 #include "bn_optional.h"
 #include "ui/Core/Manager/ui_manager.h"
 #include "ui/MainMenu/main_menu_ui_view.h"
+#include "save/game_flags.h"
+#include "save/save_data.h"
 
 // メニューの項目定義
 enum class MenuItem {
@@ -38,20 +40,20 @@ public:
 
 private:
     // 汎用フェーズ遷移関数
-    void change_phase(MenuPhase next);
+    void change_phase(MenuPhase next, SharedContext& ctx);
 
     // ==========================================
     // 各フェーズの処理関数群
     // ==========================================
     // メインメニュー
-    void enter_main();
+    void enter_main(SharedContext& ctx);
     void update_main(StateManager& sm, SharedContext& ctx);
-    void exit_main();
+    void exit_main(SharedContext& ctx);
 
     // ==========================================
     // 関数ポインタ・テーブル定義
     // ==========================================
-    using EnterExitFunc = void (MenuState::*)();
+    using EnterExitFunc = void (MenuState::*)(SharedContext&);
     using UpdateFunc = void (MenuState::*)(StateManager&, SharedContext&);
 
     struct PhaseHandlers {

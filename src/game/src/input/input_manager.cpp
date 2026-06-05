@@ -22,6 +22,8 @@ bool InputManager::check_pressed(Action a) {
         case Action::Decide:    return bn::keypad::a_pressed() || bn::keypad::start_pressed();
         case Action::Cancel:    return bn::keypad::b_pressed();
         case Action::OpenMenu:  return bn::keypad::select_pressed();
+        case Action::LButton:   return bn::keypad::l_pressed();
+        case Action::RButton:   return bn::keypad::r_pressed();
         default:                return false;
     }
 }
@@ -35,6 +37,8 @@ bool InputManager::check_held(Action a) {
         case Action::Decide:    return bn::keypad::a_held() || bn::keypad::start_held();
         case Action::Cancel:    return bn::keypad::b_held();
         case Action::OpenMenu:  return bn::keypad::select_held();
+        case Action::LButton:   return bn::keypad::l_held();
+        case Action::RButton:   return bn::keypad::r_held();
         default:                return false;
     }
 }
@@ -48,6 +52,8 @@ bool InputManager::check_released(Action a) {
         case Action::Decide:    return bn::keypad::a_released() || bn::keypad::start_released();
         case Action::Cancel:    return bn::keypad::b_released();
         case Action::OpenMenu:  return bn::keypad::select_released();
+        case Action::LButton:   return bn::keypad::l_released();
+        case Action::RButton:   return bn::keypad::r_released();
         default:                return false;
     }
 }

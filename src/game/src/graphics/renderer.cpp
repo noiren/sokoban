@@ -30,9 +30,7 @@ void render_draw_map(bn::array<bn::regular_bg_map_cell, 64 * 64>& map_cells,
 
             int render_tile = 0;
 
-            if (fg == FgObj::PLAYER) {
-                render_tile = 2;
-            } else if (fg == FgObj::BARREL) {
+            if (fg == FgObj::BARREL) {
                 render_tile = (bg == BgTile::SWITCH) ? 5 : 3;
             } else if (fg == FgObj::SHADY) {
                 render_tile = 6;

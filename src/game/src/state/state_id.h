@@ -10,7 +10,11 @@ enum class StateID {
     SETTINGS,
     PRACTICE,
     ENDLESS,
-    GALLERY,
+    GALLERY,        // ギャラリーメニュー
+    GALLERY_STILL,  // スチル鑑賞
+    GALLERY_TACHI,  // 立ち絵鑑賞
+    GALLERY_EVENT,  // イベントセレクト鑑賞
+    GALLERY_AUDIO,  // BGM/SE鑑賞
     DEBUG_MENU,
     STORY,        // ストーリー進行管理（画面なし）
     STILL_EVENT,  // スチルイベント（全画面イラスト＋テキスト）

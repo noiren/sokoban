@@ -2,7 +2,8 @@
 #define ENDLESS_STATE_H
 
 #include "state/state.h"
-#include "game/sokoban.h"
+#include "game/levels.h"
+#include "game/puzzle_gen.h"
 #include "graphics/renderer.h"
 #include "ui/HUD/hud.h"
 #include "save/save_data.h"
@@ -30,8 +31,8 @@ public:
     void enter(StateManager& sm, SharedContext& ctx) override;
     void update(StateManager& sm, SharedContext& ctx) override;
     void exit(StateManager& sm, SharedContext& ctx) override;
-    void pause(StateManager& sm, SharedContext& ctx) override {}
-    void resume(StateManager& sm, SharedContext& ctx) override {}
+    void pause(StateManager& /*sm*/, SharedContext& /*ctx*/) override {}
+    void resume(StateManager& /*sm*/, SharedContext& /*ctx*/) override {}
 
 private:
     void change_phase(EndlessPhase next);
@@ -59,7 +60,6 @@ private:
     static const PhaseHandlers phase_table_[];
 
     Hud hud_;
-    GameState gs_;
 
     int score_;
     int difficulty_;

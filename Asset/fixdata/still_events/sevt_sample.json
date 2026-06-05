@@ -1,0 +1,44 @@
+{
+    "id": "sevt_sample",
+    "title_ja": "サンプル演出",
+    "pages": [
+        {
+            "still_image_id": "stl_logo",
+            "fade_in_frames": 60,
+            "fade_out_frames": 60,
+            "messages": [
+                {
+                    "text": " ",
+                    "bgm_id": "Afterburner",
+                    "se_id": "",
+                    "stop_bgm": false
+                },
+                {
+                    "text": "最初のテキストです",
+                    "bgm_id": "",
+                    "se_id": "",
+                    "stop_bgm": false
+                },
+                {
+                    "text": "次のテキストです",
+                    "bgm_id": "FlowerGuysPoolParty",
+                    "se_id": "",
+                    "stop_bgm": false
+                }
+            ]
+        },
+        {
+            "still_image_id": "stl_title",
+            "fade_in_frames": 60,
+            "fade_out_frames": 60,
+            "messages": [
+                {
+                    "text": "さらに次のテキスト...",
+                    "bgm_id": "",
+                    "se_id": "",
+                    "stop_bgm": false
+                }
+            ]
+        }
+    ]
+}

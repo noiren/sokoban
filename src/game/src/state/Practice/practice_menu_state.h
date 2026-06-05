@@ -4,46 +4,34 @@
 #include "state/state.h"
 #include "bn_sprite_text_generator.h"
 #include "bn_optional.h"
-#include "ui/Core/Manager/ui_manager.h"
+#include "bn_vector.h"
+#include "bn_sprite_ptr.h"
+#include "save/user_data_puzzle.h"
 
 enum class PracticeMenuPhase {
     SELECT_LEVEL,
     COUNT
 };
 
-// プラクティスモード: ステージ選択画面 (TODO: 実装予定)
+// プラクティスモード: ステージ選択画面
 class PracticeMenuState : public State {
 public:
     PracticeMenuState();
     void enter(StateManager& sm, SharedContext& ctx) override;
     void update(StateManager& sm, SharedContext& ctx) override;
     void exit(StateManager& sm, SharedContext& ctx) override;
-    void pause(StateManager& sm, SharedContext& ctx) override {}
-    void resume(StateManager& sm, SharedContext& ctx) override {}
+    void pause(StateManager& /*sm*/, SharedContext& /*ctx*/) override {}
+    void resume(StateManager& /*sm*/, SharedContext& /*ctx*/) override;
 
 private:
-    void change_phase(PracticeMenuPhase next);
+    void redraw(SharedContext& ctx);
+    void draw_stage_list(SharedContext& ctx);
 
-    void enter_select();
-    void update_select(StateManager& sm, SharedContext& ctx);
-    void exit_select();
+    bn::vector<bn::sprite_ptr, 64> sprites_;
 
-    using EnterExitFunc = void (PracticeMenuState::*)();
-    using UpdateFunc = void (PracticeMenuState::*)(StateManager&, SharedContext&);
-
-    struct PhaseHandlers {
-        EnterExitFunc enter;
-        UpdateFunc    update;
-        EnterExitFunc exit;
-    };
-
-    static const PhaseHandlers phase_table_[];
-
-    bn::optional<UIManager> ui_manager_;
+    UserDataPuzzle user_data_;
     int cursor_;
-    int selected_level_;
-    PracticeMenuPhase phase_;
-    PhaseStep step_;
+    int scroll_offset_;  // 表示スクロール用（カーソルに追従）
 };
 
 #endif // PRACTICE_MENU_STATE_H

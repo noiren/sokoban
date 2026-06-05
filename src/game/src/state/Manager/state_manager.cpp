@@ -56,8 +56,12 @@ void StateManager::process_requests(SharedContext& ctx) {
 
     State* next_state = nullptr;
     if (req_id != StateID::NONE) {
-        next_state = registry_[static_cast<int>(req_id)];
-        BN_ASSERT(next_state != nullptr, "Requested State is not registered!");
+        int idx = static_cast<int>(req_id);
+        BN_ASSERT(idx >= 0 && idx < static_cast<int>(StateID::COUNT),
+                  "StateManager: invalid StateID=", idx);
+        next_state = registry_[idx];
+        BN_ASSERT(next_state != nullptr,
+                  "StateManager: State not registered for ID=", idx);
     }
 
     switch (req) {

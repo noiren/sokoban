@@ -81,6 +81,9 @@ void EventState::enter(StateManager& /*sm*/, SharedContext& ctx) {
     // UI 初期化
     ui_manager_.emplace(*ctx.text_generator);
     ui_manager_->load_screen(ui_data_event::SCREEN);
+    if (ctx.event_is_overlay) {
+        ui_manager_->clear_bg(); // 背景を非表示にしてパズルを透過させる
+    }
     ui_.emplace(*ui_manager_);
 
     // メッセージウィンドウ背景のロードと優先度(Priority 1)設定
@@ -105,7 +108,11 @@ void EventState::enter(StateManager& /*sm*/, SharedContext& ctx) {
     }
 
     // イベントデータを FixDataManager から取得
-    event_entry_ = FixDataManager::instance().find_event(ctx.target_event_id);
+    if (ctx.use_puzzle_event_table) {
+        event_entry_ = FixDataManager::instance().find_puzzle_event(ctx.target_event_id);
+    } else {
+        event_entry_ = FixDataManager::instance().find_event(ctx.target_event_id);
+    }
 
     pc_ = 0;
     skip_requested_ = false;
@@ -131,7 +138,7 @@ void EventState::update(StateManager& sm, SharedContext& ctx) {
     }
 }
 
-void EventState::exit(StateManager& /*sm*/, SharedContext& /*ctx*/) {
+void EventState::exit(StateManager& /*sm*/, SharedContext& ctx) {
     if (phase_table_[(int)phase_].exit) {
         (this->*phase_table_[(int)phase_].exit)();
     }
@@ -147,6 +154,7 @@ void EventState::exit(StateManager& /*sm*/, SharedContext& /*ctx*/) {
         ui_manager_->clear_all();
         ui_manager_.reset();
     }
+    ctx.event_is_overlay = false; // フラグをリセット
 }
 
 // ============================================================
@@ -280,6 +288,16 @@ void EventState::enter_finished() {
 }
 
 void EventState::update_finished(StateManager& sm, SharedContext& ctx) {
+    // 解禁ルールを適用（イベント完了時にフラグを立ててSRAM保存）
+    if (event_entry_ && ctx.save) {
+        FixDataManager::instance().apply_unlock_rules(
+            bn::string_view(event_entry_->id),
+            ctx.save->slots[ctx.active_slot],
+            *ctx.save,
+            ctx.active_slot
+        );
+    }
+
     // ストーリーモードから呼ばれた場合は pop_state() で StoryState の resume() を起動
     // それ以外（メニューから直接など）は従来通り change_state
     if (ctx.event_return_state == StateID::STORY) {

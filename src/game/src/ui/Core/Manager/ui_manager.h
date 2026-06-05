@@ -32,8 +32,9 @@ public:
     // 画像 ID（文字列）から直接スプライトを切り替える (イベント用)
     void change_sprite_image_by_id(UIImage* node, const bn::string_view& image_id);
 
-private:
     void clear_bg();
+
+private:
     void _set_bg_from_string(bn::string_view bg_id);
     bn::optional<bn::sprite_ptr> _create_sprite_from_set(const bn::string_view& img_set, int img_no, bn::fixed x, bn::fixed y);
 

@@ -24,8 +24,8 @@ public:
     void enter(StateManager& sm, SharedContext& ctx) override;
     void update(StateManager& sm, SharedContext& ctx) override;
     void exit(StateManager& sm, SharedContext& ctx) override;
-    void pause(StateManager& sm, SharedContext& ctx) override {}
-    void resume(StateManager& sm, SharedContext& ctx) override {}
+    void pause(StateManager& /*sm*/, SharedContext& /*ctx*/) override {}
+    void resume(StateManager& /*sm*/, SharedContext& /*ctx*/) override {}
 
 private:
     // 汎用フェーズ遷移関数

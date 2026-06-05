@@ -1,6 +1,14 @@
 #include "game/tile_handler.h"
 #include "game/puzzle_engine.h"
 
+// BgTile enum の値が TILE_HANDLERS テーブルのインデックスと一致していることを保証
+static_assert((int)BgTile::FLOOR == 0, "BgTile enum changed: update TILE_HANDLERS!");
+static_assert((int)BgTile::WALL == 1, "BgTile enum changed: update TILE_HANDLERS!");
+static_assert((int)BgTile::HOLE == 7, "BgTile enum changed: update TILE_HANDLERS!");
+static_assert((int)BgTile::EXIT == 8, "BgTile enum changed: update TILE_HANDLERS!");
+static_assert((int)BgTile::WARP_BLUE_B == 17, "BgTile enum changed: update TILE_HANDLERS!");
+static_assert((int)BgTile::EMPTY == 18, "BgTile enum changed: update TILE_HANDLERS!");
+
 // =============================================================================
 // ハンドラ関数の定義
 // =============================================================================

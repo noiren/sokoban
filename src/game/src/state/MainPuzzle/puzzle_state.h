@@ -11,6 +11,8 @@
 #include "bn_optional.h"
 #include "bn_string.h"
 #include "bn_camera_ptr.h"
+#include "bn_sprite_ptr.h"
+#include "bn_sprite_animate_actions.h"
 #include "ui/Core/Manager/ui_manager.h"
 
 // パズル画面内のフェーズ
@@ -67,7 +69,9 @@ private:
     void level_init();
     void redraw_map();
     void update_hud();
+    void get_visual_player_pos(bn::fixed& px, bn::fixed& py);
     void update_camera();
+    void update_player_sprite();
 
     // --- メンバ変数 ---
     bn::optional<UIManager> ui_manager_;
@@ -82,12 +86,28 @@ private:
     // アニメーション制御
     int current_event_index_;
     int anim_frame_;
+    int frame_counter_;  // プレイ中の経過フレーム数（PLAYING + ANIMATING 中にインクリメント）
+
+    // Removed tutorial triggers here
 
     // BGマップ描画用
     bn::optional<bn::regular_bg_ptr>     bg_;
     bn::optional<bn::regular_bg_map_ptr> bg_map_;
     bn::optional<bn::camera_ptr>         camera_;
     alignas(4) bn::array<bn::regular_bg_map_cell, 64 * 64> map_cells_;
+
+    // プレイヤースプライト
+    bn::optional<bn::sprite_ptr> player_sprite_;
+    bn::optional<bn::sprite_animate_action<4>> player_anim_;
+    int player_dir_ = 0; // 0:Down, 1:Up, 2:Left, 3:Right
+
+    // 移動アニメーション用
+    int move_anim_frames_ = 0;
+    int move_anim_max_frames_ = 8;
+    int move_src_x_ = 0;
+    int move_src_y_ = 0;
+    int move_dst_x_ = 0;
+    int move_dst_y_ = 0;
 };
 
 #endif // PUZZLE_STATE_H

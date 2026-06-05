@@ -7,7 +7,10 @@
 #include "bn_regular_bg_items_still_puzzle_map.h"
 #include "bn_string.h"
 #include "bn_keypad.h"
-#include "game/sokoban.h"
+#include "bn_assert.h"
+#include "game/levels.h"
+#include "save/user_data_puzzle.h"
+#include "bn_sprite_items_spr_player.h"
 
 // =============================================================================
 // フェーズテーブルの実体定義（順番は PuzzlePhase enum と一致させること）
@@ -28,13 +31,15 @@ PuzzleState::PuzzleState()
       current_level_(0),
       last_drawn_moves_(-1),
       current_event_index_(0),
-      anim_frame_(0) {
+      anim_frame_(0),
+      frame_counter_(0) {
 }
 
 // =============================================================================
 // State ライフサイクル
 // =============================================================================
-void PuzzleState::enter(StateManager& /*sm*/, SharedContext& ctx) {
+void PuzzleState::enter(StateManager& sm, SharedContext& ctx) {
+    BN_ASSERT(ctx.text_generator != nullptr, "PuzzleState::enter: text_generator is null");
     ui_manager_.emplace(*ctx.text_generator);
     ui_manager_->load_screen(ui_data_sokoban_main::SCREEN);
 
@@ -47,6 +52,18 @@ void PuzzleState::enter(StateManager& /*sm*/, SharedContext& ctx) {
     if (phase_table_[(int)phase_].enter) {
         (this->*phase_table_[(int)phase_].enter)();
     }
+
+    // イントロイベントがあれば再生
+    if (level_intro_event[current_level_] != nullptr && !ctx.puzzle_played_intro[current_level_]) {
+        ctx.target_event_id = level_intro_event[current_level_];
+        ctx.use_puzzle_event_table = true;
+        ctx.event_is_overlay = true;
+        ctx.event_return_state = StateID::PUZZLE;
+        ctx.puzzle_played_intro[current_level_] = true;
+        sm.push_state(StateID::EVENT);
+        return;
+    }
+
 }
 
 void PuzzleState::update(StateManager& sm, SharedContext& ctx) {
@@ -56,8 +73,9 @@ void PuzzleState::update(StateManager& sm, SharedContext& ctx) {
         (this->*phase_table_[(int)phase_].update)(sm, ctx);
     }
 
-    // プレイヤーが移動した後にカメラを更新することでちらつきを防ぐ
+    // プレイヤーが移動した後にカメラとスプライトを更新することでちらつきを防ぐ
     update_camera();
+    update_player_sprite();
 
     if (ui_manager_) {
         ui_manager_->update();
@@ -72,6 +90,8 @@ void PuzzleState::exit(StateManager& /*sm*/, SharedContext& /*ctx*/) {
     bg_.reset();
     bg_map_.reset();
     camera_.reset();
+    player_sprite_.reset();
+    player_anim_.reset();
 
     if (ui_manager_) {
         ui_manager_->clear_all();
@@ -105,17 +125,30 @@ void PuzzleState::enter_playing() {
 }
 
 void PuzzleState::update_playing(StateManager& sm, SharedContext& ctx) {
+    // チュートリアルトリガーは削除されました
+
+    // PLAYING フェーズ中はフレームカウンタを進める
+    ++frame_counter_;
+
     // Bボタン：メニューへ戻る
     if (InputManager::instance().is_triggered(Action::Cancel)) {
         sm.change_state(ctx.puzzle_return_state);
         return;
     }
 
-    // SELECT / R：現在のレベルをリセット
-    if (bn::keypad::select_pressed() || bn::keypad::r_pressed()) {
+    // SELECT / R / START：現在のレベルをリセット
+    if (bn::keypad::select_pressed() || bn::keypad::r_pressed() || bn::keypad::start_pressed()) {
         level_init();
         change_phase(PuzzlePhase::PLAYING);
         return;
+    }
+
+    // L：Undo (1手戻る)
+    if (bn::keypad::l_pressed()) {
+        if (engine_.try_undo()) {
+            redraw_map();
+            return;
+        }
     }
 
     int dx = 0, dy = 0;
@@ -126,10 +159,35 @@ void PuzzleState::update_playing(StateManager& sm, SharedContext& ctx) {
 
     if (dx == 0 && dy == 0) return;
 
+    int old_px = engine_.data().player_x;
+    int old_py = engine_.data().player_y;
+
     // ロジックを1手進める（このフレーム内で連鎖計算まで全て完了）
     last_result_ = engine_.try_move(dx, dy);
 
-    if (!engine_.events().empty()) {
+    // アニメーション用の方向更新
+    if (dx < 0) player_dir_ = 2; // Left
+    if (dx > 0) player_dir_ = 3; // Right
+    if (dy < 0) player_dir_ = 1; // Up
+    if (dy > 0) player_dir_ = 0; // Down
+
+    if (engine_.data().player_x != old_px || engine_.data().player_y != old_py) {
+        // 移動が発生した場合はアニメーションフェーズへ
+        move_src_x_ = old_px;
+        move_src_y_ = old_py;
+        move_dst_x_ = engine_.data().player_x;
+        move_dst_y_ = engine_.data().player_y;
+        move_anim_frames_ = 0;
+        
+        // 歩行アニメーション開始
+        if (player_sprite_) {
+            player_anim_.emplace(bn::create_sprite_animate_action_forever(
+                *player_sprite_, 3, bn::sprite_items::spr_player.tiles_item(),
+                player_dir_ * 3 + 1, player_dir_ * 3 + 0, player_dir_ * 3 + 2, player_dir_ * 3 + 0));
+        }
+
+        change_phase(PuzzlePhase::ANIMATING);
+    } else if (!engine_.events().empty()) {
         // イベントがあればアニメーションフェーズへ
         change_phase(PuzzlePhase::ANIMATING);
     } else {
@@ -153,10 +211,17 @@ void PuzzleState::enter_animating() {
 }
 
 void PuzzleState::update_animating(StateManager& /*sm*/, SharedContext& /*ctx*/) {
+    // ANIMATING フェーズ中もフレームカウンタを進める
+    ++frame_counter_;
+
+    if (move_anim_frames_ < move_anim_max_frames_) {
+        move_anim_frames_++;
+        return; // アニメーション中はここで待機
+    }
+
     const auto& events = engine_.events();
 
-    // 暫定実装：全イベントを1フレームで処理（アニメーションなし）
-    // TODO: イベントを1つずつ消費し、MOVE_FGは補間移動、CHANGE_BGはBG書き換えにする
+    // 暫定実装：全イベントを1フレームで処理（移動アニメーション完了後に適用）
     current_event_index_ = events.size();
 
     if (current_event_index_ >= events.size()) {
@@ -168,6 +233,12 @@ void PuzzleState::update_animating(StateManager& /*sm*/, SharedContext& /*ctx*/)
         } else if (last_result_ == PuzzleEngine::Result::CLEARED) {
             change_phase(PuzzlePhase::CLEARED);
         } else {
+            // アニメーションを待機状態に戻す
+            if (player_sprite_) {
+                player_anim_.emplace(bn::create_sprite_animate_action_forever(
+                    *player_sprite_, 10, bn::sprite_items::spr_player.tiles_item(),
+                    player_dir_ * 3, player_dir_ * 3, player_dir_ * 3, player_dir_ * 3));
+            }
             change_phase(PuzzlePhase::PLAYING);
         }
     }
@@ -226,10 +297,35 @@ void PuzzleState::enter_cleared() {
 void PuzzleState::update_cleared(StateManager& sm, SharedContext& ctx) {
     if (InputManager::instance().is_triggered(Action::Decide) ||
         bn::keypad::start_pressed()) {
+
+        // アウトロイベントがあれば再生
+        if (level_outro_event[current_level_] != nullptr && !ctx.puzzle_played_outro[current_level_]) {
+            ctx.target_event_id = level_outro_event[current_level_];
+            ctx.use_puzzle_event_table = true;
+            ctx.event_is_overlay = true;
+            ctx.event_return_state = StateID::PUZZLE;
+            ctx.puzzle_played_outro[current_level_] = true;
+            sm.push_state(StateID::EVENT);
+            return;
+        }
+
         // ストーリーモードから呼ばれた場合は pop_state() で StoryState の resume() を起動
         if (ctx.puzzle_return_state == StateID::STORY) {
+            // ストーリークリア記録を UserDataPuzzle に保存
+            UserDataPuzzle puzzle_data;
+            user_data_puzzle_load(puzzle_data);
+            user_data_puzzle_set_story_cleared(puzzle_data, current_level_);
+            user_data_puzzle_save(puzzle_data);
+
             ctx.story_step_completed = true;
             sm.pop_state();
+        } else if (ctx.puzzle_return_state == StateID::PRACTICE) {
+            // プラクティスモード：クリア結果を ctx に乗せて PRACTICE へ戻る
+            ctx.puzzle_just_cleared  = true;
+            ctx.puzzle_clear_level   = current_level_;
+            ctx.puzzle_clear_moves   = engine_.data().moves;
+            ctx.puzzle_clear_frames  = frame_counter_;
+            sm.change_state(StateID::PRACTICE);
         } else {
             // 非ストーリーモード：従来通り次のレベルへ or リターン
             int next_level = current_level_ + 1;
@@ -251,6 +347,9 @@ void PuzzleState::exit_cleared() {}
 void PuzzleState::level_init() {
     engine_.load_level(current_level_);
     last_drawn_moves_ = -1;
+    frame_counter_    = 0;  // フレームカウンタをリセット
+    player_dir_       = 0;  // 向きをリセット
+    player_dir_       = 0;  // 向きをリセット
 
     if (!bg_) {
         // camera を先に作成
@@ -260,6 +359,16 @@ void PuzzleState::level_init() {
         bg_->set_priority(2);
         bg_->set_camera(*camera_); // camera を BG にアタッチ
         bg_map_ = bg_->map();
+    }
+
+    if (!player_sprite_) {
+        player_sprite_ = bn::sprite_items::spr_player.create_sprite(0, 0);
+        player_sprite_->set_bg_priority(1);
+        player_sprite_->set_z_order(1);
+        player_sprite_->set_camera(*camera_); // カメラをスプライトにもアタッチ
+        player_anim_.emplace(bn::create_sprite_animate_action_forever(
+            *player_sprite_, 10, bn::sprite_items::spr_player.tiles_item(),
+            player_dir_ * 3, player_dir_ * 3, player_dir_ * 3, player_dir_ * 3));
     }
 
     redraw_map();
@@ -283,19 +392,36 @@ void PuzzleState::update_hud() {
     last_drawn_moves_ = current_moves;
 }
 
+void PuzzleState::get_visual_player_pos(bn::fixed& px, bn::fixed& py) {
+    if (phase_ == PuzzlePhase::ANIMATING && move_anim_frames_ < move_anim_max_frames_) {
+        bn::fixed t = bn::fixed(move_anim_frames_) / move_anim_max_frames_;
+        px = move_src_x_ * 16 + 8 + (move_dst_x_ - move_src_x_) * 16 * t;
+        py = move_src_y_ * 16 + 8 + (move_dst_y_ - move_src_y_) * 16 * t;
+    } else {
+        px = engine_.data().player_x * 16 + 8;
+        py = engine_.data().player_y * 16 + 8;
+    }
+}
+
 void PuzzleState::update_camera() {
     if (!camera_) return;
 
-    // Butano bgs_manager ソースより:
-    //   hw_x = -(bg_pos - cam_pos) - screen_w/2 + half_dims.width()
-    //        = cam_pos + 8    (bg_pos=0, screen_w=240, half_dims=128)
-    //   hw_y = cam_pos_y + 48 (screen_h=160, half_dims=128)
-    //
-    // プレイヤー(BG pixel px)を画面中心(hardware x=120)に置くには:
-    //   BGHOFS = px - 120  →  cam_pos + 8 = px - 120  →  cam_pos = px - 128
-    // Y も同様: BGVOFS = py - 80  →  cam_pos + 48 = py - 80  →  cam_pos = py - 128
-    bn::fixed px = engine_.data().player_x * 16 + 8;
-    bn::fixed py = engine_.data().player_y * 16 + 8;
+    bn::fixed px, py;
+    get_visual_player_pos(px, py);
 
     camera_->set_position(px - 256, py - 256);
+}
+
+void PuzzleState::update_player_sprite() {
+    if (!player_sprite_) return;
+
+    bn::fixed px, py;
+    get_visual_player_pos(px, py);
+
+    // スプライトは少しだけ上にずらして足元を合わせる（16x32サイズ想定）
+    player_sprite_->set_position(px - 256, py - 256 - 6);
+    
+    if (player_anim_ && !player_anim_->done()) {
+        player_anim_->update();
+    }
 }

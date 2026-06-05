@@ -59,6 +59,10 @@ int main()
     BN_DATA_EWRAM static EndlessState       endless_state;
     BN_DATA_EWRAM static PracticeMenuState  practice_menu_state;
     BN_DATA_EWRAM static GalleryState       gallery_state;
+    BN_DATA_EWRAM static GalleryStillState  gallery_still_state;
+    BN_DATA_EWRAM static GalleryTachiState  gallery_tachi_state;
+    BN_DATA_EWRAM static GalleryEventState  gallery_event_state;
+    BN_DATA_EWRAM static GalleryAudioState  gallery_audio_state;
     BN_DATA_EWRAM static DebugState         debug_state;
     BN_DATA_EWRAM static StoryState         story_state;
     BN_DATA_EWRAM static StillEventState    still_event_state;
@@ -71,7 +75,11 @@ int main()
     state_manager.register_state(StateID::EVENT, &event_state);
     state_manager.register_state(StateID::ENDLESS, &endless_state);
     state_manager.register_state(StateID::PRACTICE, &practice_menu_state);
-    state_manager.register_state(StateID::GALLERY, &gallery_state);
+    state_manager.register_state(StateID::GALLERY,       &gallery_state);
+    state_manager.register_state(StateID::GALLERY_STILL, &gallery_still_state);
+    state_manager.register_state(StateID::GALLERY_TACHI, &gallery_tachi_state);
+    state_manager.register_state(StateID::GALLERY_EVENT, &gallery_event_state);
+    state_manager.register_state(StateID::GALLERY_AUDIO, &gallery_audio_state);
     state_manager.register_state(StateID::DEBUG_MENU, &debug_state);
     state_manager.register_state(StateID::STORY, &story_state);
     state_manager.register_state(StateID::STILL_EVENT, &still_event_state);

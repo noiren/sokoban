@@ -3,10 +3,6 @@
 #include "bn_memory.h"
 #include "bn_math.h"
 
-int get_num_levels() {
-    return NUM_LEVELS;
-}
-
 // Check if all floor switches are pressed by barrels
 static bool are_switches_pressed(const GameState& gs) {
     for (int y = 0; y < MAP_H; y++) {

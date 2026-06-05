@@ -5,6 +5,8 @@
 
 #define NUM_LEVELS 9
 
+inline int get_num_levels() { return NUM_LEVELS; }
+
 // Background layouts for each level
 static const unsigned char level_bg_data[NUM_LEVELS][10][15] = {
     // --- Level 0: Stage 1 Tutorial - Simple Pushing ---
@@ -254,5 +256,9 @@ static const int level_player_y[NUM_LEVELS] = { 6, 6, 3, 5, 5, 5, 5, 5, 7 };
 // Shady coordinates
 static const int level_shady_x[NUM_LEVELS] = { -1, -1, -1, -1, -1, -1, -1, -1, 7 };
 static const int level_shady_y[NUM_LEVELS] = { -1, -1, -1, -1, -1, -1, -1, -1, 4 };
+
+// Intro/Outro Events
+static const char* level_intro_event[NUM_LEVELS] __attribute__((unused)) = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+static const char* level_outro_event[NUM_LEVELS] __attribute__((unused)) = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 
 #endif // LEVELS_H

@@ -127,6 +127,8 @@ void TitleState::update_epid_logo(StateManager& /*sm*/, SharedContext& /*ctx*/) 
                 change_phase(TitlePhase::DOUJIN_NOTICE_DISP);
             }
             break;
+        default:
+            break;
     }
 }
 
@@ -160,6 +162,8 @@ void TitleState::update_doujin_notice(StateManager& /*sm*/, SharedContext& /*ctx
                 change_phase(TitlePhase::AUTOSAVE_WARN_DISP);
             }
             break;
+        default:
+            break;
     }
 }
 
@@ -192,6 +196,8 @@ void TitleState::update_autosave_warn(StateManager& /*sm*/, SharedContext& /*ctx
             if (!fade_.update()) {
                 change_phase(TitlePhase::TITLE_DISP);
             }
+            break;
+        default:
             break;
     }
 }
@@ -231,6 +237,8 @@ void TitleState::update_title(StateManager& sm, SharedContext& /*ctx*/) {
                 // 画面遷移
                 sm.change_state(StateID::MENU);
             }
+            break;
+        default:
             break;
     }
 }

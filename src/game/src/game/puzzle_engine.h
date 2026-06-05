@@ -32,13 +32,24 @@ public:
     // 盤面データへのアクセス（描画・HUD更新に使う）
     const PuzzleData& data() const { return data_; }
 
+    // 1手戻る（Undo）。成功したら true を返す
+    bool try_undo();
+
     // タイルハンドラから呼ばれるAPI（内部からも呼ばれる）
     void change_bg(int x, int y, BgTile new_tile);
     void push_event(const PuzzleEvent& e);
 
 private:
+    static constexpr int HISTORY_SIZE = 30;
+
     PuzzleData data_;
     bn::vector<PuzzleEvent, 64> events_;
+
+    PuzzleData history_[HISTORY_SIZE];
+    int history_count_ = 0;
+    int history_head_ = 0;
+
+    void record_history();
 
     // --- 内部ヘルパー ---
 
