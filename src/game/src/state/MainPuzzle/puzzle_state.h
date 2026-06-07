@@ -1,6 +1,8 @@
 #ifndef PUZZLE_STATE_H
 #define PUZZLE_STATE_H
 
+#include <cstdint>
+
 #include "state/state.h"
 #include "game/puzzle_engine.h"
 
@@ -72,6 +74,7 @@ private:
     void get_visual_player_pos(bn::fixed& px, bn::fixed& py);
     void update_camera();
     void update_player_sprite();
+    bool _try_mid_puzzle_events(StateManager& sm, SharedContext& ctx);
 
     // --- メンバ変数 ---
     bn::optional<UIManager> ui_manager_;
@@ -108,6 +111,9 @@ private:
     int move_src_y_ = 0;
     int move_dst_x_ = 0;
     int move_dst_y_ = 0;
+
+    /// レベル内 mid_events の発火済みビット（最大 MAX_MID_PUZZLE_TRANSCRIPTS）
+    uint8_t mid_events_fired_mask_ = 0;
 };
 
 #endif // PUZZLE_STATE_H

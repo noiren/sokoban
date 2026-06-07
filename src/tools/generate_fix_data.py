@@ -13,12 +13,26 @@ def escape_str(s: str) -> str:
     if s is None: return "nullptr"
     return json.dumps(s, ensure_ascii=False)
 
+def to_cpp_enum_name(face_id: str) -> str:
+    """ 'normal_1' -> 'Normal_1' (末尾 _<数字> を variant とみなす) """
+    base, _, var = face_id.rpartition('_')
+    return f"{base.capitalize()}_{var}"
+
 def to_cpp_face_id(face_id: str) -> str:
     """ 'normal_1' -> 'FdFaceId::Normal_1' """
     if not face_id or face_id not in fix_data_io.FACE_IDS:
         return "FdFaceId::None"
-    parts = face_id.split('_')
-    return f"FdFaceId::{parts[0].capitalize()}_{parts[1]}"
+    return f"FdFaceId::{to_cpp_enum_name(face_id)}"
+
+def build_face_enum_lines() -> list:
+    """感情カタログから FdFaceId enum の本体行を構築。"""
+    lines = []
+    for c in fix_data_io.FACE_CATEGORIES:
+        cap = str(c["id"]).capitalize()
+        names = [f"{cap}_{i}" for i in range(1, int(c.get("variants", 3)) + 1)]
+        lines.append("    " + ", ".join(names) + ",")
+    lines.append("    None = 255")
+    return lines
 
 def to_cpp_position(pos: str) -> str:
     if pos.upper() == "RIGHT": return "FdPosition::Right"
@@ -38,21 +52,20 @@ def main():
     os.makedirs(out_dir, exist_ok=True)
     out_path = os.path.join(out_dir, "generated_fix_data.h")
 
+    face_count = len(fix_data_io.FACE_IDS)
+
     lines = [
         "// AUTO GENERATED FILE. DO NOT EDIT.",
         "#pragma once",
         "#include <cstdint>",
         '#include "generated/audio_ids.h"',
         "",
+        f"static constexpr uint16_t kFaceImageCount = {face_count};",
+        "",
         "enum class FdFaceId : uint8_t {",
-        "    Normal_1, Normal_2, Normal_3,",
-        "    Smile_1, Smile_2, Smile_3,",
-        "    Sad_1, Sad_2, Sad_3,",
-        "    Angry_1, Angry_2, Angry_3,",
-        "    Surprised_1, Surprised_2, Surprised_3,",
-        "    Happy_1, Happy_2, Happy_3,",
-        "    Think_1, Think_2, Think_3,",
-        "    None = 255",
+    ]
+    lines += build_face_enum_lines()
+    lines += [
         "};",
         "",
         "enum class FdPosition : uint8_t {",
@@ -63,7 +76,7 @@ def main():
         "struct FdCharacterEntry {",
         "    const char* id;",
         "    const char* name_ja;",
-        "    const char* face_images[21];",
+        f"    const char* face_images[{face_count}];",
         "};",
         "",
         "struct FdTextEntry {",
@@ -82,6 +95,7 @@ def main():
         "    SeId se_id;",
         "    bool stop_bgm;",
         "    const char* emotion_id;",
+        "    const char* center_image_id;",
         "};",
         "",
         "struct FdEventEntry {",
@@ -175,7 +189,7 @@ def main():
             se_val = f"SeId::{ln.se_id}" if ln.se_id else "SeId::COUNT"
             stop_val = "true" if ln.stop_bgm else "false"
             emotion_val = escape_str(ln.emotion_id) if hasattr(ln, 'emotion_id') else "nullptr"
-            lines.append(f"    {{{escape_str(ln.speaker_id)}, {to_cpp_face_id(ln.face_id)}, {to_cpp_position(ln.position)}, {escape_str(ln.image_id)}, {escape_str(ln.text)}, {bgm_val}, {se_val}, {stop_val}, {emotion_val}}},")
+            lines.append(f"    {{{escape_str(ln.speaker_id)}, {to_cpp_face_id(ln.face_id)}, {to_cpp_position(ln.position)}, {escape_str(ln.image_id)}, {escape_str(ln.text)}, {bgm_val}, {se_val}, {stop_val}, {emotion_val}, {escape_str(ln.center_image_id)}}},")
         lines.append("};")
 
     lines.append("static constexpr FdEventEntry g_events[] = {")
@@ -194,7 +208,7 @@ def main():
             se_val = f"SeId::{ln.se_id}" if ln.se_id else "SeId::COUNT"
             stop_val = "true" if ln.stop_bgm else "false"
             emotion_val = escape_str(ln.emotion_id) if hasattr(ln, 'emotion_id') else "nullptr"
-            lines.append(f"    {{{escape_str(ln.speaker_id)}, {to_cpp_face_id(ln.face_id)}, {to_cpp_position(ln.position)}, {escape_str(ln.image_id)}, {escape_str(ln.text)}, {bgm_val}, {se_val}, {stop_val}, {emotion_val}}},")
+            lines.append(f"    {{{escape_str(ln.speaker_id)}, {to_cpp_face_id(ln.face_id)}, {to_cpp_position(ln.position)}, {escape_str(ln.image_id)}, {escape_str(ln.text)}, {bgm_val}, {se_val}, {stop_val}, {emotion_val}, {escape_str(ln.center_image_id)}}},")
         lines.append("};")
 
     lines.append("static constexpr FdEventEntry g_puzzle_events[] = {")

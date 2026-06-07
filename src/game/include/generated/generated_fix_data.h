@@ -3,6 +3,8 @@
 #include <cstdint>
 #include "generated/audio_ids.h"
 
+static constexpr uint16_t kFaceImageCount = 21;
+
 enum class FdFaceId : uint8_t {
     Normal_1, Normal_2, Normal_3,
     Smile_1, Smile_2, Smile_3,
@@ -41,6 +43,7 @@ struct FdEventLine {
     SeId se_id;
     bool stop_bgm;
     const char* emotion_id;
+    const char* center_image_id;
 };
 
 struct FdEventEntry {
@@ -105,7 +108,7 @@ struct FdStoryChapter {
 };
 
 static constexpr FdCharacterEntry g_characters[] = {
-    {"chara_mayo", "マヨ", {"mayo_normal", "mayo_happy1", "mayo_happy2", "mayo_happy3", "mayo_sad", "mayo_angry", "mayo_surprised", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}},
+    {"chara_mayo", "マヨ", {"mayo_normal_1", "mayo_normal_2", "mayo_normal_3", "mayo_smile_1", "mayo_smile_2", "mayo_smile_3", "mayo_sad_1", "mayo_sad_2", "mayo_sad_3", "mayo_angry_1", "mayo_angry_2", "mayo_angry_3", "mayo_surprised_1", "mayo_surprised_2", "mayo_surprised_3", "mayo_happy_1", "mayo_happy_2", "mayo_happy_3", "mayo_think_1", "mayo_think_2", "mayo_think_3"}},
     {"chara_b", "キャラB", {"chara_b_normal", "chara_b_happy1", "chara_b_sad", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}},
 };
 static constexpr uint16_t kCharacterCount = 2;
@@ -143,24 +146,24 @@ static constexpr FdTextEntry g_texts[] = {
 static constexpr uint16_t kTextCount = 28;
 
 static constexpr FdEventLine lines_EVT_CH1_CLEAR[] = {
-    {"chara_b", FdFaceId::Happy_1, FdPosition::Right, "chara_b_happy1", "よくできました！", BgmId::Afterburner, SeId::COUNT, false, ""},
-    {"chara_b", FdFaceId::Happy_1, FdPosition::Right, "chara_b_happy1", "いいスタートだね。", BgmId::COUNT, SeId::COUNT, false, ""},
-    {"chara_b", FdFaceId::Normal_1, FdPosition::Right, "chara_b_normal", "明日はもっとあるから。", BgmId::COUNT, SeId::COUNT, false, ""},
+    {"chara_b", FdFaceId::Happy_1, FdPosition::Right, "chara_b_happy1", "よくできました！", BgmId::Afterburner, SeId::COUNT, false, "", ""},
+    {"chara_b", FdFaceId::Happy_1, FdPosition::Right, "chara_b_happy1", "いいスタートだね。", BgmId::COUNT, SeId::COUNT, false, "", ""},
+    {"chara_b", FdFaceId::Normal_1, FdPosition::Right, "chara_b_normal", "明日はもっとあるから。", BgmId::COUNT, SeId::COUNT, false, "", ""},
 };
 static constexpr FdEventLine lines_EVT_CH1_INTRO[] = {
-    {"chara_mayo", FdFaceId::Normal_1, FdPosition::Left, "mayo_normal", "また来たんだ…", BgmId::FlowerGuysPoolParty, SeId::COUNT, false, ""},
-    {"chara_mayo", FdFaceId::Normal_1, FdPosition::Left, "mayo_normal", "倉庫か。", BgmId::COUNT, SeId::COUNT, false, ""},
-    {"chara_b", FdFaceId::Happy_1, FdPosition::Right, "chara_b_happy1", "来た来た！", BgmId::COUNT, SeId::COUNT, false, ""},
-    {"chara_b", FdFaceId::Happy_1, FdPosition::Right, "chara_b_happy1", "荷物の整理、手伝ってよ。", BgmId::COUNT, SeId::COUNT, false, ""},
-    {"chara_b", FdFaceId::Normal_1, FdPosition::Right, "chara_b_normal", "準備はいい？", BgmId::COUNT, SeId::COUNT, false, ""},
+    {"chara_mayo", FdFaceId::Normal_1, FdPosition::Left, "mayo_normal", "また来たんだ…", BgmId::FlowerGuysPoolParty, SeId::COUNT, false, "", ""},
+    {"chara_mayo", FdFaceId::Normal_1, FdPosition::Left, "mayo_normal", "倉庫か。", BgmId::COUNT, SeId::COUNT, false, "", ""},
+    {"chara_b", FdFaceId::Happy_1, FdPosition::Right, "chara_b_happy1", "来た来た！", BgmId::COUNT, SeId::COUNT, false, "", ""},
+    {"chara_b", FdFaceId::Happy_1, FdPosition::Right, "chara_b_happy1", "荷物の整理、手伝ってよ。", BgmId::COUNT, SeId::COUNT, false, "", ""},
+    {"chara_b", FdFaceId::Normal_1, FdPosition::Right, "chara_b_normal", "準備はいい？", BgmId::COUNT, SeId::COUNT, false, "", ""},
 };
 static constexpr FdEventLine lines_EVT_PUZZLE0_INTRO[] = {
-    {"", FdFaceId::None, FdPosition::Left, "", "ここから先は岩を動かして進む必要があります。", BgmId::COUNT, SeId::COUNT, false, ""},
-    {"", FdFaceId::None, FdPosition::Left, "", "岩は押すことしかできません。", BgmId::COUNT, SeId::COUNT, false, ""},
+    {"", FdFaceId::None, FdPosition::Left, "", "ここから先は岩を動かして進む必要があります。", BgmId::COUNT, SeId::COUNT, false, "", ""},
+    {"", FdFaceId::None, FdPosition::Left, "", "岩は押すことしかできません。", BgmId::COUNT, SeId::COUNT, false, "", ""},
 };
 static constexpr FdEventLine lines_STILL_PROLOGUE[] = {
-    {"", FdFaceId::None, FdPosition::Left, "", "これは、とある世界のお話。", BgmId::COUNT, SeId::COUNT, false, ""},
-    {"", FdFaceId::None, FdPosition::Left, "", "謎のダンジョンに迷い込んだ主人公の運命は…", BgmId::COUNT, SeId::COUNT, false, ""},
+    {"", FdFaceId::None, FdPosition::Left, "", "これは、とある世界のお話。", BgmId::COUNT, SeId::COUNT, false, "", ""},
+    {"", FdFaceId::None, FdPosition::Left, "", "謎のダンジョンに迷い込んだ主人公の運命は…", BgmId::COUNT, SeId::COUNT, false, "", ""},
 };
 static constexpr FdEventEntry g_events[] = {
     {"EVT_CH1_CLEAR", "チャプター1クリア", lines_EVT_CH1_CLEAR, 3},
@@ -170,10 +173,18 @@ static constexpr FdEventEntry g_events[] = {
 };
 static constexpr uint16_t kEventCount = 4;
 
-static constexpr FdEventEntry g_puzzle_events[] = {
-    {nullptr, nullptr, nullptr, 0}
+static constexpr FdEventLine pze_lines_PZE_LV0_INTRO[] = {
+    {"", FdFaceId::None, FdPosition::Left, "", "この倉庫では、樽を押して道を作ります。", BgmId::COUNT, SeId::COUNT, false, "", "paper_medium"},
+    {"chara_mayo", FdFaceId::Normal_1, FdPosition::Left, "mayo_normal_1", "壁にぶつからないよう、ゆっくり進んでね。", BgmId::COUNT, SeId::COUNT, false, "", ""},
 };
-static constexpr uint16_t kPuzzleEventCount = 0;
+static constexpr FdEventLine pze_lines_PZE_LV0_MID[] = {
+    {"chara_mayo", FdFaceId::Happy_1, FdPosition::Left, "mayo_happy_1", "2手目！うまく押せてるね。", BgmId::COUNT, SeId::COUNT, false, "", ""},
+};
+static constexpr FdEventEntry g_puzzle_events[] = {
+    {"PZE_LV0_INTRO", "LV0 イントロ", pze_lines_PZE_LV0_INTRO, 2},
+    {"PZE_LV0_MID", "LV0 道中", pze_lines_PZE_LV0_MID, 1},
+};
+static constexpr uint16_t kPuzzleEventCount = 2;
 
 static constexpr FdStillEventMessage msgs_EVENT_STILL_01_p0[] = {
     {"", SeId::COUNT, BgmId::COUNT, false},
@@ -210,15 +221,21 @@ static constexpr FdGalleryEntry g_gallery[] = {
     {"tachi-e", "chara_b_normal", "キャラB（通常）", -1},
     {"tachi-e", "chara_b_happy1", "キャラB（喜び）", -1},
     {"tachi-e", "chara_b_sad", "キャラB（悲しみ）", -1},
-    {"bgm", "Afterburner", "afterburner", -1},
-    {"bgm", "RollinDownTheStreet", "rollin down the street", -1},
-    {"bgm", "FlowerGuysPoolParty", "flowerguy pool party", -1},
-    {"se", "Move", "カーソル移動", -1},
-    {"se", "Push", "ブロック押し", -1},
-    {"se", "Clear", "ステージクリア", -1},
+    {"bgm", "afterburner", "afterburner", -1},
+    {"bgm", "rollin down the street", "rollin down the street", -1},
+    {"bgm", "flowerguy pool party", "flowerguy pool party", -1},
+    {"se", "Move cursor", "カーソル移動", -1},
+    {"se", "Push block", "ブロック押し", -1},
+    {"se", "Stage clear", "ステージクリア", -1},
     {"se", "Reset", "リセット", -1},
+    {"still", "still_gallerymenu", "スチル・ギャラリー背景", -1},
+    {"still", "stl_logo", "スチル・LOGO", -1},
+    {"still", "still_event", "スチル・イベント枠", 33},
+    {"event", "EVT_CH1_INTRO", "イベント・プロローグ", -1},
+    {"event", "EVT_PUZZLE0_INTRO", "イベント・パズル0", 33},
+    {"event", "sevt_sample", "スチル演出サンプル", 33},
 };
-static constexpr uint16_t kGalleryCount = 17;
+static constexpr uint16_t kGalleryCount = 23;
 
 static constexpr FdUnlockRule g_unlock_rules[] = {
     {"EVT_CH1_CLEAR", 32},

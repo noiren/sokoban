@@ -85,6 +85,15 @@ def puzzle_map_bmp_path(project_root: str) -> str:
     return os.path.join(project_root, "Asset", "graphics", "stills", "still_puzzle_map.bmp")
 
 
+MAX_MID_PUZZLE_TRANSCRIPTS = 4
+
+
+@dataclass
+class MidPuzzleEventEntry:
+    on_move_count: int = 0
+    event_id: str = ""
+
+
 @dataclass
 class LevelEntry:
     title: str = "Untitled"
@@ -96,6 +105,7 @@ class LevelEntry:
     shady_y: int = -1
     intro_event_id: str = ""
     outro_event_id: str = ""
+    mid_events: list[MidPuzzleEventEntry] = field(default_factory=list)
 
 
 def _empty_bg() -> list[list[int]]:
@@ -232,10 +242,21 @@ def level_to_dict(level: LevelEntry) -> dict:
         "shady_y": level.shady_y,
         "intro_event_id": level.intro_event_id,
         "outro_event_id": level.outro_event_id,
+        "mid_events": [
+            {"on_move_count": m.on_move_count, "event_id": m.event_id}
+            for m in level.mid_events
+        ],
     }
 
 
 def level_from_dict(d: dict) -> LevelEntry:
+    mid_list: list[MidPuzzleEventEntry] = []
+    for m in d.get("mid_events", []):
+        if isinstance(m, dict):
+            mid_list.append(MidPuzzleEventEntry(
+                on_move_count=int(m.get("on_move_count", 0)),
+                event_id=str(m.get("event_id", "")).strip(),
+            ))
     return LevelEntry(
         title=d.get("title", "Untitled"),
         bg=_pad_grid(d.get("bg", _empty_bg())),
@@ -246,6 +267,7 @@ def level_from_dict(d: dict) -> LevelEntry:
         shady_y=int(d.get("shady_y", -1)),
         intro_event_id=d.get("intro_event_id", ""),
         outro_event_id=d.get("outro_event_id", ""),
+        mid_events=mid_list,
     )
 
 
@@ -343,6 +365,30 @@ def write_levels_h(path: str, levels: list[LevelEntry]) -> None:
     lines.append(f"static const char* level_intro_event[NUM_LEVELS] __attribute__((unused)) = {{ {intro_strs} }};")
     lines.append(f"static const char* level_outro_event[NUM_LEVELS] __attribute__((unused)) = {{ {outro_strs} }};")
     lines.append("")
+    lines.append("// Mid-puzzle: when moves counter reaches on_move_count, push overlay event once per level_init")
+    lines.append(f"#define MAX_MID_PUZZLE_TRANSCRIPTS {MAX_MID_PUZZLE_TRANSCRIPTS}")
+    lines.append(f"static const int level_mid_on_moves[NUM_LEVELS][MAX_MID_PUZZLE_TRANSCRIPTS] __attribute__((unused)) = {{")
+    for lv in levels:
+        cells_m: list[str] = []
+        for i in range(MAX_MID_PUZZLE_TRANSCRIPTS):
+            if i < len(lv.mid_events):
+                cells_m.append(str(int(lv.mid_events[i].on_move_count)))
+            else:
+                cells_m.append("-1")
+        lines.append(f"    {{{', '.join(cells_m)}}},")
+    lines.append("};")
+    lines.append("")
+    lines.append(f"static const char* level_mid_event_id[NUM_LEVELS][MAX_MID_PUZZLE_TRANSCRIPTS] __attribute__((unused)) = {{")
+    for lv in levels:
+        cells_id: list[str] = []
+        for i in range(MAX_MID_PUZZLE_TRANSCRIPTS):
+            if i < len(lv.mid_events) and lv.mid_events[i].event_id:
+                cells_id.append(f'"{lv.mid_events[i].event_id}"')
+            else:
+                cells_id.append("nullptr")
+        lines.append(f"    {{{', '.join(cells_id)}}},")
+    lines.append("};")
+    lines.append("")
     lines.append("#endif // LEVELS_H")
     lines.append("")
 
@@ -374,6 +420,13 @@ def validate_level(level: LevelEntry) -> list[str]:
         issues.append(f"プレイヤーが {players} マスあります（1マス必要）")
     if shadys > 1:
         issues.append(f"シェイディが {shadys} マスあります（0または1）")
+    if len(level.mid_events) > MAX_MID_PUZZLE_TRANSCRIPTS:
+        issues.append(f"mid_events が {len(level.mid_events)} 件（最大 {MAX_MID_PUZZLE_TRANSCRIPTS}）")
+    for i, m in enumerate(level.mid_events):
+        if m.on_move_count <= 0:
+            issues.append(f"mid_events[{i}] の on_move_count は 1 以上にしてください")
+        if not m.event_id:
+            issues.append(f"mid_events[{i}] に event_id が必要です")
     if level.player_x < 0 or level.player_x >= MAP_W or level.player_y < 0 or level.player_y >= MAP_H:
         issues.append("プレイヤー座標が範囲外です（X:0〜14, Y:0〜9）")
     for y in range(MAP_H):

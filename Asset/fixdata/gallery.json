@@ -11,12 +11,18 @@
     { "category": "tachi-e", "resource_id": "chara_b_normal",     "ja": "キャラB（通常）",  "unlock_event_id": "" },
     { "category": "tachi-e", "resource_id": "chara_b_happy1",     "ja": "キャラB（喜び）",  "unlock_event_id": "" },
     { "category": "tachi-e", "resource_id": "chara_b_sad",        "ja": "キャラB（悲しみ）","unlock_event_id": "" },
-    { "category": "bgm",     "resource_id": "Afterburner",        "ja": "afterburner",        "unlock_event_id": "" },
-    { "category": "bgm",     "resource_id": "RollinDownTheStreet","ja": "rollin down the street", "unlock_event_id": "" },
-    { "category": "bgm",     "resource_id": "FlowerGuysPoolParty","ja": "flowerguy pool party",   "unlock_event_id": "" },
-    { "category": "se",      "resource_id": "Move",               "ja": "カーソル移動",     "unlock_event_id": "" },
-    { "category": "se",      "resource_id": "Push",               "ja": "ブロック押し",     "unlock_event_id": "" },
-    { "category": "se",      "resource_id": "Clear",              "ja": "ステージクリア",   "unlock_event_id": "" },
-    { "category": "se",      "resource_id": "Reset",              "ja": "リセット",         "unlock_event_id": "" }
+    { "category": "bgm",     "resource_id": "afterburner",        "ja": "afterburner",        "unlock_event_id": "" },
+    { "category": "bgm",     "resource_id": "rollin down the street", "ja": "rollin down the street", "unlock_event_id": "" },
+    { "category": "bgm",     "resource_id": "flowerguy pool party",   "ja": "flowerguy pool party",   "unlock_event_id": "" },
+    { "category": "se",      "resource_id": "Move cursor",        "ja": "カーソル移動",     "unlock_event_id": "" },
+    { "category": "se",      "resource_id": "Push block",         "ja": "ブロック押し",     "unlock_event_id": "" },
+    { "category": "se",      "resource_id": "Stage clear",        "ja": "ステージクリア",   "unlock_event_id": "" },
+    { "category": "se",      "resource_id": "Reset",              "ja": "リセット",         "unlock_event_id": "" },
+    { "category": "still",   "resource_id": "still_gallerymenu",  "ja": "スチル・ギャラリー背景", "unlock_event_id": "" },
+    { "category": "still",   "resource_id": "stl_logo",           "ja": "スチル・LOGO",        "unlock_event_id": "" },
+    { "category": "still",   "resource_id": "still_event",        "ja": "スチル・イベント枠",  "unlock_event_id": "EVT_CH1_INTRO" },
+    { "category": "event",   "resource_id": "EVT_CH1_INTRO",      "ja": "イベント・プロローグ", "unlock_event_id": "" },
+    { "category": "event",   "resource_id": "EVT_PUZZLE0_INTRO",  "ja": "イベント・パズル0",   "unlock_event_id": "EVT_CH1_INTRO" },
+    { "category": "event",   "resource_id": "sevt_sample",        "ja": "スチル演出サンプル",  "unlock_event_id": "EVT_CH1_INTRO" }
   ]
 }

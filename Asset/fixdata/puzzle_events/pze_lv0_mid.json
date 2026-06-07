@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "id": "PZE_LV0_MID",
+  "title_ja": "LV0 道中",
+  "lines": [
+    {
+      "speaker_id": "chara_mayo",
+      "face_id": "happy_1",
+      "position": "LEFT",
+      "image_id": "mayo_happy_1",
+      "text": "2手目！うまく押せてるね。",
+      "bgm_id": "",
+      "se_id": "",
+      "stop_bgm": false,
+      "emotion_id": "",
+      "center_image_id": ""
+    }
+  ]
+}

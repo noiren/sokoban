@@ -355,8 +355,14 @@
       "player_y": 6,
       "shady_x": -1,
       "shady_y": -1,
-      "intro_event_id": "",
-      "outro_event_id": ""
+      "intro_event_id": "PZE_LV0_INTRO",
+      "outro_event_id": "",
+      "mid_events": [
+        {
+          "on_move_count": 2,
+          "event_id": "PZE_LV0_MID"
+        }
+      ]
     },
     {
       "title": "Stage 1 Tutorial - Switch and Door",
@@ -709,7 +715,8 @@
       "shady_x": -1,
       "shady_y": -1,
       "intro_event_id": "",
-      "outro_event_id": ""
+      "outro_event_id": "",
+      "mid_events": []
     },
     {
       "title": "Stage 2 - Cracked Floors Escape",
@@ -1062,7 +1069,8 @@
       "shady_x": -1,
       "shady_y": -1,
       "intro_event_id": "",
-      "outro_event_id": ""
+      "outro_event_id": "",
+      "mid_events": []
     },
     {
       "title": "Stage 2 - Cracked Floors + Barrels",
@@ -1415,7 +1423,8 @@
       "shady_x": -1,
       "shady_y": -1,
       "intro_event_id": "",
-      "outro_event_id": ""
+      "outro_event_id": "",
+      "mid_events": []
     },
     {
       "title": "Stage 3 - Ice Floor Slides",
@@ -1768,7 +1777,8 @@
       "shady_x": -1,
       "shady_y": -1,
       "intro_event_id": "",
-      "outro_event_id": ""
+      "outro_event_id": "",
+      "mid_events": []
     },
     {
       "title": "Stage 3 - Ice + Cracked + Barrels",
@@ -2121,7 +2131,8 @@
       "shady_x": -1,
       "shady_y": -1,
       "intro_event_id": "",
-      "outro_event_id": ""
+      "outro_event_id": "",
+      "mid_events": []
     },
     {
       "title": "Stage 4 - Arrow Panels Flow",
@@ -2474,7 +2485,8 @@
       "shady_x": -1,
       "shady_y": -1,
       "intro_event_id": "",
-      "outro_event_id": ""
+      "outro_event_id": "",
+      "mid_events": []
     },
     {
       "title": "Stage 4 - Arrow Panels + Switches",
@@ -2827,7 +2839,8 @@
       "shady_x": -1,
       "shady_y": -1,
       "intro_event_id": "",
-      "outro_event_id": ""
+      "outro_event_id": "",
+      "mid_events": []
     },
     {
       "title": "Capture Shady with Warps",
@@ -3180,7 +3193,8 @@
       "shady_x": 7,
       "shady_y": 4,
       "intro_event_id": "",
-      "outro_event_id": ""
+      "outro_event_id": "",
+      "mid_events": []
     }
   ]
 }

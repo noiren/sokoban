@@ -18,7 +18,7 @@ namespace ui_data_event {
     constexpr ui_types::SpriteEntry SPRITES[SPRITE_COUNT] = {
         { "event_cg", "dummy", 0, 0.0f, -20.0f, 0.0f, false },
         { "char_left", "chara_portraits", 0, -56.0f, -32.0f, 0.0f, false },
-        { "char_right", "chara_portraits", 3, 64.0f, -32.0f, 0.0f, false },
+        { "char_right", "chara_portraits", 21, 64.0f, -32.0f, 0.0f, false },
         { "msg_window", "ui_paper", 0, -72.0f, 40.0f, 0.0f, false },
         { "next_icon", "ui_common", 7, 95.0f, 60.0f, 0.0f, false },
     };

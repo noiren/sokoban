@@ -28,6 +28,9 @@ public:
     // イベントIDに紐づく全ての解禁フラグが立っているか確認
     bool is_event_unlocked(bn::string_view event_id, const SaveSlot& slot) const;
 
+    // ギャラリー各項目の unlock_flag（>=0 のみ）をすべて立てて SRAM に保存する（デバッグ用）
+    void unlock_all_gallery_item_flags(SaveSlot& slot, SaveData& save, int slot_index) const;
+
 private:
     FixDataManager() = default;
 };

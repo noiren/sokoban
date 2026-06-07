@@ -13,6 +13,7 @@ import ui_compiler
 import generate_fix_data
 import pack_tiles
 import generate_sprite_anims
+import generate_chara_portraits
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))
 SRC_GRAPHICS_DIR = os.path.join(PROJECT_ROOT, "Asset", "graphics")
@@ -97,6 +98,9 @@ def main():
 
     print("[prebuild] Running SpriteAnim codegen...")
     generate_sprite_anims.main()
+
+    print("[prebuild] Running Chara Portraits codegen...")
+    generate_chara_portraits.main()
 
     print("[prebuild] Prebuild tasks complete.")
 

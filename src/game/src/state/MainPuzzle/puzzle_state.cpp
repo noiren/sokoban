@@ -32,7 +32,8 @@ PuzzleState::PuzzleState()
       last_drawn_moves_(-1),
       current_event_index_(0),
       anim_frame_(0),
-      frame_counter_(0) {
+      frame_counter_(0),
+      mid_events_fired_mask_(0) {
 }
 
 // =============================================================================
@@ -125,10 +126,14 @@ void PuzzleState::enter_playing() {
 }
 
 void PuzzleState::update_playing(StateManager& sm, SharedContext& ctx) {
-    // チュートリアルトリガーは削除されました
+    // 道中イベント（levels.json の mid_events）を手数一致で再生
 
     // PLAYING フェーズ中はフレームカウンタを進める
     ++frame_counter_;
+
+    if (_try_mid_puzzle_events(sm, ctx)) {
+        return;
+    }
 
     // Bボタン：メニューへ戻る
     if (InputManager::instance().is_triggered(Action::Cancel)) {
@@ -350,6 +355,7 @@ void PuzzleState::level_init() {
     frame_counter_    = 0;  // フレームカウンタをリセット
     player_dir_       = 0;  // 向きをリセット
     player_dir_       = 0;  // 向きをリセット
+    mid_events_fired_mask_ = 0;
 
     if (!bg_) {
         // camera を先に作成
@@ -424,4 +430,38 @@ void PuzzleState::update_player_sprite() {
     if (player_anim_ && !player_anim_->done()) {
         player_anim_->update();
     }
+}
+
+bool PuzzleState::_try_mid_puzzle_events(StateManager& sm, SharedContext& ctx) {
+    BN_ASSERT(current_level_ >= 0 && current_level_ < NUM_LEVELS, "PuzzleState::_try_mid_puzzle_events bad level");
+
+    for (int i = 0; i < MAX_MID_PUZZLE_TRANSCRIPTS; ++i) {
+        const int trigger_moves = level_mid_on_moves[current_level_][i];
+        if (trigger_moves < 0) {
+            break;
+        }
+
+        const char* eid = level_mid_event_id[current_level_][i];
+        if (!eid) {
+            continue;
+        }
+
+        if (mid_events_fired_mask_ & static_cast<uint8_t>(1 << i)) {
+            continue;
+        }
+
+        if (engine_.data().moves != trigger_moves) {
+            continue;
+        }
+
+        mid_events_fired_mask_ = static_cast<uint8_t>(mid_events_fired_mask_ | static_cast<uint8_t>(1 << i));
+        ctx.target_event_id = bn::string_view(eid);
+        ctx.use_puzzle_event_table = true;
+        ctx.event_is_overlay = true;
+        ctx.event_return_state = StateID::PUZZLE;
+        sm.push_state(StateID::EVENT);
+        return true;
+    }
+
+    return false;
 }

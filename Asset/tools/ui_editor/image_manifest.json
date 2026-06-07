@@ -34,10 +34,28 @@
     "1": "ui/practice/spr_stage_icon_cloud"
   },
   "chara_portraits": {
-    "0": "stills/chara/spr_ch_mayo_normal",
-    "1": "stills/chara/spr_ch_mayo_smile",
-    "2": "stills/chara/spr_ch_mayo_sad",
-    "3": "stills/chara/spr_ch_riri_normal"
+    "0": "sprites/chara/chara/spr_ch_mayo_normal_1",
+    "1": "sprites/chara/chara/spr_ch_mayo_normal_2",
+    "2": "sprites/chara/chara/spr_ch_mayo_normal_3",
+    "3": "sprites/chara/chara/spr_ch_mayo_smile_1",
+    "4": "sprites/chara/chara/spr_ch_mayo_smile_2",
+    "5": "sprites/chara/chara/spr_ch_mayo_smile_3",
+    "6": "sprites/chara/chara/spr_ch_mayo_sad_1",
+    "7": "sprites/chara/chara/spr_ch_mayo_sad_2",
+    "8": "sprites/chara/chara/spr_ch_mayo_sad_3",
+    "9": "sprites/chara/chara/spr_ch_mayo_angry_1",
+    "10": "sprites/chara/chara/spr_ch_mayo_angry_2",
+    "11": "sprites/chara/chara/spr_ch_mayo_angry_3",
+    "12": "sprites/chara/chara/spr_ch_mayo_surprised_1",
+    "13": "sprites/chara/chara/spr_ch_mayo_surprised_2",
+    "14": "sprites/chara/chara/spr_ch_mayo_surprised_3",
+    "15": "sprites/chara/chara/spr_ch_mayo_happy_1",
+    "16": "sprites/chara/chara/spr_ch_mayo_happy_2",
+    "17": "sprites/chara/chara/spr_ch_mayo_happy_3",
+    "18": "sprites/chara/chara/spr_ch_mayo_think_1",
+    "19": "sprites/chara/chara/spr_ch_mayo_think_2",
+    "20": "sprites/chara/chara/spr_ch_mayo_think_3",
+    "21": "sprites/chara/chara/spr_ch_riri_normal"
   },
   "chara_mini": {
     "0": "stills/mini/spr_mn_crying",

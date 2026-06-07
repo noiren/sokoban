@@ -8,6 +8,7 @@
 #include "generated/audio_dispatch_se.gen.h"
 #include "ui/Core/Effects/fade_effect.h"
 #include "ui/Core/Components/effect_manager.h"
+#include "ui/Core/Components/ui_image.h"
 #include "animation/sprite_anim_manager.h"
 #include "bn_sprite_items_spr_dummy.h"
 #include "generated/generated_fix_data.h"
@@ -21,6 +22,25 @@
 #include "bn_sprite_items_japanese_font.h"
 #include "bn_sprite_palettes.h"
 #include "bn_string.h"
+#include "bn_assert.h"
+
+#include "generated/chara_portraits.gen.h"
+#include "ui_data_logo.h"
+#include "ui_data_attention.h"
+#include "ui_data_autosave_attension.h"
+#include "ui_data_title.h"
+#include "ui_data_menu.h"
+#include "ui_data_mainmenu.h"
+#include "ui_data_save_select.h"
+#include "ui_data_settings.h"
+#include "ui_data_practice_stageSelect.h"
+#include "ui_data_sokoban_main.h"
+#include "ui_data_event.h"
+#include "ui_data_gallerymenu.h"
+#include "ui_data_gallery_selectevent.h"
+#include "ui_data_gallery_bgm.h"
+#include "ui_data_gallery_viewstill.h"
+#include "ui_data_gallery_viewbustup.h"
 
 namespace {
 
@@ -36,6 +56,33 @@ static constexpr ui_types::AnimPreset test_preset = {
     3,
     test_keyframes
 };
+
+struct UiDebugScreenEntry {
+    const char* id;
+    const ui_types::ScreenData* screen;
+};
+
+// ui_compiler が出力する全 ui_data_* レイアウト（追加したらここにも1行足す）
+constexpr UiDebugScreenEntry UI_DEBUG_SCREENS[] = {
+    { "logo",                   &ui_data_logo::SCREEN },
+    { "attention",              &ui_data_attention::SCREEN },
+    { "autosave_attension",     &ui_data_autosave_attension::SCREEN },
+    { "title",                  &ui_data_title::SCREEN },
+    { "menu",                   &ui_data_menu::SCREEN },
+    { "mainmenu",               &ui_data_mainmenu::SCREEN },
+    { "save_select",            &ui_data_save_select::SCREEN },
+    { "settings",               &ui_data_settings::SCREEN },
+    { "practice_stageSelect",   &ui_data_practice_stageSelect::SCREEN },
+    { "sokoban_main",           &ui_data_sokoban_main::SCREEN },
+    { "event",                  &ui_data_event::SCREEN },
+    { "gallerymenu",            &ui_data_gallerymenu::SCREEN },
+    { "gallery_selectevent",    &ui_data_gallery_selectevent::SCREEN },
+    { "gallery_bgm",            &ui_data_gallery_bgm::SCREEN },
+    { "gallery_viewstill",      &ui_data_gallery_viewstill::SCREEN },
+    { "gallery_viewbustup",     &ui_data_gallery_viewbustup::SCREEN },
+};
+
+constexpr int UI_DEBUG_SCREEN_COUNT = int(sizeof(UI_DEBUG_SCREENS) / sizeof(UI_DEBUG_SCREENS[0]));
 
 } // namespace
 
@@ -58,7 +105,15 @@ DebugState::DebugState()
 void DebugState::enter(StateManager& /*sm*/, SharedContext& ctx) {
     screen_ = DebugScreen::Root;
     cursor_ = 0;
+    ui_debug_cursor_ = 0;
+    ui_portrait_idx_ = 0;
     last_drawn_bgm_playing_ = false;
+
+    if (ui_manager_) {
+        ui_manager_->clear_all();
+        ui_manager_.reset();
+    }
+    portrait_solo_sprite_.reset();
 
     SoundManager& snd = SoundManager::instance();
     prev_sound_bgm_enabled_ = snd.bgm_enabled();
@@ -71,7 +126,8 @@ void DebugState::enter(StateManager& /*sm*/, SharedContext& ctx) {
 
     prev_sprite_intensity_ = bn::sprite_palettes::intensity();
     had_saved_sprite_intensity_ = true;
-    bn::sprite_palettes::set_intensity(bn::fixed(1));
+    // intensity は「パレットへの効果量」で 1=最大。1 にすると色が白飛びするため 0=通常表示。
+    bn::sprite_palettes::set_intensity(bn::fixed(0));
 
     if (ctx.text_generator) {
         ctx.text_generator->set_palette_item(bn::sprite_items::japanese_font.palette_item());
@@ -94,6 +150,12 @@ void DebugState::update(StateManager& sm, SharedContext& ctx) {
     switch (screen_) {
         case DebugScreen::Root:
             update_root(sm, ctx);
+            break;
+        case DebugScreen::UiList:
+            update_ui_list(sm, ctx);
+            break;
+        case DebugScreen::PortraitSolo:
+            update_portrait_solo(sm, ctx);
             break;
         case DebugScreen::BgmList:
             update_bgm_list(sm, ctx);
@@ -142,6 +204,12 @@ void DebugState::redraw(SharedContext& ctx) {
         case DebugScreen::Root:
             draw_root(ctx);
             break;
+        case DebugScreen::UiList:
+            draw_ui_list(ctx);
+            break;
+        case DebugScreen::PortraitSolo:
+            draw_portrait_solo(ctx);
+            break;
         case DebugScreen::BgmList:
             draw_bgm_list(ctx);
             break;
@@ -178,7 +246,7 @@ void DebugState::redraw(SharedContext& ctx) {
 }
 
 void DebugState::update_root(StateManager& sm, SharedContext& ctx) {
-    constexpr int lines = 9; // +ProgressData
+    constexpr int lines = 10;
     auto& inp = InputManager::instance();
     bool changed = false;
 
@@ -196,7 +264,17 @@ void DebugState::update_root(StateManager& sm, SharedContext& ctx) {
     }
 
     if (inp.is_triggered(Action::Decide)) {
-        if      (cursor_ == 0) { /* UI Debug no-op */ }
+        if (cursor_ == 0) {
+            if (ctx.text_generator) {
+                screen_ = DebugScreen::UiList;
+                ui_debug_cursor_ = 0;
+                changed = true;
+                if (!ui_manager_) {
+                    ui_manager_.emplace(*ctx.text_generator);
+                }
+                _ui_debug_reload(ctx);
+            }
+        }
         else if (cursor_ == 1) { screen_ = DebugScreen::BgmList;       cursor_ = 0; changed = true; }
         else if (cursor_ == 2) { screen_ = DebugScreen::SeList;        cursor_ = 0; changed = true; }
         else if (cursor_ == 3) { screen_ = DebugScreen::EffectTest;    cursor_ = 0; changed = true; }
@@ -205,6 +283,11 @@ void DebugState::update_root(StateManager& sm, SharedContext& ctx) {
         else if (cursor_ == 6) { screen_ = DebugScreen::StillEventTest;event_cursor_ = 0; changed = true; }
         else if (cursor_ == 7) { screen_ = DebugScreen::StageList;     event_cursor_ = 0; changed = true; }
         else if (cursor_ == 8) { screen_ = DebugScreen::ProgressData;  progress_cursor_ = 0; progress_sub_ = 0; changed = true; }
+        else if (cursor_ == 9) {
+            ctx.debug_gallery_unlock_all = !ctx.debug_gallery_unlock_all;
+            changed = true;
+            SoundManager::instance().play_move();
+        }
     }
 
     if (inp.is_triggered(Action::Cancel)) {
@@ -222,8 +305,8 @@ void DebugState::draw_root(SharedContext& ctx) {
     ctx.text_generator->set_left_alignment();
     const int spacing = 13;
     int y = -52;
-    for (int i = 0; i < 9; ++i) {
-        bn::string<32> line;
+    for (int i = 0; i < 10; ++i) {
+        bn::string<40> line;
         line.append(cursor_ == i ? ">" : " ");
         switch (i) {
             case 0:  line.append("UI Debug"); break;
@@ -234,7 +317,11 @@ void DebugState::draw_root(SharedContext& ctx) {
             case 5:  line.append("Anim Debug"); break;
             case 6:  line.append("Still Event Debug"); break;
             case 7:  line.append("Stage Debug"); break;
-            default: line.append("Progress Data"); break;
+            case 8:  line.append("Progress Data"); break;
+            default:
+                line.append("GALLERY unlock ");
+                line.append(ctx.debug_gallery_unlock_all ? "[ON]" : "[OFF]");
+                break;
         }
         ctx.text_generator->generate(-112, y, line, sprites_);
         y += spacing;
@@ -242,6 +329,235 @@ void DebugState::draw_root(SharedContext& ctx) {
 
     ctx.text_generator->set_center_alignment();
     ctx.text_generator->generate(0, 72, "U/D A=open B=menu", sprites_);
+}
+
+void DebugState::_ui_debug_reload(SharedContext& ctx) {
+    BN_ASSERT(ctx.text_generator != nullptr, "DebugState::_ui_debug_reload: text_generator");
+    BN_ASSERT(ui_debug_cursor_ >= 0 && ui_debug_cursor_ < UI_DEBUG_SCREEN_COUNT,
+              "DebugState::_ui_debug_reload: ui_debug_cursor_");
+
+    if (!ui_manager_) {
+        ui_manager_.emplace(*ctx.text_generator);
+    }
+
+    ui_manager_->load_screen(*UI_DEBUG_SCREENS[ui_debug_cursor_].screen);
+    _ui_debug_apply_event_portraits();
+}
+
+void DebugState::_ui_debug_apply_event_portraits() {
+    if (!ui_manager_) {
+        return;
+    }
+
+    if (UI_DEBUG_SCREENS[ui_debug_cursor_].screen != &ui_data_event::SCREEN) {
+        return;
+    }
+
+    if (chara_portraits::COUNT <= 0) {
+        return;
+    }
+
+    int idx = ui_portrait_idx_;
+    if (idx < 0) {
+        idx = 0;
+    }
+    if (idx >= chara_portraits::COUNT) {
+        idx = chara_portraits::COUNT - 1;
+    }
+
+    if (UIImage* left = ui_manager_->get_image("char_left")) {
+        ui_manager_->change_sprite_image(left, "chara_portraits", idx);
+        // イベント枠は 64x64 前提のため、デバッグ時は拡大して確認しやすくする
+        left->set_scale(bn::fixed(2));
+    }
+
+    if (UIImage* right = ui_manager_->get_image("char_right")) {
+        right->set_scale(bn::fixed(2));
+    }
+}
+
+void DebugState::update_ui_list(StateManager& /*sm*/, SharedContext& ctx) {
+    if (ui_manager_) {
+        ui_manager_->update();
+    }
+
+    auto& inp = InputManager::instance();
+    bool changed = false;
+
+    if (inp.is_repeat(Action::MoveUp)) {
+        --ui_debug_cursor_;
+        if (ui_debug_cursor_ < 0) {
+            ui_debug_cursor_ = UI_DEBUG_SCREEN_COUNT - 1;
+        }
+        _ui_debug_reload(ctx);
+        changed = true;
+        SoundManager::instance().play_move();
+    }
+
+    if (inp.is_repeat(Action::MoveDown)) {
+        ++ui_debug_cursor_;
+        if (ui_debug_cursor_ >= UI_DEBUG_SCREEN_COUNT) {
+            ui_debug_cursor_ = 0;
+        }
+        _ui_debug_reload(ctx);
+        changed = true;
+        SoundManager::instance().play_move();
+    }
+
+    if (UI_DEBUG_SCREENS[ui_debug_cursor_].screen == &ui_data_event::SCREEN) {
+        if (inp.is_repeat(Action::MoveLeft)) {
+            --ui_portrait_idx_;
+            if (ui_portrait_idx_ < 0) {
+                ui_portrait_idx_ = chara_portraits::COUNT - 1;
+            }
+            _ui_debug_apply_event_portraits();
+            changed = true;
+            SoundManager::instance().play_move();
+        }
+        if (inp.is_repeat(Action::MoveRight)) {
+            ++ui_portrait_idx_;
+            if (ui_portrait_idx_ >= chara_portraits::COUNT) {
+                ui_portrait_idx_ = 0;
+            }
+            _ui_debug_apply_event_portraits();
+            changed = true;
+            SoundManager::instance().play_move();
+        }
+    }
+
+    if (inp.is_triggered(Action::OpenMenu)) {
+        if (chara_portraits::COUNT > 0) {
+            if (ui_manager_) {
+                ui_manager_->clear_all();
+                ui_manager_.reset();
+            }
+            screen_ = DebugScreen::PortraitSolo;
+            _portrait_solo_refresh();
+            changed = true;
+            SoundManager::instance().play_move();
+        }
+    }
+
+    if (inp.is_triggered(Action::Cancel)) {
+        if (ui_manager_) {
+            ui_manager_->clear_all();
+            ui_manager_.reset();
+        }
+        screen_ = DebugScreen::Root;
+        cursor_ = 0;
+        changed = true;
+    }
+
+    if (changed) {
+        redraw(ctx);
+    }
+}
+
+void DebugState::_portrait_solo_refresh() {
+    portrait_solo_sprite_.reset();
+    if (chara_portraits::COUNT <= 0) {
+        return;
+    }
+
+    int idx = ui_portrait_idx_;
+    if (idx < 0) {
+        idx = 0;
+    }
+    if (idx >= chara_portraits::COUNT) {
+        idx = chara_portraits::COUNT - 1;
+    }
+
+    auto spr = chara_portraits::create_by_index(idx, bn::fixed(0), bn::fixed(-8));
+    if (spr) {
+        spr->set_scale(bn::fixed(3));
+        spr->set_z_order(0);
+        portrait_solo_sprite_ = bn::move(*spr);
+    }
+}
+
+void DebugState::update_portrait_solo(StateManager& /*sm*/, SharedContext& ctx) {
+    auto& inp = InputManager::instance();
+    bool changed = false;
+
+    if (chara_portraits::COUNT > 0) {
+        if (inp.is_repeat(Action::MoveLeft)) {
+            --ui_portrait_idx_;
+            if (ui_portrait_idx_ < 0) {
+                ui_portrait_idx_ = chara_portraits::COUNT - 1;
+            }
+            _portrait_solo_refresh();
+            changed = true;
+            SoundManager::instance().play_move();
+        }
+        if (inp.is_repeat(Action::MoveRight)) {
+            ++ui_portrait_idx_;
+            if (ui_portrait_idx_ >= chara_portraits::COUNT) {
+                ui_portrait_idx_ = 0;
+            }
+            _portrait_solo_refresh();
+            changed = true;
+            SoundManager::instance().play_move();
+        }
+    }
+
+    if (inp.is_triggered(Action::Cancel)) {
+        portrait_solo_sprite_.reset();
+        screen_ = DebugScreen::UiList;
+        if (ctx.text_generator) {
+            if (!ui_manager_) {
+                ui_manager_.emplace(*ctx.text_generator);
+            }
+            _ui_debug_reload(ctx);
+        }
+        changed = true;
+    }
+
+    if (changed) {
+        redraw(ctx);
+    }
+}
+
+void DebugState::draw_portrait_solo(SharedContext& ctx) {
+    if (!ctx.text_generator) {
+        return;
+    }
+
+    ctx.text_generator->set_center_alignment();
+    ctx.text_generator->generate(0, -72, "PORTRAIT SOLO", sprites_);
+
+    bn::string<40> line;
+    line.append("idx ");
+    line.append(bn::to_string<4>(ui_portrait_idx_));
+    ctx.text_generator->generate(0, -54, line, sprites_);
+
+    ctx.text_generator->generate(0, 56, "64sq bust x3 (event)", sprites_);
+    ctx.text_generator->generate(0, 70, "L/R=B diff B=UI list", sprites_);
+}
+
+void DebugState::draw_ui_list(SharedContext& ctx) {
+    if (!ctx.text_generator) {
+        return;
+    }
+
+    ctx.text_generator->set_center_alignment();
+    ctx.text_generator->generate(0, -76, "UI DEBUG", sprites_);
+
+    ctx.text_generator->set_left_alignment();
+    bn::string<48> line;
+    line.append("Layout: ");
+    line.append(UI_DEBUG_SCREENS[ui_debug_cursor_].id);
+    ctx.text_generator->generate(-112, -52, line, sprites_);
+
+    if (UI_DEBUG_SCREENS[ui_debug_cursor_].screen == &ui_data_event::SCREEN) {
+        line.clear();
+        line.append("L/R portrait idx ");
+        line.append(bn::to_string<4>(ui_portrait_idx_));
+        ctx.text_generator->generate(-112, -36, line, sprites_);
+    }
+
+    ctx.text_generator->set_center_alignment();
+    ctx.text_generator->generate(0, 56, "SELECT=solo (big)", sprites_);
+    ctx.text_generator->generate(0, 72, "U/D layout L/R face B=back", sprites_);
 }
 
 void DebugState::update_bgm_list(StateManager&, SharedContext& ctx) {
@@ -739,6 +1055,13 @@ void DebugState::exit(StateManager& /*sm*/, SharedContext& ctx) {
         ctx.text_generator->set_palette_item(bn::sprite_items::japanese_font.palette_item());
     }
 
+    if (ui_manager_) {
+        ui_manager_->clear_all();
+        ui_manager_.reset();
+    }
+
+    portrait_solo_sprite_.reset();
+
     sprites_.clear();
 }
 
@@ -827,7 +1150,7 @@ void DebugState::draw_anim_test(SharedContext& ctx) {
 // ============================================================
 
 // progress_sub_:
-//   0 = トップメニュー（All ON / All OFF / イベント個別 / パズル個別）
+//   0 = トップメニュー（All ON / All OFF / イベント個別 / パズル個別 / ギャラリー解禁）
 //   1 = イベント個別ON（g_events / g_still_events）
 //   2 = パズル個別ON（レベルリスト）
 
@@ -839,8 +1162,8 @@ void DebugState::update_progress_data(StateManager& /*sm*/, SharedContext& ctx) 
     SaveSlot& slot = ctx.save->slots[ctx.active_slot];
 
     if (progress_sub_ == 0) {
-        // トップ: 4 items
-        constexpr int items = 4;
+        // トップ: 5 items
+        constexpr int items = 5;
         if (inp.is_repeat(Action::MoveUp)) {
             progress_cursor_--;
             if (progress_cursor_ < 0) progress_cursor_ = items - 1;
@@ -871,6 +1194,10 @@ void DebugState::update_progress_data(StateManager& /*sm*/, SharedContext& ctx) 
                 // パズル個別
                 progress_sub_ = 2;
                 progress_cursor_ = 0;
+                changed = true;
+            } else if (progress_cursor_ == 4 && ctx.save) {
+                FixDataManager::instance().unlock_all_gallery_item_flags(
+                    slot, *ctx.save, ctx.active_slot);
                 changed = true;
             }
         }
@@ -948,9 +1275,10 @@ void DebugState::draw_progress_data(SharedContext& ctx) {
             "All Flags OFF",
             "Event Flag (toggle)",
             "Puzzle Clear (toggle)",
+            "Unlock gallery (save)",
         };
         int y = -32;
-        for (int i = 0; i < 4; ++i) {
+        for (int i = 0; i < 5; ++i) {
             bn::string<40> line;
             line.append(progress_cursor_ == i ? ">" : " ");
             line.append(items[i]);

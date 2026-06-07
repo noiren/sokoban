@@ -63,6 +63,19 @@ public:
     void clear_chars() {
         clear_left_char();
         clear_right_char();
+        clear_center_graphic();
+    }
+
+    void set_center_graphic(const bn::string_view& image_id) {
+        if (auto* img_node = ui_.get_image("event_cg")) {
+            ui_.change_event_center_by_id(img_node, image_id);
+        }
+    }
+
+    void clear_center_graphic() {
+        if (auto* img_node = ui_.get_image("event_cg")) {
+            img_node->set_visible(false);
+        }
     }
 
     // メッセージ送りアイコンの表示/非表示

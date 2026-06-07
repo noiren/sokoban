@@ -258,7 +258,33 @@ static const int level_shady_x[NUM_LEVELS] = { -1, -1, -1, -1, -1, -1, -1, -1, 7
 static const int level_shady_y[NUM_LEVELS] = { -1, -1, -1, -1, -1, -1, -1, -1, 4 };
 
 // Intro/Outro Events
-static const char* level_intro_event[NUM_LEVELS] __attribute__((unused)) = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+static const char* level_intro_event[NUM_LEVELS] __attribute__((unused)) = { "PZE_LV0_INTRO", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 static const char* level_outro_event[NUM_LEVELS] __attribute__((unused)) = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+
+// Mid-puzzle: when moves counter reaches on_move_count, push overlay event once per level_init
+#define MAX_MID_PUZZLE_TRANSCRIPTS 4
+static const int level_mid_on_moves[NUM_LEVELS][MAX_MID_PUZZLE_TRANSCRIPTS] __attribute__((unused)) = {
+    {2, -1, -1, -1},
+    {-1, -1, -1, -1},
+    {-1, -1, -1, -1},
+    {-1, -1, -1, -1},
+    {-1, -1, -1, -1},
+    {-1, -1, -1, -1},
+    {-1, -1, -1, -1},
+    {-1, -1, -1, -1},
+    {-1, -1, -1, -1},
+};
+
+static const char* level_mid_event_id[NUM_LEVELS][MAX_MID_PUZZLE_TRANSCRIPTS] __attribute__((unused)) = {
+    {"PZE_LV0_MID", nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr},
+};
 
 #endif // LEVELS_H

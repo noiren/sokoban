@@ -32,6 +32,10 @@ public:
     // 画像 ID（文字列）から直接スプライトを切り替える (イベント用)
     void change_sprite_image_by_id(UIImage* node, const bn::string_view& image_id);
 
+    // イベント画面中央スプライト（layouts/event.json の event_cg）用。
+    // paper_large / paper_medium / paper_small は ui_paper、それ以外は立ち絵 ID として解決。
+    void change_event_center_by_id(UIImage* node, const bn::string_view& image_id);
+
     void clear_bg();
 
 private:

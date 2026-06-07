@@ -1,0 +1,174 @@
+{
+  "version": 1,
+  "prefix": "mayo",
+  "slots": {
+    "normal_1": {
+      "src": "マヨ_Idle_1.png",
+      "crop": {
+        "left": 65,
+        "top": 100,
+        "side": 495
+      }
+    },
+    "normal_2": {
+      "src": "マヨ_Tickle_Idle_1.png",
+      "crop": {
+        "left": 64,
+        "top": 109,
+        "side": 512
+      }
+    },
+    "normal_3": {
+      "src": "マヨ_Tickle_Idle_2.png",
+      "crop": {
+        "left": 67,
+        "top": 113,
+        "side": 503
+      }
+    },
+    "smile_1": {
+      "src": "マヨ_Smirking_1.png",
+      "crop": {
+        "left": 121,
+        "top": 108,
+        "side": 515
+      }
+    },
+    "smile_2": {
+      "src": "マヨ_Smirking_2.png",
+      "crop": {
+        "left": 114,
+        "top": 107,
+        "side": 526
+      }
+    },
+    "smile_3": {
+      "src": "マヨ_Happy_2.png",
+      "crop": {
+        "left": 65,
+        "top": 104,
+        "side": 516
+      }
+    },
+    "sad_1": {
+      "src": "マヨ_Sad_1.png",
+      "crop": {
+        "left": 67,
+        "top": 100,
+        "side": 525
+      }
+    },
+    "sad_2": {
+      "src": "マヨ_Sad_2.png",
+      "crop": {
+        "left": 69,
+        "top": 104,
+        "side": 546
+      }
+    },
+    "sad_3": {
+      "src": "マヨ_Sad_3.png",
+      "crop": {
+        "left": 68,
+        "top": 107,
+        "side": 517
+      }
+    },
+    "angry_1": {
+      "src": "マヨ_Angry_1.png",
+      "crop": {
+        "left": 63,
+        "top": 109,
+        "side": 508
+      }
+    },
+    "angry_2": {
+      "src": "マヨ_Angry_2.png",
+      "crop": {
+        "left": 67,
+        "top": 102,
+        "side": 529
+      }
+    },
+    "angry_3": {
+      "src": "マヨ_Angry_3.png",
+      "crop": {
+        "left": 63,
+        "top": 112,
+        "side": 505
+      }
+    },
+    "surprised_1": {
+      "src": "マヨ_Surprise_1.png",
+      "crop": {
+        "left": 66,
+        "top": 102,
+        "side": 508
+      }
+    },
+    "surprised_2": {
+      "src": "マヨ_Surprise_2.png",
+      "crop": {
+        "left": 64,
+        "top": 100,
+        "side": 488
+      }
+    },
+    "surprised_3": {
+      "src": "マヨ_Shame_1.png",
+      "crop": {
+        "left": 64,
+        "top": 108,
+        "side": 522
+      }
+    },
+    "happy_1": {
+      "src": "マヨ_Happy_1.png",
+      "crop": {
+        "left": 65,
+        "top": 99,
+        "side": 489
+      }
+    },
+    "happy_2": {
+      "src": "マヨ_Happy_3.png",
+      "crop": {
+        "left": 71,
+        "top": 112,
+        "side": 500
+      }
+    },
+    "happy_3": {
+      "src": "マヨ_Happy_4.png",
+      "crop": {
+        "left": 76,
+        "top": 110,
+        "side": 510
+      }
+    },
+    "think_1": {
+      "src": "マヨ_Curious_1.png",
+      "crop": {
+        "left": 63,
+        "top": 110,
+        "side": 510
+      }
+    },
+    "think_2": {
+      "src": "マヨ_Curious_2.png",
+      "crop": {
+        "left": 64,
+        "top": 102,
+        "side": 507
+      }
+    },
+    "think_3": {
+      "src": "マヨ_Curious_3.png",
+      "crop": {
+        "left": 63,
+        "top": 110,
+        "side": 515
+      }
+    }
+  }
+}

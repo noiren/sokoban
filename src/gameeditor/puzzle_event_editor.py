@@ -71,12 +71,14 @@ class PuzzleEventEditorApp:
         self.lbl_lines.pack(anchor="w")
         
         # Line Tree
-        self.line_tree = ttk.Treeview(right_frame, columns=("speaker", "face", "pos", "image", "text"), show="headings", selectmode="browse")
+        self.line_tree = ttk.Treeview(right_frame, columns=("speaker", "face", "pos", "image", "center", "text"), show="headings", selectmode="browse")
         self.line_tree.heading("speaker", text="Speaker")
         self.line_tree.heading("face", text="Face")
         self.line_tree.heading("pos", text="Pos")
         self.line_tree.column("pos", width=50)
         self.line_tree.heading("image", text="Image")
+        self.line_tree.heading("center", text="Center")
+        self.line_tree.column("center", width=90)
         self.line_tree.heading("text", text="Text Preview")
         self.line_tree.pack(fill=tk.BOTH, expand=True)
         self.line_tree.bind("<<TreeviewSelect>>", self._on_line_select)
@@ -151,10 +153,15 @@ class PuzzleEventEditorApp:
         self.cb_emotion.grid(row=3, column=1, padx=4, pady=4, sticky="w")
         self.cb_emotion.bind("<<ComboboxSelected>>", self._on_field_modified)
 
-        # Row 4: Text
-        ttk.Label(edit_form, text="Text:").grid(row=4, column=0, padx=4, pady=4, sticky="ne")
+        ttk.Label(edit_form, text="Center CG:").grid(row=4, column=0, padx=4, pady=4, sticky="e")
+        self.var_center = tk.StringVar()
+        ttk.Entry(edit_form, textvariable=self.var_center, width=28).grid(row=4, column=1, columnspan=4, padx=4, pady=4, sticky="w")
+        self.var_center.trace_add("write", lambda *_: self._on_field_modified())
+
+        # Row 5: Text
+        ttk.Label(edit_form, text="Text:").grid(row=5, column=0, padx=4, pady=4, sticky="ne")
         self.txt_text = tk.Text(edit_form, height=4, width=40)
-        self.txt_text.grid(row=4, column=1, columnspan=4, padx=4, pady=4, sticky="we")
+        self.txt_text.grid(row=5, column=1, columnspan=4, padx=4, pady=4, sticky="we")
         self.txt_text.bind("<KeyRelease>", self._on_field_modified)
 
         # Right side: Preview
@@ -203,6 +210,7 @@ class PuzzleEventEditorApp:
         self.var_se.set("")
         self.var_stop_bgm.set(False)
         self.var_emotion.set("")
+        self.var_center.set("")
         self.txt_text.delete(1.0, tk.END)
         self._update_preview("")
 
@@ -217,7 +225,7 @@ class PuzzleEventEditorApp:
             lines = evt.lines
             for i, ln in enumerate(lines):
                 preview = ln.text.replace('\n', ' ')[:20]
-                self.line_tree.insert("", tk.END, iid=str(i), values=(ln.speaker_id, ln.face_id, ln.position, ln.image_id, preview))
+                self.line_tree.insert("", tk.END, iid=str(i), values=(ln.speaker_id, ln.face_id, ln.position, ln.image_id, ln.center_image_id, preview))
             if select_idx is not None and 0 <= select_idx < len(lines):
                 self.line_tree.selection_set(str(select_idx))
 
@@ -237,6 +245,7 @@ class PuzzleEventEditorApp:
         self.var_se.set(ln.se_id)
         self.var_stop_bgm.set(ln.stop_bgm)
         self.var_emotion.set(ln.emotion_id)
+        self.var_center.set(ln.center_image_id)
         
         self.txt_text.delete(1.0, tk.END)
         self.txt_text.insert(1.0, ln.text)
@@ -279,9 +288,10 @@ class PuzzleEventEditorApp:
         ln.se_id = self.var_se.get()
         ln.stop_bgm = self.var_stop_bgm.get()
         ln.emotion_id = self.var_emotion.get()
+        ln.center_image_id = self.var_center.get().strip()
         ln.text = self.txt_text.get(1.0, "end-1c")
 
-        self.line_tree.item(str(idx), values=(ln.speaker_id, ln.face_id, ln.position, ln.image_id, ln.text.replace('\n', ' ')[:20]))
+        self.line_tree.item(str(idx), values=(ln.speaker_id, ln.face_id, ln.position, ln.image_id, ln.center_image_id, ln.text.replace('\n', ' ')[:20]))
 
     def _update_preview(self, image_id: str):
         if not image_id:
@@ -323,7 +333,7 @@ class PuzzleEventEditorApp:
     def _add_line(self):
         evt = self._get_current_event()
         if not evt: return
-        new_ln = fix_data_io.EventLine(speaker_id="", face_id="normal_1", position="LEFT", image_id="", text="", bgm_id="", se_id="", stop_bgm=False)
+        new_ln = fix_data_io.EventLine(speaker_id="", face_id="normal_1", position="LEFT", image_id="", text="", bgm_id="", se_id="", stop_bgm=False, emotion_id="", center_image_id="")
         evt.lines.append(new_ln)
         self._refresh_line_list(select_idx=len(evt.lines)-1)
 

@@ -10,12 +10,16 @@
 #include "bn_sprite_ptr.h"
 #include "bn_fixed.h"
 #include "bn_vector.h"
+#include "bn_optional.h"
+#include "ui/Core/Manager/ui_manager.h"
 #include "save/save_data.h"
 #include "save/user_data_puzzle.h"
 #include "game/levels.h"
 
 enum class DebugScreen {
     Root,
+    UiList,         // 全レイアウト(ui_data_*)の表示チェック
+    PortraitSolo,   // 立ち絵スプライト単体プレビュー(拡大)
     BgmList,
     BgmTest,
     SeList,
@@ -42,6 +46,15 @@ private:
 
     void update_root(StateManager& sm, SharedContext& ctx);
     void draw_root(SharedContext& ctx);
+
+    void update_ui_list(StateManager& sm, SharedContext& ctx);
+    void draw_ui_list(SharedContext& ctx);
+    void _ui_debug_reload(SharedContext& ctx);
+    void _ui_debug_apply_event_portraits();
+
+    void update_portrait_solo(StateManager& sm, SharedContext& ctx);
+    void draw_portrait_solo(SharedContext& ctx);
+    void _portrait_solo_refresh();
 
     void update_bgm_list(StateManager& sm, SharedContext& ctx);
     void draw_bgm_list(SharedContext& ctx);
@@ -77,6 +90,11 @@ private:
 
     DebugScreen screen_;
     int cursor_;
+    int ui_debug_cursor_ = 0;   // UI DEBUG: 表示中レイアウト番号
+    int ui_portrait_idx_ = 0;   // UI DEBUG: event レイアウト時の char_left 用 portrait 番号
+    bn::optional<UIManager> ui_manager_;
+    bn::optional<bn::sprite_ptr> portrait_solo_sprite_; // PortraitSolo 用(単体拡大)
+
     int event_cursor_;    // イベントテスト用カーソル
     int progress_cursor_; // 知識値デバッグ用カーソル
     int progress_sub_;    // 0=トップ 1=イベント個別 2=パズル個別

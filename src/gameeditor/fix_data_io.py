@@ -6,11 +6,70 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 # ---------------------------------------------------------
-# 定数定義
+# 定数定義 (感情カタログ駆動)
 # ---------------------------------------------------------
-FACE_BASE_TYPES = ["normal", "smile", "sad", "angry", "surprised", "happy", "think"]
-FACE_VARIANTS = 3
-FACE_IDS = [f"{b}_{i}" for b in FACE_BASE_TYPES for i in range(1, FACE_VARIANTS + 1)]
+# 感情カテゴリは Asset/fixdata/face_catalog.json を単一の真実とする。
+# カタログが無い/壊れている場合は従来の 7カテゴリ×3 にフォールバックする。
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+_PROJECT_ROOT_FOR_CATALOG = os.path.dirname(os.path.dirname(_THIS_DIR))
+
+_DEFAULT_FACE_CATEGORIES = [
+    {"id": "normal", "ja": "通常", "variants": 3},
+    {"id": "smile", "ja": "笑顔", "variants": 3},
+    {"id": "sad", "ja": "悲しみ", "variants": 3},
+    {"id": "angry", "ja": "怒り", "variants": 3},
+    {"id": "surprised", "ja": "驚き", "variants": 3},
+    {"id": "happy", "ja": "喜び", "variants": 3},
+    {"id": "think", "ja": "考え", "variants": 3},
+]
+
+
+def face_catalog_path(project_root: str) -> str:
+    return os.path.join(project_root, "Asset", "fixdata", "face_catalog.json")
+
+
+def load_face_categories(project_root: str) -> list[dict]:
+    """[{'id','ja','variants'}] を返す。失敗時はデフォルト。"""
+    path = face_catalog_path(project_root)
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            cats = data.get("categories", [])
+            norm = []
+            for c in cats:
+                cid = str(c.get("id", "")).strip()
+                if not cid:
+                    continue
+                norm.append({
+                    "id": cid,
+                    "ja": c.get("ja", cid),
+                    "variants": max(1, int(c.get("variants", 3))),
+                })
+            if norm:
+                return norm
+        except Exception:
+            pass
+    return [dict(c) for c in _DEFAULT_FACE_CATEGORIES]
+
+
+def save_face_categories(project_root: str, categories: list[dict]) -> None:
+    data = {"version": 1, "categories": categories}
+    save_json(face_catalog_path(project_root), data)
+
+
+def build_face_ids(categories: list[dict]) -> list[str]:
+    ids = []
+    for c in categories:
+        for i in range(1, int(c.get("variants", 3)) + 1):
+            ids.append(f"{c['id']}_{i}")
+    return ids
+
+
+# モジュールロード時にカタログを読み込んで定数を構築(各エディタはこれを参照)
+FACE_CATEGORIES = load_face_categories(_PROJECT_ROOT_FOR_CATALOG)
+FACE_BASE_TYPES = [c["id"] for c in FACE_CATEGORIES]
+FACE_IDS = build_face_ids(FACE_CATEGORIES)
 
 # ---------------------------------------------------------
 # パス解決
@@ -74,6 +133,7 @@ class EventLine:
     se_id: str = ""
     stop_bgm: bool = False
     emotion_id: str = ""
+    center_image_id: str = ""
 
 @dataclass
 class EventEntry:
@@ -223,7 +283,8 @@ def _parse_event_file(path: str) -> EventEntry:
             bgm_id=ln.get("bgm_id", ""),
             se_id=ln.get("se_id", ""),
             stop_bgm=ln.get("stop_bgm", False),
-            emotion_id=ln.get("emotion_id", "")
+            emotion_id=ln.get("emotion_id", ""),
+            center_image_id=ln.get("center_image_id", ""),
         ) for ln in data.get("lines", [])
     ]
     return EventEntry(id=data.get("id", ""), title_ja=data.get("title_ja", "名称未設定"), lines=lines)
@@ -251,7 +312,8 @@ def _save_event_impl(path: str, event: EventEntry) -> None:
                 "bgm_id": ln.bgm_id,
                 "se_id": ln.se_id,
                 "stop_bgm": ln.stop_bgm,
-                "emotion_id": ln.emotion_id
+                "emotion_id": ln.emotion_id,
+                "center_image_id": ln.center_image_id,
             } for ln in event.lines
         ]
     }

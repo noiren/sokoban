@@ -1,7 +1,8 @@
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
+from tkinter import ttk, filedialog, messagebox, scrolledtext, simpledialog
 import json
 import os
+import sys
 import time
 import copy
 from PIL import Image, ImageTk
@@ -9,6 +10,13 @@ from PIL import Image, ImageTk
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR)) # src/tools -> root
 GRAPHICS_DIR = os.path.join(PROJECT_ROOT, "Asset", "graphics")
+TOOLS_DIR = os.path.join(PROJECT_ROOT, "src", "tools")
+if TOOLS_DIR not in sys.path:
+    sys.path.insert(0, TOOLS_DIR)
+try:
+    import gba_asset_bake
+except ImportError:
+    gba_asset_bake = None
 SCREENS_DIR = os.path.join(PROJECT_ROOT, "Asset", "layouts")
 MANIFEST_PATH = os.path.join(PROJECT_ROOT, "Asset", "tools", "ui_editor", "image_manifest.json")
 
@@ -32,6 +40,8 @@ class GBAUIEditor(tk.Tk):
         }
         self.selected_node = None
         self.current_filepath = None
+        # 直近で追加・移動したノード（キャンバス上で赤枠表示＋素材検証ステータス更新）
+        self._last_edit_node = None
         
         # Global key bindings
         self.bind('<Control-s>', lambda e: self.save_json())
@@ -80,6 +90,7 @@ class GBAUIEditor(tk.Tk):
         
         # Apply saved sash positions after UI is drawn
         self.after(100, self.apply_sashes)
+        self.after(200, self._update_validation_status_bar)
 
     def on_close(self):
         if self.confirm_discard_changes():
@@ -150,6 +161,458 @@ class GBAUIEditor(tk.Tk):
                         bgs.append(f[:-4])
         return bgs
 
+    def _iter_scene_nodes(self, node):
+        yield node
+        for ch in node.get("children", []):
+            yield from self._iter_scene_nodes(ch)
+
+    def _find_bmp_under_graphics(self, stem_or_name):
+        """image_id のベース名に .bmp を付けて Asset/graphics 以下を走査。"""
+        if not stem_or_name:
+            return None
+        s = stem_or_name.replace("\\", "/").strip()
+        leaf = s.split("/")[-1]
+        name = leaf if leaf.lower().endswith(".bmp") else leaf + ".bmp"
+        for root, _, files in os.walk(GRAPHICS_DIR):
+            if name in files:
+                return os.path.join(root, name)
+        return None
+
+    def _resolve_sprite_bmp(self, image_set, image_no):
+        n = str(image_no).strip().split()[0]
+        m = self.manifest.get(image_set)
+        if not m or n not in m:
+            return None
+        rel = m[n]
+        return os.path.join(GRAPHICS_DIR, rel.replace("/", os.sep) + ".bmp")
+
+    def _collect_asset_validation_lines(self, event_layer_bg=False):
+        """レイアウト内の bg/sprite が参照する BMP の検証ログ行を返す。"""
+        if gba_asset_bake is None:
+            return ["gba_asset_bake が読み込めていません。"]
+        lines = []
+        seen = set()
+        for node in self._iter_scene_nodes(self.scene["root"]):
+            t = node.get("type")
+            nid = node.get("id", "?")
+            if t == "bg":
+                iid = (node.get("image_id") or "").strip()
+                if not iid:
+                    lines.append(f"[bg:{nid}] image_id が空です。")
+                    continue
+                p = self._find_bmp_under_graphics(iid)
+                if not p:
+                    lines.append(f"[bg:{nid}] BMP が見つかりません: {iid}")
+                    continue
+                if p in seen:
+                    continue
+                seen.add(p)
+                msgs = gba_asset_bake.validate_still_bmp(p, event_layer=event_layer_bg)
+                lines.append(f"--- BG {iid} → {os.path.relpath(p, PROJECT_ROOT)}")
+                lines.extend(msgs if msgs else ["  OK"])
+            elif t == "sprite":
+                s = (node.get("image_set") or "").strip()
+                no = node.get("image_no", "0")
+                if not s:
+                    lines.append(f"[sprite:{nid}] image_set が空です。")
+                    continue
+                p = self._resolve_sprite_bmp(s, no)
+                if not p or not os.path.isfile(p):
+                    lines.append(f"[sprite:{nid}] BMP が見つかりません: set={s} no={no}")
+                    continue
+                if p in seen:
+                    continue
+                seen.add(p)
+                msgs = gba_asset_bake.validate_sprite_bmp(p)
+                lines.append(f"--- sprite {s}[{no}] → {os.path.relpath(p, PROJECT_ROOT)}")
+                lines.extend(msgs if msgs else ["  OK"])
+        return lines
+
+    def _update_validation_status_bar(self):
+        """ツールバー横のステータスに検証サマリ（軽量・毎回フル走査）。"""
+        if gba_asset_bake is None:
+            return
+        lines = self._collect_asset_validation_lines(False)
+        issues = 0
+        for L in lines:
+            s = L.strip()
+            if not s or s.startswith("---") or s == "  OK":
+                continue
+            if "（bg / sprite" in s:
+                continue
+            issues += 1
+        if issues == 0:
+            self.status_var.set("素材検証: 問題なし（詳細は「素材検証(BMP)」）")
+        else:
+            self.status_var.set(f"素材検証: 注意 {issues} 行（「素材検証(BMP)」で全ログ）")
+
+    def mark_last_edited_node(self, node):
+        """追加・移動・貼り付け等の直後に呼ぶ。赤枠＋ステータスを更新。"""
+        if node is None or node.get("type") in ("root",):
+            return
+        self._last_edit_node = node
+        self._update_validation_status_bar()
+        self.render_canvas()
+
+    def validate_layout_assets(self):
+        if gba_asset_bake is None:
+            messagebox.showerror(
+                "素材検証",
+                "gba_asset_bake を読み込めません。src/tools/gba_asset_bake.py を確認してください。",
+                parent=self,
+            )
+            return
+        dlg = tk.Toplevel(self)
+        dlg.title("レイアウト参照 BMP の検証")
+        dlg.geometry("760x540")
+        v_ev = tk.BooleanVar(value=False)
+        tk.Checkbutton(
+            dlg,
+            text="BGをイベント奥レイヤー用（240色上限＋16色UI前提）として検証",
+            variable=v_ev,
+        ).pack(anchor="w", padx=8, pady=4)
+        txt = scrolledtext.ScrolledText(dlg, wrap="word", font=("Consolas", 9))
+        txt.pack(fill=tk.BOTH, expand=True, padx=8, pady=4)
+        btnf = tk.Frame(dlg)
+        btnf.pack(fill=tk.X, pady=4)
+
+        def run():
+            lines = self._collect_asset_validation_lines(v_ev.get())
+            out = "\n".join(lines) if lines else "（bg / sprite の参照はありません）"
+            txt.delete("1.0", tk.END)
+            txt.insert("1.0", out)
+
+        tk.Button(btnf, text="再検証", command=run).pack(side=tk.LEFT, padx=8)
+        tk.Button(btnf, text="閉じる", command=dlg.destroy).pack(side=tk.RIGHT, padx=8)
+        run()
+
+    def _manifest_sort_key(self, k):
+        try:
+            return (0, int(k))
+        except (TypeError, ValueError):
+            return (1, str(k))
+
+    def _next_manifest_index_str(self, sub: dict) -> str:
+        best = -1
+        for k in sub:
+            try:
+                best = max(best, int(k))
+            except (TypeError, ValueError):
+                pass
+        return str(best + 1)
+
+    def _bmp_abs_to_manifest_rel(self, abs_path: str):
+        """Asset/graphics 以下の .bmp の絶対パス → manifest 用相対パス（拡張子なし）。"""
+        ap = os.path.normcase(os.path.normpath(abs_path))
+        gd = os.path.normcase(os.path.normpath(GRAPHICS_DIR))
+        if not ap.startswith(gd) or not ap.lower().endswith(".bmp"):
+            return None
+        rel = os.path.relpath(abs_path, GRAPHICS_DIR)
+        rel = rel[:-4] if rel.lower().endswith(".bmp") else rel
+        return rel.replace("\\", "/")
+
+    def open_manifest_editor(self, preset_image_set=None):
+        """image_manifest.json を GUI で編集（エディタ本体と同じ dict を直接更新）。"""
+        top = tk.Toplevel(self)
+        top.title("スプライト DB (image_manifest.json)")
+        top.geometry("960x720")
+        top.transient(self)
+
+        hint = tk.Label(
+            top,
+            text="値は Asset/graphics からの相対パス（.bmp なし）。「保存」で JSON に書き込み、インスペクタのコンボも更新されます。",
+            fg="#444",
+            wraplength=920,
+            justify="left",
+        )
+        hint.pack(anchor="w", padx=10, pady=(8, 0))
+
+        paned = tk.PanedWindow(top, orient=tk.HORIZONTAL)
+        paned.pack(fill=tk.BOTH, expand=True, padx=8, pady=8)
+
+        left = tk.Frame(paned)
+        right = tk.Frame(paned)
+        paned.add(left, minsize=220)
+        paned.add(right, minsize=560)
+
+        tk.Label(left, text="image_set").pack(anchor="w")
+        lbf = tk.Frame(left)
+        lbf.pack(fill=tk.BOTH, expand=True)
+        lb = tk.Listbox(lbf, exportselection=False, height=20)
+        lsbar = tk.Scrollbar(lbf, orient=tk.VERTICAL, command=lb.yview)
+        lb.config(yscrollcommand=lsbar.set)
+        lb.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        lsbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        tr_fr = tk.Frame(right)
+        tr_fr.pack(fill=tk.BOTH, expand=True)
+        cols = ("idx", "path")
+        tr = ttk.Treeview(tr_fr, columns=cols, show="headings", selectmode="browse", height=18)
+        tr.heading("idx", text="#")
+        tr.heading("path", text="相対パス")
+        tr.column("idx", width=44, anchor="center")
+        tr.column("path", width=720, anchor="w")
+        tr.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        tsb = tk.Scrollbar(tr_fr, orient=tk.VERTICAL, command=tr.yview)
+        tsb.pack(side=tk.RIGHT, fill=tk.Y)
+        tr.configure(yscrollcommand=tsb.set)
+
+        preview_holder = [None]
+        tk.Label(right, text="プレビュー（表で行を選択）", anchor="w").pack(fill=tk.X, pady=(6, 0))
+        prv_fr = tk.Frame(right, bg="#242428")
+        prv_fr.pack(fill=tk.BOTH, expand=False, pady=4)
+        lbl_prev = tk.Label(prv_fr, text="（なし）", bg="#242428", fg="#bbb")
+        lbl_prev.pack(padx=8, pady=8)
+
+        def update_row_preview(_evt=None):
+            preview_holder[0] = None
+            lbl_prev.config(image="")
+            sel = tr.selection()
+            if not sel:
+                lbl_prev.configure(text="（表で行を選択）", fg="#bbb")
+                return
+            vals = tr.item(sel[0], "values")
+            if len(vals) < 2:
+                lbl_prev.configure(text="（データなし）", fg="#bbb")
+                return
+            _idx, rel = vals[0], vals[1]
+            rel = str(rel).strip().replace("\\", "/")
+            abs_path = os.path.join(GRAPHICS_DIR, rel.replace("/", os.sep) + ".bmp")
+            if not os.path.isfile(abs_path):
+                lbl_prev.configure(text=f"ファイルなし:\n{rel}.bmp", fg="#e55")
+                return
+            try:
+                im = Image.open(abs_path).convert("RGBA")
+                px = im.load()
+                for y in range(im.height):
+                    for x in range(im.width):
+                        if px[x, y][:3] == (255, 0, 255):
+                            px[x, y] = (60, 60, 68, 255)
+                max_side = 200
+                w0, h0 = im.size
+                sc = min(max_side / max(w0, h0, 1), 4.0)
+                if sc < 1.0:
+                    nw, nh = max(1, int(w0 * sc)), max(1, int(h0 * sc))
+                    sim = im.resize((nw, nh), Image.Resampling.NEAREST)
+                else:
+                    sim = im
+                ph = ImageTk.PhotoImage(sim.convert("RGB"))
+                preview_holder[0] = ph
+                lbl_prev.config(image=ph, text="", fg="#bbb")
+            except Exception as ex:
+                lbl_prev.config(image="", text=str(ex), fg="#e55")
+
+        apply_var = tk.BooleanVar(value=True)
+
+        def current_set_name():
+            sel = lb.curselection()
+            if not sel:
+                return None
+            return lb.get(sel[0])
+
+        def refresh_lb(select_name=None):
+            lb.delete(0, tk.END)
+            names = sorted(self.manifest.keys())
+            for k in names:
+                lb.insert(tk.END, k)
+            want = select_name or preset_image_set
+            if want and want in self.manifest:
+                try:
+                    i = names.index(want)
+                    lb.selection_clear(0, tk.END)
+                    lb.selection_set(i)
+                    lb.see(i)
+                except ValueError:
+                    pass
+            elif names:
+                lb.selection_set(0)
+            refresh_tree()
+
+        def refresh_tree():
+            for i in tr.get_children():
+                tr.delete(i)
+            nm = current_set_name()
+            if not nm or nm not in self.manifest:
+                update_row_preview()
+                return
+            sub = self.manifest[nm]
+            for k in sorted(sub.keys(), key=self._manifest_sort_key):
+                tr.insert("", tk.END, values=(k, sub[k]))
+            kids = tr.get_children()
+            if kids:
+                tr.selection_set(kids[0])
+            update_row_preview()
+
+        def on_lb_select(_evt=None):
+            refresh_tree()
+
+        lb.bind("<<ListboxSelect>>", on_lb_select)
+        tr.bind("<<TreeviewSelect>>", update_row_preview)
+
+        def do_new_set():
+            name = simpledialog.askstring(
+                "新規 image_set",
+                "セット名（例: gallery_thum）。英数字とアンダースコア推奨:",
+                parent=top,
+            )
+            if not name:
+                return
+            name = name.strip()
+            if not name:
+                return
+            if name in self.manifest:
+                messagebox.showerror("エラー", f"「{name}」は既にあります。", parent=top)
+                return
+            self.manifest[name] = {}
+            refresh_lb(select_name=name)
+
+        def do_del_set():
+            nm = current_set_name()
+            if not nm:
+                return
+            if not messagebox.askyesno(
+                "削除", f"image_set「{nm}」を丸ごと削除しますか？", parent=top
+            ):
+                return
+            del self.manifest[nm]
+            refresh_lb()
+
+        def do_add_bmp():
+            nm = current_set_name()
+            if not nm:
+                messagebox.showinfo("案内", "左で image_set を選んでください。", parent=top)
+                return
+            path = filedialog.askopenfilename(
+                parent=top,
+                title="Asset/graphics 以下の BMP を選択",
+                initialdir=GRAPHICS_DIR,
+                filetypes=[("BMP", "*.bmp"), ("すべて", "*.*")],
+            )
+            if not path:
+                return
+            rel = self._bmp_abs_to_manifest_rel(path)
+            if not rel:
+                messagebox.showerror(
+                    "エラー",
+                    "Asset/graphics 以下の .bmp を選んでください。",
+                    parent=top,
+                )
+                return
+            sub = self.manifest.setdefault(nm, {})
+            new_k = self._next_manifest_index_str(sub)
+            sub[new_k] = rel
+            refresh_tree()
+            for item in tr.get_children():
+                if str(tr.item(item, "values")[0]) == str(new_k):
+                    tr.selection_set(item)
+                    tr.see(item)
+                    break
+            update_row_preview()
+            if apply_var.get() and self.selected_node and self.selected_node.get("type") == "sprite":
+                self.selected_node["image_set"] = nm
+                self.selected_node["image_no"] = new_k
+                self.render_inspector()
+                self.mark_last_edited_node(self.selected_node)
+            self.status_var.set(f"マニフェストに追加: {nm}[{new_k}] = {rel}")
+
+        def do_del_row():
+            nm = current_set_name()
+            if not nm:
+                return
+            sel = tr.selection()
+            if not sel:
+                messagebox.showinfo("案内", "表で行を選んでください。", parent=top)
+                return
+            idx, _p = tr.item(sel[0], "values")
+            if messagebox.askyesno("削除", f"#{idx} を削除しますか？", parent=top):
+                self.manifest[nm].pop(str(idx), None)
+                refresh_tree()
+
+        def on_tree_double(_evt):
+            nm = current_set_name()
+            if not nm:
+                return
+            sel = tr.selection()
+            if not sel:
+                return
+            idx, path = tr.item(sel[0], "values")
+            newp = simpledialog.askstring(
+                "パス編集",
+                "Asset/graphics からの相対（拡張子 .bmp なし）:",
+                initialvalue=path,
+                parent=top,
+            )
+            if newp is None:
+                return
+            newp = newp.strip().replace("\\", "/")
+            if newp.lower().startswith("graphics/"):
+                newp = newp[len("graphics/") :]
+            self.manifest[nm][str(idx)] = newp
+            refresh_tree()
+
+        tr.bind("<Double-1>", on_tree_double)
+
+        def do_apply_selection_to_sprite():
+            nm = current_set_name()
+            if not nm:
+                return
+            sel = tr.selection()
+            if not sel:
+                messagebox.showinfo("案内", "表で行を選んでください。", parent=top)
+                return
+            idx, _p = tr.item(sel[0], "values")
+            if not self.selected_node or self.selected_node.get("type") != "sprite":
+                messagebox.showinfo(
+                    "案内",
+                    "キャンバスでスプライトノードを選んでから実行してください。",
+                    parent=top,
+                )
+                return
+            self.selected_node["image_set"] = nm
+            self.selected_node["image_no"] = str(idx)
+            self.render_inspector()
+            self.mark_last_edited_node(self.selected_node)
+            self.status_var.set(f"スプライトに適用: {nm}[{idx}]")
+
+        def do_save():
+            try:
+                with open(MANIFEST_PATH, "w", encoding="utf-8") as f:
+                    json.dump(self.manifest, f, ensure_ascii=False, indent=2)
+            except OSError as e:
+                messagebox.showerror("保存エラー", str(e), parent=top)
+                return
+            self.load_manifest()
+            self.render_inspector()
+            self._update_validation_status_bar()
+            self.status_var.set("image_manifest.json を保存しました")
+            messagebox.showinfo("保存", f"書き込みました:\n{MANIFEST_PATH}", parent=top)
+
+        lbtn = tk.Frame(left)
+        lbtn.pack(fill=tk.X, pady=4)
+        tk.Button(lbtn, text="＋セット", command=do_new_set).pack(fill=tk.X, pady=1)
+        tk.Button(lbtn, text="－セット", command=do_del_set).pack(fill=tk.X, pady=1)
+
+        rbtn = tk.Frame(right)
+        rbtn.pack(fill=tk.X, pady=4)
+        tk.Button(rbtn, text="BMPから追加", command=do_add_bmp).pack(side=tk.LEFT, padx=2)
+        tk.Button(rbtn, text="行を削除", command=do_del_row).pack(side=tk.LEFT, padx=2)
+        tk.Button(rbtn, text="選択スプライトに適用", command=do_apply_selection_to_sprite).pack(
+            side=tk.LEFT, padx=8
+        )
+        tk.Checkbutton(
+            rbtn,
+            text="BMP追加時、選択中スプライトへ自動適用",
+            variable=apply_var,
+        ).pack(side=tk.LEFT, padx=8)
+
+        bot = tk.Frame(top)
+        bot.pack(fill=tk.X, padx=8, pady=(0, 8))
+        tk.Button(bot, text="保存 (JSON)", command=do_save, fg="#0a0").pack(side=tk.LEFT, padx=2)
+        tk.Button(bot, text="閉じる", command=top.destroy).pack(side=tk.RIGHT, padx=2)
+        tk.Label(bot, text="※ 表のパスはダブルクリックで編集", fg="#666").pack(side=tk.LEFT, padx=12)
+
+        refresh_lb()
+
     # ------------------------------------------------------------------
     # UI Construction
     # ------------------------------------------------------------------
@@ -164,6 +627,8 @@ class GBAUIEditor(tk.Tk):
         tk.Button(toolbar, text="New JSON",          command=self.new_json).pack(side=tk.LEFT, padx=5)
         tk.Button(toolbar, text="Load JSON",         command=self.load_json).pack(side=tk.LEFT, padx=5)
         tk.Button(toolbar, text="Save JSON (Ctrl+S)",command=self.save_json).pack(side=tk.LEFT, padx=5)
+        tk.Button(toolbar, text="素材検証(BMP)", command=self.validate_layout_assets).pack(side=tk.LEFT, padx=5)
+        tk.Button(toolbar, text="スプライトDB", command=self.open_manifest_editor).pack(side=tk.LEFT, padx=5)
         tk.Button(toolbar, text="Show in Explorer",  command=self.show_in_explorer).pack(side=tk.LEFT, padx=5)
         
         self.status_var = tk.StringVar(value="Status: Ready")
@@ -280,8 +745,10 @@ class GBAUIEditor(tk.Tk):
             node["children"] = []
             
         parent["children"].append(node)
+        self.selected_node = node
         self.refresh_tree()
-        self.render_canvas()
+        self.render_inspector()
+        self.mark_last_edited_node(node)
 
     def _on_delete_key(self, event):
         """Delete/BackSpace: only delete node if no input widget has focus."""
@@ -364,7 +831,9 @@ class GBAUIEditor(tk.Tk):
         self.refresh_tree()
         self.render_canvas()
         self.render_inspector()
+        self._last_edit_node = None
         self.status_var.set("Status: Undo action")
+        self.after(400, self._update_validation_status_bar)
 
     def redo(self, event=None):
         if not self.redo_stack:
@@ -386,7 +855,9 @@ class GBAUIEditor(tk.Tk):
         self.refresh_tree()
         self.render_canvas()
         self.render_inspector()
+        self._last_edit_node = None
         self.status_var.set("Status: Redo action")
+        self.after(400, self._update_validation_status_bar)
 
     def restore_selection_by_id(self, node_id):
         if not node_id:
@@ -437,7 +908,7 @@ class GBAUIEditor(tk.Tk):
             self.push_undo()
             children[idx], children[idx-1] = children[idx-1], children[idx]
             self.refresh_tree()
-            self.render_canvas()
+            self.mark_last_edited_node(self.selected_node)
 
     def move_node_down(self, event=None):
         if not self.selected_node:
@@ -455,7 +926,7 @@ class GBAUIEditor(tk.Tk):
             self.push_undo()
             children[idx], children[idx+1] = children[idx+1], children[idx]
             self.refresh_tree()
-            self.render_canvas()
+            self.mark_last_edited_node(self.selected_node)
 
     def outdent_node(self, event=None):
         if not self.selected_node:
@@ -482,7 +953,7 @@ class GBAUIEditor(tk.Tk):
         g_children.insert(p_idx + 1, self.selected_node)
         
         self.refresh_tree()
-        self.render_canvas()
+        self.mark_last_edited_node(self.selected_node)
 
     def indent_node(self, event=None):
         if not self.selected_node:
@@ -512,7 +983,7 @@ class GBAUIEditor(tk.Tk):
         target_parent.setdefault("children", []).append(self.selected_node)
         
         self.refresh_tree()
-        self.render_canvas()
+        self.mark_last_edited_node(self.selected_node)
 
     def delete_node(self):
         if not self.selected_node:
@@ -522,6 +993,21 @@ class GBAUIEditor(tk.Tk):
             
         self.push_undo()
             
+        def subtree_contains_last_edit(root):
+            le = getattr(self, "_last_edit_node", None)
+            if not le:
+                return False
+
+            def walk(n):
+                if n is le:
+                    return True
+                return any(walk(c) for c in n.get("children", []))
+
+            return walk(root)
+
+        if subtree_contains_last_edit(self.selected_node):
+            self._last_edit_node = None
+
         def remove(parent):
             ch = parent.get("children", [])
             if self.selected_node in ch:
@@ -534,6 +1020,7 @@ class GBAUIEditor(tk.Tk):
         self.refresh_tree()
         self.render_canvas()
         self.render_inspector()
+        self._update_validation_status_bar()
 
     def copy_node(self):
         if not self.selected_node or self.selected_node["id"] == "root" or self.selected_node.get("type") == "bg":
@@ -579,7 +1066,8 @@ class GBAUIEditor(tk.Tk):
             
         self.selected_node = new_node
         self.refresh_tree()
-        self.render_canvas()
+        self.render_inspector()
+        self.mark_last_edited_node(new_node)
         self.status_var.set(f"Status: Pasted '{new_node['id']}'")
 
     # ------------------------------------------------------------------
@@ -739,7 +1227,7 @@ class GBAUIEditor(tk.Tk):
                 
                 self.selected_node = nk
                 self.refresh_tree()
-                self.render_canvas()
+                self.mark_last_edited_node(nk)
                 return
 
         if is_ancestor(src_node, tgt_node):
@@ -762,7 +1250,7 @@ class GBAUIEditor(tk.Tk):
 
         self.selected_node = src_node
         self.refresh_tree()
-        self.render_canvas()
+        self.mark_last_edited_node(src_node)
 
     # ------------------------------------------------------------------
     # Inspector
@@ -853,6 +1341,9 @@ class GBAUIEditor(tk.Tk):
             set_var = tk.StringVar(value=node.get("image_set", ""))
             set_cb = ttk.Combobox(frame, textvariable=set_var, values=list(self.manifest.keys()))
             set_cb.pack(side=tk.LEFT, fill=tk.X, expand=True)
+            tk.Button(frame, text="DB…", width=4, command=lambda: self.open_manifest_editor(set_var.get())).pack(
+                side=tk.LEFT, padx=2
+            )
             self.bind_undo(set_cb)
             
             frame2 = tk.Frame(self.inspector_content)
@@ -1086,10 +1577,27 @@ class GBAUIEditor(tk.Tk):
                         if img:
                             self.canvas.create_image(cx, cy, image=img,
                                                      tags=("draggable", str(id(node))))
-                            if node is self.selected_node:
-                                w, h = img.width(), img.height()
-                                self.canvas.create_rectangle(cx-w/2, cy-h/2, cx+w/2, cy+h/2,
-                                                             outline="yellow", width=2)
+                            led = getattr(self, "_last_edit_node", None) is node
+                            sel = node is self.selected_node
+                            w, h = img.width(), img.height()
+                            if led:
+                                self.canvas.create_rectangle(
+                                    cx - w / 2 - 2,
+                                    cy - h / 2 - 2,
+                                    cx + w / 2 + 2,
+                                    cy + h / 2 + 2,
+                                    outline="#e74c3c",
+                                    width=3,
+                                )
+                            elif sel:
+                                self.canvas.create_rectangle(
+                                    cx - w / 2,
+                                    cy - h / 2,
+                                    cx + w / 2,
+                                    cy + h / 2,
+                                    outline="yellow",
+                                    width=2,
+                                )
                 elif t == "text":
                     align = node.get("align", "center")
                     anchor_map = {"left": tk.W, "center": tk.CENTER, "right": tk.E}
@@ -1101,39 +1609,124 @@ class GBAUIEditor(tk.Tk):
                         fill="white", font=font, anchor=anchor,
                         tags=("draggable_text", str(id(node)))
                     )
-                    if node is self.selected_node:
+                    led = getattr(self, "_last_edit_node", None) is node
+                    sel = node is self.selected_node
+                    if led or sel:
                         bbox = self.canvas.bbox(txt_id)
                         if bbox:
-                            self.canvas.create_rectangle(
-                                bbox[0]-2, bbox[1]-2, bbox[2]+2, bbox[3]+2,
-                                outline="yellow", width=2
-                            )
+                            if led:
+                                self.canvas.create_rectangle(
+                                    bbox[0] - 2,
+                                    bbox[1] - 2,
+                                    bbox[2] + 2,
+                                    bbox[3] + 2,
+                                    outline="#e74c3c",
+                                    width=3,
+                                )
+                            elif sel:
+                                self.canvas.create_rectangle(
+                                    bbox[0] - 2,
+                                    bbox[1] - 2,
+                                    bbox[2] + 2,
+                                    bbox[3] + 2,
+                                    outline="yellow",
+                                    width=2,
+                                )
                 elif t == "anim":
                     # Draw a nice dashed representation of the abstract anim node
-                    if node is self.selected_node:
-                        self.canvas.create_oval(cx-6, cy-6, cx+6, cy+6,
-                                                outline="cyan", dash=(2, 2), width=2,
-                                                tags=("draggable_text", str(id(node))))
+                    led = getattr(self, "_last_edit_node", None) is node
+                    sel = node is self.selected_node
+                    if sel or led:
+                        outline = "#e74c3c" if led else "cyan"
+                        self.canvas.create_oval(
+                            cx - 6,
+                            cy - 6,
+                            cx + 6,
+                            cy + 6,
+                            outline=outline,
+                            dash=(2, 2),
+                            width=3 if led else 2,
+                            tags=("draggable_text", str(id(node))),
+                        )
             else:
                 # If hidden but currently selected, draw a dotted bounding box so the user can see/drag it!
-                if node is self.selected_node:
+                led = getattr(self, "_last_edit_node", None) is node
+                sel = node is self.selected_node
+                if sel or led:
                     if t == "sprite":
                         s, n = node.get("image_set", ""), str(node.get("image_no", "0"))
                         if s in self.manifest and n in self.manifest[s]:
                             img = self.get_image(self.manifest[s][n], rot, scale_factor)
                             if img:
                                 w, h = img.width(), img.height()
-                                self.canvas.create_rectangle(cx-w/2, cy-h/2, cx+w/2, cy+h/2,
-                                                             outline="yellow", dash=(2, 2), width=2,
-                                                             tags=("draggable", str(id(node))))
+                                if led:
+                                    self.canvas.create_rectangle(
+                                        cx - w / 2,
+                                        cy - h / 2,
+                                        cx + w / 2,
+                                        cy + h / 2,
+                                        outline="#e74c3c",
+                                        dash=(2, 2),
+                                        width=3,
+                                        tags=("draggable", str(id(node))),
+                                    )
+                                elif sel:
+                                    self.canvas.create_rectangle(
+                                        cx - w / 2,
+                                        cy - h / 2,
+                                        cx + w / 2,
+                                        cy + h / 2,
+                                        outline="yellow",
+                                        dash=(2, 2),
+                                        width=2,
+                                        tags=("draggable", str(id(node))),
+                                    )
                     elif t == "text":
-                        self.canvas.create_rectangle(cx-15, cy-6, cx+15, cy+6,
-                                                     outline="yellow", dash=(2, 2), width=2,
-                                                     tags=("draggable_text", str(id(node))))
+                        if led:
+                            self.canvas.create_rectangle(
+                                cx - 17,
+                                cy - 8,
+                                cx + 17,
+                                cy + 8,
+                                outline="#e74c3c",
+                                dash=(2, 2),
+                                width=3,
+                                tags=("draggable_text", str(id(node))),
+                            )
+                        elif sel:
+                            self.canvas.create_rectangle(
+                                cx - 15,
+                                cy - 6,
+                                cx + 15,
+                                cy + 6,
+                                outline="yellow",
+                                dash=(2, 2),
+                                width=2,
+                                tags=("draggable_text", str(id(node))),
+                            )
                     elif t in ("group", "anim"):
-                        self.canvas.create_oval(cx-4, cy-4, cx+4, cy+4,
-                                                outline="yellow", dash=(2, 2), width=2,
-                                                tags=("draggable_text", str(id(node))))
+                        if led:
+                            self.canvas.create_oval(
+                                cx - 5,
+                                cy - 5,
+                                cx + 5,
+                                cy + 5,
+                                outline="#e74c3c",
+                                dash=(2, 2),
+                                width=3,
+                                tags=("draggable_text", str(id(node))),
+                            )
+                        elif sel:
+                            self.canvas.create_oval(
+                                cx - 4,
+                                cy - 4,
+                                cx + 4,
+                                cy + 4,
+                                outline="yellow",
+                                dash=(2, 2),
+                                width=2,
+                                tags=("draggable_text", str(id(node))),
+                            )
                 
             for c in node.get("children", []):
                 draw_node(c, gx, gy, current_visible, anim_x, anim_y, anim_rot, anim_scale, in_anim)
@@ -1282,7 +1875,16 @@ class GBAUIEditor(tk.Tk):
         self.render_inspector()
 
     def on_canvas_release(self, event):
+        dd = self.drag_data
         self.drag_data = None
+        if dd and self.selected_node:
+            sx = dd.get("start_x")
+            sy = dd.get("start_y")
+            if sx is not None and sy is not None:
+                if float(self.selected_node.get("x", 0)) != float(sx) or float(
+                    self.selected_node.get("y", 0)
+                ) != float(sy):
+                    self.mark_last_edited_node(self.selected_node)
 
     # ------------------------------------------------------------------
     # File I/O
@@ -1300,12 +1902,14 @@ class GBAUIEditor(tk.Tk):
         self.title("GBA UI Editor")
         self.status_var.set("Status: New layout created")
         self.selected_node = None
+        self._last_edit_node = None
         self.image_cache.clear()
         self.undo_stack.clear()
         self.redo_stack.clear()
         self.saved_scene = copy.deepcopy(self.scene)
         self.refresh_tree()
         self.render_canvas()
+        self.after(120, self._update_validation_status_bar)
 
     def load_json(self):
         if not self.confirm_discard_changes():
@@ -1321,13 +1925,15 @@ class GBAUIEditor(tk.Tk):
         self.title(f"GBA UI Editor - {os.path.basename(path)}")
         self.status_var.set(f"Status: Loaded {os.path.basename(path)}")
         self.selected_node = None
+        self._last_edit_node = None
         self.image_cache.clear()
         self.undo_stack.clear()
         self.redo_stack.clear()
         self.saved_scene = copy.deepcopy(self.scene)
         self.refresh_tree()
         self.render_canvas()
-        
+        self.after(120, self._update_validation_status_bar)
+
     def save_json(self):
         self.scene["screen"] = self.screen_name_var.get()
         if self.current_filepath:
@@ -1342,6 +1948,7 @@ class GBAUIEditor(tk.Tk):
         self.saved_scene = copy.deepcopy(self.scene)
         self.title(f"GBA UI Editor - {os.path.basename(path)}")
         self.status_var.set(f"Status: Saved at {time.strftime('%H:%M:%S')}")
+        self.after(120, self._update_validation_status_bar)
 
     def show_in_explorer(self):
         import subprocess

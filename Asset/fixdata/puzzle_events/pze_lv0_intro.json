@@ -1,0 +1,31 @@
+{
+  "version": 2,
+  "id": "PZE_LV0_INTRO",
+  "title_ja": "LV0 イントロ",
+  "lines": [
+    {
+      "speaker_id": "",
+      "face_id": "",
+      "position": "LEFT",
+      "image_id": "",
+      "text": "この倉庫では、樽を押して道を作ります。",
+      "bgm_id": "",
+      "se_id": "",
+      "stop_bgm": false,
+      "emotion_id": "",
+      "center_image_id": "paper_medium"
+    },
+    {
+      "speaker_id": "chara_mayo",
+      "face_id": "normal_1",
+      "position": "LEFT",
+      "image_id": "mayo_normal_1",
+      "text": "壁にぶつからないよう、ゆっくり進んでね。",
+      "bgm_id": "",
+      "se_id": "",
+      "stop_bgm": false,
+      "emotion_id": "",
+      "center_image_id": ""
+    }
+  ]
+}

@@ -1,18 +1,32 @@
 {
-  "version": 1,
+  "version": 2,
   "characters": [
     {
       "id": "chara_mayo",
       "name_ja": "マヨ",
-      "faces": [
-        { "face_id": "normal",  "image_id": "mayo_normal"  },
-        { "face_id": "happy1",  "image_id": "mayo_happy1"  },
-        { "face_id": "happy2",  "image_id": "mayo_happy2"  },
-        { "face_id": "happy3",  "image_id": "mayo_happy3"  },
-        { "face_id": "sad",     "image_id": "mayo_sad"     },
-        { "face_id": "angry",   "image_id": "mayo_angry"   },
-        { "face_id": "surprised","image_id": "mayo_surprised" }
-      ]
+      "faces": {
+        "normal_1": "mayo_normal_1",
+        "normal_2": "mayo_normal_2",
+        "normal_3": "mayo_normal_3",
+        "smile_1": "mayo_smile_1",
+        "smile_2": "mayo_smile_2",
+        "smile_3": "mayo_smile_3",
+        "sad_1": "mayo_sad_1",
+        "sad_2": "mayo_sad_2",
+        "sad_3": "mayo_sad_3",
+        "angry_1": "mayo_angry_1",
+        "angry_2": "mayo_angry_2",
+        "angry_3": "mayo_angry_3",
+        "surprised_1": "mayo_surprised_1",
+        "surprised_2": "mayo_surprised_2",
+        "surprised_3": "mayo_surprised_3",
+        "happy_1": "mayo_happy_1",
+        "happy_2": "mayo_happy_2",
+        "happy_3": "mayo_happy_3",
+        "think_1": "mayo_think_1",
+        "think_2": "mayo_think_2",
+        "think_3": "mayo_think_3"
+      }
     },
     {
       "id": "chara_b",

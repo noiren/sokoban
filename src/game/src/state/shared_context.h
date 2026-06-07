@@ -47,6 +47,9 @@ struct SharedContext {
     // パズルイベントの再生状態 (プレイセッション中のみ維持)
     bool puzzle_played_intro[64] = {false};
     bool puzzle_played_outro[64] = {false};
+
+    // デバッグ: true の間はギャラリー項目を常に解禁表示・操作可能（セーブは書き換えない）
+    bool debug_gallery_unlock_all = false;
 };
 
 #endif // SHARED_CONTEXT_H

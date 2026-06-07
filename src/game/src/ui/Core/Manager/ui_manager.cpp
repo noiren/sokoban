@@ -19,10 +19,7 @@
 #include "bn_sprite_items_spr_btn_l.h"
 #include "bn_sprite_items_spr_btn_r.h"
 #include "bn_sprite_items_spr_button_ok.h"
-#include "bn_sprite_items_spr_ch_mayo_normal.h"
-#include "bn_sprite_items_spr_ch_mayo_sad.h"
-#include "bn_sprite_items_spr_ch_mayo_smile.h"
-#include "bn_sprite_items_spr_ch_riri_normal.h"
+#include "generated/chara_portraits.gen.h"
 #include "bn_sprite_items_spr_face_icon_mayo.h"
 #include "bn_sprite_items_spr_face_icon_riri.h"
 #include "bn_sprite_items_spr_icon_clapper.h"
@@ -153,25 +150,50 @@ void UIManager::change_sprite_image(UIImage* node, const bn::string_view& image_
 
 void UIManager::change_sprite_image_by_id(UIImage* node, const bn::string_view& image_id) {
     if (!node) return;
-    // chara_portraits セット内の image_id -> image_no マッピング
-    // 順序は assets_list.json の chara_portraits.items に対応:
-    //   0: spr_ch_mayo_normal
-    //   1: spr_ch_mayo_smile
-    //   2: spr_ch_mayo_sad
-    //   3: spr_ch_mayo_angry
-    //   4: spr_ch_mayo_fun
-    //   5: spr_ch_riri_normal (chara_b 用素材が揃うまでの代替)
-    
-    if      (image_id == "mayo_normal")      change_sprite_image(node, "chara_portraits", 0);
-    else if (image_id == "chara_a_normal")   change_sprite_image(node, "chara_portraits", 0); // Alias
-    else if (image_id == "mayo_smile")       change_sprite_image(node, "chara_portraits", 1);
-    else if (image_id == "mayo_sad")         change_sprite_image(node, "chara_portraits", 2);
-    else if (image_id == "mayo_angry")       change_sprite_image(node, "chara_portraits", 3);
-    else if (image_id == "mayo_fun")         change_sprite_image(node, "chara_portraits", 4);
-    else if (image_id == "chara_b_normal" ||
-             image_id == "chara_b_smile" ||
-             image_id == "chara_b_sad")      change_sprite_image(node, "chara_portraits", 5);
-    // image_id が不明な場合は何もしない (既存のスプライトを維持)
+
+    // 立ち絵の対応表は generated/chara_portraits.gen.h に自動生成される
+    // (BMP名 spr_ch_<image_id>.bmp ⇔ image_id)。ここでは旧 image_id を
+    // 現行の正準 image_id へ寄せてから生成関数に委譲する。
+    bn::string_view id = image_id;
+    if      (id == "mayo_normal" || id == "chara_a_normal") id = "mayo_normal_1";
+    else if (id == "mayo_smile")  id = "mayo_smile_1";
+    else if (id == "mayo_sad")    id = "mayo_sad_1";
+    else if (id == "mayo_angry")  id = "mayo_angry_1";
+    else if (id == "mayo_fun")    id = "mayo_happy_1";
+    // chara_b は専用素材が揃うまでリリ立ち絵で代替
+    else if (id == "chara_b_normal" || id == "chara_b_smile" ||
+             id == "chara_b_happy1" || id == "chara_b_sad") id = "riri_normal";
+
+    auto spr = chara_portraits::create_by_id(id, node->get_x(), node->get_y());
+    if (spr) {
+        node->set_sprite(spr);
+    }
+    // 不明な image_id の場合は既存スプライトを維持
+}
+
+void UIManager::change_event_center_by_id(UIImage* node, const bn::string_view& image_id) {
+    if (!node) {
+        return;
+    }
+
+    if (image_id.empty()) {
+        node->set_visible(false);
+        return;
+    }
+
+    node->set_visible(true);
+
+    if (image_id == "paper_large") {
+        change_sprite_image(node, "ui_paper", 0);
+    } else if (image_id == "paper_medium") {
+        change_sprite_image(node, "ui_paper", 1);
+    } else if (image_id == "paper_small") {
+        change_sprite_image(node, "ui_paper", 2);
+    } else if (image_id == "paper_tail") {
+        change_sprite_image(node, "ui_paper", 3);
+    } else {
+        change_sprite_image_by_id(node, image_id);
+    }
 }
 
 void UIManager::_set_bg_from_string(bn::string_view bg_id) {
@@ -228,10 +250,7 @@ bn::optional<bn::sprite_ptr> UIManager::_create_sprite_from_set(const bn::string
         else if (img_no == 1) return bn::sprite_items::spr_stage_icon_cloud.create_sprite(x, y);
     }
     else if (img_set == "chara_portraits") {
-        if (img_no == 0) return bn::sprite_items::spr_ch_mayo_normal.create_sprite(x, y);
-        else if (img_no == 1) return bn::sprite_items::spr_ch_mayo_smile.create_sprite(x, y);
-        else if (img_no == 2) return bn::sprite_items::spr_ch_mayo_sad.create_sprite(x, y);
-        else if (img_no == 3) return bn::sprite_items::spr_ch_riri_normal.create_sprite(x, y);
+        return chara_portraits::create_by_index(img_no, x, y);
     }
     else if (img_set == "chara_mini") {
         if (img_no == 0) return bn::sprite_items::spr_mn_crying.create_sprite(x, y);

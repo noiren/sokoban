@@ -2,15 +2,16 @@
 #define GALLERY_STATE_H
 
 #include "state/state.h"
-#include "bn_vector.h"
+#include "bn_optional.h"
+#include "bn_regular_bg_ptr.h"
 #include "bn_sprite_ptr.h"
+#include "bn_vector.h"
 #include "bn_sprite_items_japanese_font.h"
-#include "save/save_data.h"
-#include "save/game_flags.h"
 #include "generated/generated_fix_data.h"
+#include "ui/GenericTextMenu/generic_text_menu.h"
 
 // ==========================================
-// ギャラリーメニュー
+// ギャラリーメニュー（ハブ画面：背景＋ホットスポット＋吹き出し）
 // ==========================================
 class GalleryState : public State {
 public:
@@ -24,8 +25,9 @@ public:
 private:
     void redraw(SharedContext& ctx);
 
-    int cursor_;
-    bn::vector<bn::sprite_ptr, 64> sprites_;
+    int cursor_ = 0;
+    bn::optional<bn::regular_bg_ptr> hub_bg_;
+    bn::vector<bn::sprite_ptr, 96> sprites_;
 };
 
 // ==========================================
@@ -41,14 +43,20 @@ public:
     void resume(StateManager& /*sm*/, SharedContext& /*ctx*/) override {}
 
 private:
-    void redraw(SharedContext& ctx);
-    void build_list(const SaveSlot& slot);
+    enum class SubPhase : uint8_t { List, Viewing };
 
-    // 表示可能なスチルのインデックス (g_gallery)
+    void redraw(SharedContext& ctx);
+    void build_list();
+    void rebuild_still_menu(const SharedContext& ctx);
+
     int items_[64];
     int item_count_;
-    int cursor_;
-    bn::vector<bn::sprite_ptr, 64> sprites_;
+
+    SubPhase sub_phase_;
+    GenericTextMenu menu_;
+    bn::optional<bn::regular_bg_ptr> viewer_bg_;
+
+    bn::vector<bn::sprite_ptr, 160> sprites_;
 };
 
 // ==========================================
@@ -64,13 +72,20 @@ public:
     void resume(StateManager& /*sm*/, SharedContext& /*ctx*/) override {}
 
 private:
+    enum class SubPhase : uint8_t { List, Viewing };
+
     void redraw(SharedContext& ctx);
-    void build_list(const SaveSlot& slot);
+    void build_list();
+    void rebuild_tachi_menu(const SharedContext& ctx);
 
     int items_[64];
     int item_count_;
-    int cursor_;
-    bn::vector<bn::sprite_ptr, 64> sprites_;
+
+    SubPhase sub_phase_;
+    GenericTextMenu menu_;
+    bn::optional<bn::sprite_ptr> viewer_sprite_;
+
+    bn::vector<bn::sprite_ptr, 160> sprites_;
 };
 
 // ==========================================
@@ -87,12 +102,14 @@ public:
 
 private:
     void redraw(SharedContext& ctx);
-    void build_list(const SaveSlot& slot);
+    void build_list();
+    void rebuild_event_menu(const SharedContext& ctx);
 
     int items_[64];
     int item_count_;
-    int cursor_;
-    bn::vector<bn::sprite_ptr, 64> sprites_;
+
+    GenericTextMenu menu_;
+    bn::vector<bn::sprite_ptr, 160> sprites_;
 };
 
 // ==========================================
@@ -109,7 +126,8 @@ public:
 
 private:
     void redraw(SharedContext& ctx);
-    void build_list(const SaveSlot& slot);
+    void build_list();
+    void rebuild_audio_menu(const SharedContext& ctx);
 
     // 0=BGM mode, 1=SE mode
     int audio_mode_;
@@ -122,7 +140,8 @@ private:
     int se_count_;
     int se_cursor_;
 
-    bn::vector<bn::sprite_ptr, 64> sprites_;
+    GenericTextMenu menu_;
+    bn::vector<bn::sprite_ptr, 160> sprites_;
 };
 
 #endif // GALLERY_STATE_H

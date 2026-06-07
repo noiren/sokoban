@@ -299,9 +299,12 @@ void EventState::update_finished(StateManager& sm, SharedContext& ctx) {
     }
 
     // ストーリーモードから呼ばれた場合は pop_state() で StoryState の resume() を起動
-    // それ以外（メニューから直接など）は従来通り change_state
+    // パズルオーバーレイ（PUZZLE の上に push した EVENT）の場合は pop でパズルを再開
+    // それ以外は change_state
     if (ctx.event_return_state == StateID::STORY) {
         ctx.story_step_completed = true;
+        sm.pop_state();
+    } else if (ctx.event_return_state == StateID::PUZZLE) {
         sm.pop_state();
     } else {
         sm.change_state(ctx.event_return_state);
@@ -341,12 +344,19 @@ void EventState::apply_line(int line_index) {
         ui_->set_name(bn::string_view());
     }
 
-    // 立ち絵の表示 (position に応じて左右に配置)
-    bn::string_view image_id(line.image_id);
-    if (line.position == FdPosition::Left) {
-        ui_->set_left_char(image_id);
+    ui_->clear_center_graphic();
+    if (line.center_image_id && line.center_image_id[0] != '\0') {
+        ui_->set_center_graphic(bn::string_view(line.center_image_id));
+        ui_->clear_left_char();
+        ui_->clear_right_char();
     } else {
-        ui_->set_right_char(image_id);
+        // 立ち絵の表示 (position に応じて左右に配置)
+        bn::string_view image_id(line.image_id);
+        if (line.position == FdPosition::Left) {
+            ui_->set_left_char(image_id);
+        } else {
+            ui_->set_right_char(image_id);
+        }
     }
 
     // テキスト設定 (タイプライター用: 最初は空)

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "categories": [
+    { "id": "normal",    "ja": "通常",   "variants": 3 },
+    { "id": "smile",     "ja": "笑顔",   "variants": 3 },
+    { "id": "sad",       "ja": "悲しみ", "variants": 3 },
+    { "id": "angry",     "ja": "怒り",   "variants": 3 },
+    { "id": "surprised", "ja": "驚き",   "variants": 3 },
+    { "id": "happy",     "ja": "喜び",   "variants": 3 },
+    { "id": "think",     "ja": "考え",   "variants": 3 }
+  ]
+}

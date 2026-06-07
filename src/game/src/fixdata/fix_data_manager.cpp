@@ -22,7 +22,7 @@ bn::string_view FixDataManager::find_face_resource(bn::string_view chara_id, FdF
     const FdCharacterEntry* chara = find_character(chara_id);
     if (chara && face_id != FdFaceId::None) {
         uint8_t idx = static_cast<uint8_t>(face_id);
-        if (idx < 21) {
+        if (idx < kFaceImageCount) {
             const char* img = chara->face_images[idx];
             if (img) {
                 return bn::string_view(img);
@@ -112,4 +112,18 @@ bool FixDataManager::is_event_unlocked(bn::string_view event_id, const SaveSlot&
         }
     }
     return has_rule;
+}
+
+void FixDataManager::unlock_all_gallery_item_flags(SaveSlot& slot, SaveData& save, int slot_index) const {
+    bool changed = false;
+    for (uint16_t i = 0; i < kGalleryCount; ++i) {
+        const int16_t f = g_gallery[i].unlock_flag;
+        if (f >= 0 && !save_slot_get_flag(slot, f)) {
+            save_slot_set_flag(slot, f, true);
+            changed = true;
+        }
+    }
+    if (changed) {
+        save_slot_save(save, slot_index);
+    }
 }
