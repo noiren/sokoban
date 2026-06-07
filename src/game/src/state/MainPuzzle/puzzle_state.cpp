@@ -11,6 +11,30 @@
 #include "game/levels.h"
 #include "save/user_data_puzzle.h"
 #include "bn_sprite_items_spr_player.h"
+#include "ui/Core/Components/ui_image.h"
+#include "audio/sound_manager.h"
+#include "generated/audio_dispatch_se.gen.h"
+
+namespace {
+
+constexpr int k_frames_after_move_fg   = 2;
+constexpr int k_frames_after_change_bg = 3;
+constexpr int k_frames_after_play_se   = 1;
+
+int frames_after_puzzle_event(EventType t) {
+    switch (t) {
+    case EventType::MOVE_FG:
+        return k_frames_after_move_fg;
+    case EventType::CHANGE_BG:
+        return k_frames_after_change_bg;
+    case EventType::PLAY_SE:
+        return k_frames_after_play_se;
+    default:
+        return 1;
+    }
+}
+
+} // namespace
 
 // =============================================================================
 // フェーズテーブルの実体定義（順番は PuzzlePhase enum と一致させること）
@@ -65,6 +89,13 @@ void PuzzleState::enter(StateManager& sm, SharedContext& ctx) {
         return;
     }
 
+}
+
+void PuzzleState::resume(StateManager& /*sm*/, SharedContext& /*ctx*/) {
+    // イベントオーバーレイから戻ったあと、HUD の立ち絵を確実に復帰させる
+    if (phase_ == PuzzlePhase::PLAYING || phase_ == PuzzlePhase::ANIMATING) {
+        refresh_rival_portrait();
+    }
 }
 
 void PuzzleState::update(StateManager& sm, SharedContext& ctx) {
@@ -123,6 +154,7 @@ void PuzzleState::enter_playing() {
             node->set_visible(false);
         }
     }
+    refresh_rival_portrait();
 }
 
 void PuzzleState::update_playing(StateManager& sm, SharedContext& ctx) {
@@ -209,10 +241,29 @@ void PuzzleState::exit_playing() {}
 // =============================================================================
 void PuzzleState::enter_animating() {
     current_event_index_ = 0;
-    anim_frame_ = 0;
-    // アニメーション開始前にマップを再描画（暫定：即時反映）
-    // TODO: イベントを1つずつ消費してアニメーションする実装に置き換える
+    anim_frame_          = 0;
+    event_chain_wait_    = 0;
+    // 盤面は try_move 完了後の最終状態（イベントは演出用キュー）
     redraw_map();
+}
+
+void PuzzleState::_finish_event_chain_animating() {
+    engine_.clear_events();
+    current_event_index_ = 0;
+    event_chain_wait_    = 0;
+
+    if (last_result_ == PuzzleEngine::Result::FAILED) {
+        change_phase(PuzzlePhase::FAILED);
+    } else if (last_result_ == PuzzleEngine::Result::CLEARED) {
+        change_phase(PuzzlePhase::CLEARED);
+    } else {
+        if (player_sprite_) {
+            player_anim_.emplace(bn::create_sprite_animate_action_forever(
+                *player_sprite_, 10, bn::sprite_items::spr_player.tiles_item(),
+                player_dir_ * 3, player_dir_ * 3, player_dir_ * 3, player_dir_ * 3));
+        }
+        change_phase(PuzzlePhase::PLAYING);
+    }
 }
 
 void PuzzleState::update_animating(StateManager& /*sm*/, SharedContext& /*ctx*/) {
@@ -220,33 +271,47 @@ void PuzzleState::update_animating(StateManager& /*sm*/, SharedContext& /*ctx*/)
     ++frame_counter_;
 
     if (move_anim_frames_ < move_anim_max_frames_) {
-        move_anim_frames_++;
-        return; // アニメーション中はここで待機
+        ++move_anim_frames_;
+        return;
     }
 
     const auto& events = engine_.events();
 
-    // 暫定実装：全イベントを1フレームで処理（移動アニメーション完了後に適用）
-    current_event_index_ = events.size();
+    if (events.empty()) {
+        _finish_event_chain_animating();
+        return;
+    }
+
+    if (event_chain_wait_ > 0) {
+        --event_chain_wait_;
+        return;
+    }
+
+    BN_ASSERT(current_event_index_ >= 0 && current_event_index_ <= events.size(),
+              "PuzzleState::update_animating: event index OOB");
 
     if (current_event_index_ >= events.size()) {
-        engine_.clear_events();
+        _finish_event_chain_animating();
+        return;
+    }
 
-        // ロジック結果に応じてフェーズ遷移
-        if (last_result_ == PuzzleEngine::Result::FAILED) {
-            change_phase(PuzzlePhase::FAILED);
-        } else if (last_result_ == PuzzleEngine::Result::CLEARED) {
-            change_phase(PuzzlePhase::CLEARED);
-        } else {
-            // アニメーションを待機状態に戻す
-            if (player_sprite_) {
-                player_anim_.emplace(bn::create_sprite_animate_action_forever(
-                    *player_sprite_, 10, bn::sprite_items::spr_player.tiles_item(),
-                    player_dir_ * 3, player_dir_ * 3, player_dir_ * 3, player_dir_ * 3));
-            }
-            change_phase(PuzzlePhase::PLAYING);
+    const PuzzleEvent& e = events[current_event_index_];
+
+    if (e.type == EventType::PLAY_SE) {
+        const SeId sid = static_cast<SeId>(e.se_id);
+        if (audio_dispatch::se_id_valid(sid)) {
+            SoundManager::instance().play_se(sid);
         }
     }
+
+    ++current_event_index_;
+
+    if (current_event_index_ >= events.size()) {
+        _finish_event_chain_animating();
+        return;
+    }
+
+    event_chain_wait_ = frames_after_puzzle_event(e.type);
 }
 
 void PuzzleState::exit_animating() {}
@@ -255,6 +320,7 @@ void PuzzleState::exit_animating() {}
 // フェーズ：FAILED（落下ミス）
 // =============================================================================
 void PuzzleState::enter_failed() {
+    hide_rival_portrait();
     if (ui_manager_) {
         if (auto* node = ui_manager_->get_text("start_text")) {
             node->set_text("FAILED! SELECT/R: RETRY");
@@ -282,6 +348,7 @@ void PuzzleState::exit_failed() {
 // フェーズ：CLEARED（クリア）
 // =============================================================================
 void PuzzleState::enter_cleared() {
+    hide_rival_portrait();
     if (ui_manager_) {
         if (auto* node = ui_manager_->get_text("clear_text")) {
             // やり込み：樽を一度も落とさなければ PERFECT 表示
@@ -352,8 +419,8 @@ void PuzzleState::exit_cleared() {}
 void PuzzleState::level_init() {
     engine_.load_level(current_level_);
     last_drawn_moves_ = -1;
+    last_hud_level_   = -1;
     frame_counter_    = 0;  // フレームカウンタをリセット
-    player_dir_       = 0;  // 向きをリセット
     player_dir_       = 0;  // 向きをリセット
     mid_events_fired_mask_ = 0;
 
@@ -387,15 +454,68 @@ void PuzzleState::redraw_map() {
 }
 
 void PuzzleState::update_hud() {
-    if (!ui_manager_) return;
+    if (!ui_manager_) {
+        return;
+    }
 
-    int current_moves = engine_.data().moves;
-    if (last_drawn_moves_ == current_moves) return; // 変化がなければ再描画しない
+    if (last_hud_level_ != current_level_) {
+        last_hud_level_ = current_level_;
+
+        if (auto* node = ui_manager_->get_text("stage_text")) {
+            bn::string<32> s = "ステージ ";
+            s.append(bn::to_string<8>(current_level_ + 1));
+            s.append("/");
+            s.append(bn::to_string<8>(get_num_levels()));
+            node->set_text(s);
+        }
+
+        refresh_rival_portrait();
+    }
+
+    const int current_moves = engine_.data().moves;
+    if (last_drawn_moves_ == current_moves) {
+        return;
+    }
 
     if (auto* node = ui_manager_->get_text("moves_text")) {
-        node->set_text(bn::to_string<16>(current_moves));
+        bn::string<24> t = "手 ";
+        t.append(bn::to_string<16>(current_moves));
+        node->set_text(t);
     }
     last_drawn_moves_ = current_moves;
+}
+
+void PuzzleState::refresh_rival_portrait() {
+    if (!ui_manager_) {
+        return;
+    }
+
+    UIImage* img = ui_manager_->get_image("rival_portrait");
+    if (!img) {
+        return;
+    }
+
+    BN_ASSERT(current_level_ >= 0 && current_level_ < NUM_LEVELS,
+              "PuzzleState::refresh_rival_portrait: level OOB");
+
+    if (level_shady_x[current_level_] >= 0) {
+        ui_manager_->change_sprite_image_by_id(img, "riri_normal");
+    } else {
+        ui_manager_->change_sprite_image_by_id(img, "mayo_normal");
+    }
+    img->set_visible(true);
+    img->set_horizontal_flip(true);
+    img->set_bg_priority(0);
+}
+
+void PuzzleState::hide_rival_portrait() {
+    if (!ui_manager_) {
+        return;
+    }
+    UIImage* img = ui_manager_->get_image("rival_portrait");
+    if (img) {
+        img->set_visible(false);
+    }
 }
 
 void PuzzleState::get_visual_player_pos(bn::fixed& px, bn::fixed& py) {

@@ -1,4 +1,5 @@
 #include "save_data.h"
+#include "save/game_flags.h"
 #include "bn_sram.h"
 
 // ==============================
@@ -18,6 +19,8 @@ void save_slot_init(SaveSlot& slot) {
     for (int i = 0; i < 32; i++) {
         slot.flags[i] = 0;
     }
+    // 既存仕様どおりプラクティスはデフォルト解禁（ロックしたい場合はフラグを落とす）
+    save_slot_set_flag(slot, FLAG_PRACTICE_UNLOCKED, true);
     slot._padding[0] = 0;
 }
 
@@ -32,15 +35,23 @@ bool save_slot_is_valid(const SaveSlot& slot) {
 bool save_data_load(SaveData& data) {
     bn::sram::read(data);
     bool any_valid = false;
+    bool migrated_flags = false;
     for (int i = 0; i < NUM_SAVE_SLOTS; i++) {
         if (!save_slot_is_valid(data.slots[i])) {
             save_slot_init(data.slots[i]);
         } else {
             any_valid = true;
+            // 旧セーブ（フラグ未使用時代）: メニューと挙動を一致させる
+            if (!save_slot_get_flag(data.slots[i], FLAG_PRACTICE_UNLOCKED)) {
+                save_slot_set_flag(data.slots[i], FLAG_PRACTICE_UNLOCKED, true);
+                migrated_flags = true;
+            }
         }
     }
     if (!any_valid) {
         // 全スロット不正 → 全初期化して書き込む
+        save_data_save(data);
+    } else if (migrated_flags) {
         save_data_save(data);
     }
     return any_valid;

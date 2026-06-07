@@ -12,6 +12,15 @@
         "image_id": "still_sokoban_main"
       },
       {
+        "type": "sprite",
+        "id": "rival_portrait",
+        "x": 92,
+        "y": -44,
+        "image_set": "chara_portraits",
+        "image_no": 0,
+        "visible": true
+      },
+      {
         "type": "text",
         "id": "moves_text",
         "x": -80,

@@ -2,6 +2,8 @@
 #include "state/Manager/state_manager.h"
 #include "input/input_manager.h"
 #include "audio/sound_manager.h"
+#include "save/game_flags.h"
+#include "save/save_data.h"
 
 // ==========================================
 // フェーズハンドラテーブルの定義
@@ -85,15 +87,17 @@ void MenuState::change_phase(MenuPhase next, SharedContext& ctx) {
 // ==========================================
 void MenuState::enter_main(SharedContext& ctx) {
     // SaveSlot のフラグを参照して解禁状況を設定
-    bool endless_unlocked  = false;
-    bool gallery_unlocked  = true; // ギャラリーは常時（将来フラグ参照も可）
+    bool endless_unlocked   = false;
+    bool practice_unlocked  = true;
+    bool gallery_unlocked   = true; // ギャラリーは常時（将来フラグ参照も可）
     if (ctx.save) {
         const SaveSlot& slot = ctx.save->slots[ctx.active_slot];
-        endless_unlocked = save_slot_get_flag(slot, FLAG_ENDLESS_UNLOCKED);
+        endless_unlocked  = save_slot_get_flag(slot, FLAG_ENDLESS_UNLOCKED);
+        practice_unlocked = save_slot_get_flag(slot, FLAG_PRACTICE_UNLOCKED);
     }
 
-    unlocked_flags_[0] = true;             // STORY
-    unlocked_flags_[1] = true;             // PRACTICE
+    unlocked_flags_[0] = true;              // STORY
+    unlocked_flags_[1] = practice_unlocked; // PRACTICE
     unlocked_flags_[2] = endless_unlocked; // ENDLESS
     unlocked_flags_[3] = gallery_unlocked; // GALLERY
     unlocked_flags_[4] = true;             // SETTINGS

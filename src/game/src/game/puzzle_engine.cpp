@@ -4,6 +4,7 @@
 
 // levels.h は puzzle_engine.cpp と同じ game/ ディレクトリにあるため、ファイル名のみで参照可
 #include "game/levels.h"
+#include "game/sokoban.h"
 
 // =============================================================================
 // 公開API
@@ -42,6 +43,33 @@ void PuzzleEngine::load_level(int level_id) {
 
     history_count_ = 0;
     history_head_ = 0;
+}
+
+void PuzzleEngine::load_from_game_state(const GameState& gs) {
+    BN_ASSERT(in_bounds(gs.player_x, gs.player_y),
+              "PuzzleEngine::load_from_game_state: player out of map");
+
+    for (int y = 0; y < MAP_H; ++y) {
+        for (int x = 0; x < MAP_W; ++x) {
+            data_.bg_map[y][x] = static_cast<BgTile>(gs.bg_map[y][x]);
+            data_.fg_map[y][x] = static_cast<FgObj>(gs.fg_map[y][x]);
+        }
+    }
+
+    data_.player_x        = gs.player_x;
+    data_.player_y        = gs.player_y;
+    data_.shady_x         = gs.shady_x;
+    data_.shady_y         = gs.shady_y;
+    if (!in_bounds(data_.shady_x, data_.shady_y)) {
+        data_.shady_x = -1;
+        data_.shady_y = -1;
+    }
+    data_.moves           = gs.moves;
+    data_.dropped_barrels = gs.dropped_barrels;
+
+    events_.clear();
+    history_count_ = 0;
+    history_head_   = 0;
 }
 
 PuzzleEngine::Result PuzzleEngine::try_move(int dx, int dy) {
@@ -118,6 +146,7 @@ PuzzleEngine::Result PuzzleEngine::try_move(int dx, int dy) {
 }
 
 void PuzzleEngine::change_bg(int x, int y, BgTile new_tile) {
+    BN_ASSERT(in_bounds(x, y), "PuzzleEngine::change_bg: tile coords out of map");
     data_.bg_map[y][x] = new_tile;
     push_event({EventType::CHANGE_BG,
                 (uint8_t)x, (uint8_t)y,

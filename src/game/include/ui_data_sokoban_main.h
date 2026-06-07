@@ -14,8 +14,10 @@ namespace ui_data_sokoban_main {
     constexpr int BG_SCROLL_Y = 0;
 
     // Sprites
-    constexpr int SPRITE_COUNT = 0;
-    constexpr ui_types::SpriteEntry* SPRITES = nullptr;
+    constexpr int SPRITE_COUNT = 1;
+    constexpr ui_types::SpriteEntry SPRITES[SPRITE_COUNT] = {
+        { "rival_portrait", "chara_portraits", 0, 92.0f, -44.0f, 0.0f, true },
+    };
 
     // Texts
     constexpr int TEXT_COUNT = 8;

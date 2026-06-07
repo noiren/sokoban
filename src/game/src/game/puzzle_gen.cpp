@@ -1,5 +1,6 @@
 #include "puzzle_gen.h"
 #include "bn_common.h"
+#include "bn_assert.h"
 
 // Simple LCG random number generator
 static int rng_state = 1;
@@ -40,6 +41,7 @@ static bool flood_check(const unsigned char map[MAP_H][MAP_W], int sx, int sy, i
 
     int top = 0;
 
+    BN_ASSERT(top < MAP_W * MAP_H, "puzzle_gen flood_check: stack overflow");
     stack[top++] = {sx, sy};
     visited[sy][sx] = true;
 
@@ -55,6 +57,7 @@ static bool flood_check(const unsigned char map[MAP_H][MAP_W], int sx, int sy, i
             if (nx >= 0 && nx < MAP_W && ny >= 0 && ny < MAP_H &&
                 !visited[ny][nx] && map[ny][nx] != BG_TILE_WALL) {
                 visited[ny][nx] = true;
+                BN_ASSERT(top < MAP_W * MAP_H, "puzzle_gen flood_check: stack overflow");
                 stack[top++] = {nx, ny};
             }
         }

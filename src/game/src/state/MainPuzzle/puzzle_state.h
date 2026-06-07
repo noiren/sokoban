@@ -34,7 +34,7 @@ public:
     void update(StateManager& sm, SharedContext& ctx) override;
     void exit(StateManager& sm, SharedContext& ctx) override;
     void pause(StateManager& sm, SharedContext& ctx) override {}
-    void resume(StateManager& sm, SharedContext& ctx) override {}
+    void resume(StateManager& sm, SharedContext& ctx) override;
 
 private:
     // --- フェーズテーブル駆動 ---
@@ -71,10 +71,13 @@ private:
     void level_init();
     void redraw_map();
     void update_hud();
+    void refresh_rival_portrait();
+    void hide_rival_portrait();
     void get_visual_player_pos(bn::fixed& px, bn::fixed& py);
     void update_camera();
     void update_player_sprite();
     bool _try_mid_puzzle_events(StateManager& sm, SharedContext& ctx);
+    void _finish_event_chain_animating();
 
     // --- メンバ変数 ---
     bn::optional<UIManager> ui_manager_;
@@ -85,10 +88,13 @@ private:
 
     int current_level_;
     int last_drawn_moves_;              // HUDの差分更新用
+    int last_hud_level_ = -1;          // ステージ表示・立ち絵の差分更新用
 
     // アニメーション制御
     int current_event_index_;
     int anim_frame_;
+    /// try_move 後のイベントキューを 1 件ずつ消化する際の待ちフレーム（0 で次を処理）
+    int event_chain_wait_ = 0;
     int frame_counter_;  // プレイ中の経過フレーム数（PLAYING + ANIMATING 中にインクリメント）
 
     // Removed tutorial triggers here

@@ -5,6 +5,8 @@
 #include "tile_handler.h"
 #include "bn_vector.h"
 
+struct GameState; // sokoban.h（手動生成盤面のロード用）
+
 // --- パズルのゲームロジック本体 ---
 // ・入力を受けて盤面を1手進める
 // ・ギミックの連鎖（氷・矢印・ワープ・ボロボロ床・シェイディAI）を処理する
@@ -21,6 +23,9 @@ public:
 
     // レベルデータをロードして盤面を初期化する
     void load_level(int level_id);
+
+    // puzzle_generate 等で構築した GameState をロードする（エンドレス用）
+    void load_from_game_state(const GameState& gs);
 
     // 入力を受けて1手進める。結果を返す。
     Result try_move(int dx, int dy);

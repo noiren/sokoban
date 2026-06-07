@@ -61,6 +61,8 @@ bool GenericTextMenu::push_item(int value, bn::string_view label) {
 }
 
 void GenericTextMenu::set_cursor(int index) {
+    BN_ASSERT(count_ <= 0 || (index >= 0 && index < count_),
+              "GenericTextMenu::set_cursor: index out of range");
     cursor_ = index;
     _clamp_cursor();
     _clamp_scroll();
